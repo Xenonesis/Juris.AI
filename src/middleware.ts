@@ -77,14 +77,14 @@ export async function middleware(req: NextRequest) {
     // Enhanced authentication check - check both cookies and session
     const isAuthenticated = !!supabaseAuthToken || !!sbSession || !!session;
     
-    console.log("Is authenticated:", isAuthenticated);
-    console.log("Is protected route:", isProtectedRoute);
-    
     // Protected routes that require authentication
     const protectedRoutes = ['/profile', '/chat'];
     const isProtectedRoute = protectedRoutes.some(route => 
       req.nextUrl.pathname === route || req.nextUrl.pathname.startsWith(`${route}/`)
     );
+    
+    console.log("Is authenticated:", isAuthenticated);
+    console.log("Is protected route:", isProtectedRoute);
     
     // If accessing a protected route without being authenticated, redirect to login
     if (isProtectedRoute && !isAuthenticated) {
