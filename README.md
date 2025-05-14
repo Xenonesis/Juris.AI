@@ -1,4 +1,4 @@
-# Law Advisor - AI-Powered Legal Assistant (Beta 0.2)
+# Law Advisor - AI-Powered Legal Assistant (Beta 0.3)
 
 A modern, user-friendly application that leverages multiple AI models to provide comprehensive legal advice, case studies, and win probability estimations.
 
@@ -65,18 +65,28 @@ A modern, user-friendly application that leverages multiple AI models to provide
 - **Minimalist Interface**: Clean, distraction-free workspace focusing on the legal content
 - **Intuitive Navigation**: Logical information architecture with clear user flows
 - **Visual Hierarchy**: Important information is emphasized through typography and spacing
+- **Contextual Help**: Tooltips and guidance embedded throughout the interface
 
 ### Design System
 
 - **Color Palette**: Professional color scheme with accessible contrast ratios
+  - Primary: Deep blue (#1E40AF) represents trust and professionalism
+  - Secondary: Light blue (#60A5FA) for interactive elements
+  - Accent: Gold (#FCD34D) for highlights and important information
+  - Neutrals: Slate grays for text and backgrounds
 - **Typography**: Clear hierarchical type system using modern sans-serif fonts
+  - Headings: Inter (600 weight)
+  - Body: Inter (400 weight)
+  - Legal citations: Roboto Mono
 - **Component Library**: Consistent UI elements through ShadCN UI
 - **Responsive Design**: Mobile-first approach with fluid layouts
 - **Dark Mode**: Carefully crafted dark theme for reduced eye strain
+- **Animation**: Subtle micro-interactions to enhance user experience
 
 ## Version History
 
-- **Beta 0.2** (Current): Enhanced design system implementation and UI improvements
+- **Beta 0.3** (Current): Expanded design system documentation and UI refinements
+- **Beta 0.2**: Enhanced design system implementation and UI improvements
 - **Beta 0.1**: Initial release with core functionality and UI
 
 ## Disclaimer
