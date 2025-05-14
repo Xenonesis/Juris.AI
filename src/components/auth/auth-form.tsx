@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import supabase from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/supabase-auth-provider';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { AuthResponse } from '@supabase/supabase-js';
 import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
@@ -29,11 +29,14 @@ export function AuthForm() {
   const getSupabaseClient = () => {
     try {
       // First try to use the default client
-      return supabase;
+      return createClient();
     } catch (e) {
       console.error("Error using default supabase client, creating a new one:", e);
       // If that fails, create a new client
-      return createClientComponentClient();
+      return createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
     }
   };
 

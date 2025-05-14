@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import supabase from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/supabase-auth-provider';
 import { MapPin, User, Phone, Mail, Calendar, FileText } from 'lucide-react';
 
@@ -205,8 +205,9 @@ export function ProfileForm() {
         // Get profile data if it exists - Using a different query approach
         console.log('Fetching profile for user:', user.id);
         
+        const supabase = createClient();
         // Try with filter() approach instead of eq()
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profileData, error: profileError }: { data: any; error: any } = await supabase
           .from('profiles')
           .select('*')
           .filter('id', 'eq', user.id)
@@ -215,7 +216,7 @@ export function ProfileForm() {
         console.log('Profile fetch response:', { profileData, profileError });
         
         if (profileError) {
-          // If no profile found (PGRST116), we'll handle it by using default values
+          // Record not found - normal if this is first login
           if (profileError.code === 'PGRST116') {
             console.log('No profile found for user - will be created when form is submitted');
             // Set default values
@@ -232,7 +233,7 @@ export function ProfileForm() {
             await refreshSession();
             
             // Try again with fresh session
-            const { data: retryData, error: retryError } = await supabase
+            const { data: retryData, error: retryError }: { data: any; error: any } = await supabase
               .from('profiles')
               .select('*')
               .filter('id', 'eq', user.id)
@@ -348,6 +349,7 @@ export function ProfileForm() {
 
       console.log('Saving profile data:', profileData);
 
+      const supabase = createClient();
       // Try upsert with simplified approach
       const { error } = await supabase
         .from('profiles')

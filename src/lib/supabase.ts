@@ -9,7 +9,7 @@ export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJ
 let supabase: SupabaseClient;
 
 // Check if localStorage contains any existing Supabase session tokens
-function checkExistingTokens() {
+function checkExistingTokens(): { key: string; value: string } | null {
   if (typeof window === 'undefined') return null;
   
   // Check multiple possible storage keys
@@ -43,14 +43,17 @@ try {
     console.log("Existing token found:", !!existingToken);
 
     supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      db: {
+        schema: 'public',
+      },
       auth: {
         storageKey: 'supabase-auth-token', // This matches the middleware's cookie name
+        autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        autoRefreshToken: true,
         flowType: 'pkce',
         storage: {
-          getItem: (key) => {
+          getItem: (key: string): string | null => {
             try {
               const itemStr = localStorage.getItem(key);
               if (!itemStr) {
@@ -73,7 +76,7 @@ try {
               return null;
             }
           },
-          setItem: (key, value) => {
+          setItem: (key: string, value: string): void => {
             try {
               console.log(`Setting auth item for key: ${key}`);
               localStorage.setItem(key, value);
@@ -86,7 +89,7 @@ try {
               console.error(`Error setting item in storage for key ${key}:`, error);
             }
           },
-          removeItem: (key) => {
+          removeItem: (key: string): void => {
             try {
               console.log(`Removing auth item for key: ${key}`);
               localStorage.removeItem(key);

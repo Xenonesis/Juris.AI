@@ -65,7 +65,7 @@ export function LegalQueryInput({
   return (
     <form onSubmit={onSubmit} className="w-full">
       <motion.div
-        variants={cardHover}
+        variants={cardHover()}
         initial="idle"
         whileHover="hover"
       >

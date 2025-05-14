@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import supabase from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { getAIResponse, getLegalAdvice } from '@/lib/ai-services';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -41,6 +41,7 @@ export function ChatComponent() {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       
@@ -123,6 +124,7 @@ export function ChatComponent() {
     setLoading(true);
     
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
@@ -199,7 +201,7 @@ export function ChatComponent() {
       
       // Process case_law if it exists
       if (Array.isArray(sources.case_law)) {
-        sanitized.case_law = sources.case_law.map(caseItem => {
+        sanitized.case_law = sources.case_law.map((caseItem: any) => {
           // Ensure each case has only expected fields with valid types
           return {
             id: String(caseItem.id || ''),
@@ -216,7 +218,7 @@ export function ChatComponent() {
       
       // Process statutes if they exist
       if (Array.isArray(sources.statutes)) {
-        sanitized.statutes = sources.statutes.map(statute => {
+        sanitized.statutes = sources.statutes.map((statute: any) => {
           // Ensure each statute has only expected fields with valid types
           return {
             id: String(statute.id || ''),
@@ -264,6 +266,7 @@ export function ChatComponent() {
       
       console.log('Saving message with structure:', JSON.stringify(sanitizedMessage, null, 2));
       
+      const supabase = createClient();
       const { error } = await supabase
         .from('chat_messages')
         .insert(sanitizedMessage);
@@ -458,6 +461,7 @@ export function ChatComponent() {
     try {
       console.log('Checking database schema...');
       
+      const supabase = createClient();
       // Query just one row to see table structure
       const { data, error } = await supabase
         .from('chat_messages')
@@ -495,6 +499,7 @@ export function ChatComponent() {
     try {
       console.log('Testing Supabase connection...');
       
+      const supabase = createClient();
       // Check authentication status
       const { data: authData, error: authError } = await supabase.auth.getSession();
       if (authError) {

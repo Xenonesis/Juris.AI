@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import supabase from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 type AuthContextType = {
@@ -27,7 +27,7 @@ export const useAuth = () => useContext(AuthContext);
 const getSupabaseClient = () => {
   try {
     // First try to use the default client
-    return supabase;
+    return createClient();
   } catch (e) {
     console.error("Error using default supabase client, creating a new one:", e);
     // If that fails, create a new client
@@ -61,7 +61,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         console.log('Auth provider - Initial session check:', !!currentSession);
         if (currentSession) {
           console.log('Auth provider - Session user:', currentSession.user.email);
-          console.log('Auth provider - Session expires:', new Date(currentSession.expires_at * 1000).toISOString());
+          console.log('Auth provider - Session expires:', currentSession.expires_at ? new Date(currentSession.expires_at * 1000).toISOString() : 'unknown');
           
           // Log token (remove first/last 5 chars for security)
           const token = currentSession.access_token;
@@ -83,22 +83,24 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
           setUser(currentUser);
           
           // Explicitly refresh token if it's getting close to expiry (24 hours)
-          const expiresAt = currentSession.expires_at * 1000; // convert to ms
-          const twentyFourHoursFromNow = Date.now() + 24 * 60 * 60 * 1000;
-          
-          if (expiresAt < twentyFourHoursFromNow) {
-            console.log("Auth provider - Token expiring soon, refreshing");
-            try {
-              const { data, error: refreshError } = await client.auth.refreshSession();
-              if (refreshError) {
-                console.error("Error refreshing token in provider:", refreshError);
-              } else {
-                console.log("Auth provider - Session refreshed successfully");
-                setSession(data.session);
-                setUser(data.user);
+          if (currentSession.expires_at) {
+            const expiresAt = currentSession.expires_at * 1000; // convert to ms
+            const twentyFourHoursFromNow = Date.now() + 24 * 60 * 60 * 1000;
+            
+            if (expiresAt < twentyFourHoursFromNow) {
+              console.log("Auth provider - Token expiring soon, refreshing");
+              try {
+                const { data, error: refreshError } = await client.auth.refreshSession();
+                if (refreshError) {
+                  console.error("Error refreshing token in provider:", refreshError);
+                } else {
+                  console.log("Auth provider - Session refreshed successfully");
+                  setSession(data.session);
+                  setUser(data.user);
+                }
+              } catch (refreshError) {
+                console.error("Exception refreshing token in provider:", refreshError);
               }
-            } catch (refreshError) {
-              console.error("Exception refreshing token in provider:", refreshError);
             }
           }
         }
@@ -185,7 +187,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       
       if (data.session) {
         console.log('Session refreshed successfully:', data.session.user.email);
-        console.log('New session expires:', new Date(data.session.expires_at * 1000).toISOString());
+        console.log('New session expires:', data.session.expires_at ? new Date(data.session.expires_at * 1000).toISOString() : 'unknown');
       } else {
         console.log('Session refresh returned no session');
       }

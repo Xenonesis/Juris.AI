@@ -1,4 +1,4 @@
-# Law Advisor - AI-Powered Legal Assistant (Beta 0.4)
+# Law Advisor - AI-Powered Legal Assistant (Beta 0.5)
 
 A modern, user-friendly application that leverages multiple AI models to provide comprehensive legal advice, case studies, and win probability estimations.
 
@@ -83,9 +83,19 @@ A modern, user-friendly application that leverages multiple AI models to provide
 - **Dark Mode**: Carefully crafted dark theme for reduced eye strain
 - **Animation**: Subtle micro-interactions to enhance user experience
 
+### Page Designs
+
+- **Landing Page**: Clean, professional layout with clear value proposition and CTA
+- **Auth Pages**: Streamlined login/signup flow with social authentication options
+- **Chat Interface**: Intuitive conversation design with AI response formatting
+- **Profile Dashboard**: User-friendly profile management with settings and history
+- **Legal Analysis**: Interactive displays for multi-model comparisons and case citations
+- **Results Visualization**: Clear presentation of win probability with supporting evidence
+
 ## Version History
 
-- **Beta 0.4** (Current): GitHub integration and comprehensive documentation updates
+- **Beta 0.5** (Current): Updated all pages, enhanced GitHub integration, expanded design documentation
+- **Beta 0.4**: GitHub integration and comprehensive documentation updates
 - **Beta 0.3**: Expanded design system documentation and UI refinements
 - **Beta 0.2**: Enhanced design system implementation and UI improvements
 - **Beta 0.1**: Initial release with core functionality and UI

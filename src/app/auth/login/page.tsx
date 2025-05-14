@@ -2,6 +2,7 @@
 
 import { AuthForm } from "@/components/auth/auth-form";
 import { motion } from "framer-motion";
+import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
@@ -45,7 +46,9 @@ export default function LoginPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <AuthForm />
+          <Suspense fallback={<div>Loading form...</div>}>
+            <AuthForm />
+          </Suspense>
         </motion.div>
       </motion.div>
     </div>
