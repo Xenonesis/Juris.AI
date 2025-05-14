@@ -1,4 +1,4 @@
-# Law Advisor - AI-Powered Legal Assistant (Beta 0.1)
+# Law Advisor - AI-Powered Legal Assistant (Beta 0.2)
 
 A modern, user-friendly application that leverages multiple AI models to provide comprehensive legal advice, case studies, and win probability estimations.
 
@@ -76,7 +76,8 @@ A modern, user-friendly application that leverages multiple AI models to provide
 
 ## Version History
 
-- **Beta 0.1** (Current): Initial release with core functionality and UI
+- **Beta 0.2** (Current): Enhanced design system implementation and UI improvements
+- **Beta 0.1**: Initial release with core functionality and UI
 
 ## Disclaimer
 
