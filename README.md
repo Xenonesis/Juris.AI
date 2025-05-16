@@ -1,4 +1,4 @@
-# Law Advisor - AI-Powered Legal Assistant (Beta 0.75)
+# Law Advisor - AI-Powered Legal Assistant (Beta 0.8)
 
 A modern, user-friendly application that leverages multiple AI models to provide comprehensive legal advice, case studies, and win probability estimations.
 
@@ -10,7 +10,10 @@ A modern, user-friendly application that leverages multiple AI models to provide
 - **Win Estimation**: Estimates the probability of winning a case using AI analysis
 - **Jurisdiction Selection**: Localizes legal advice based on selected jurisdiction
 - **Modern UI**: Built with Tailwind CSS and ShadCN UI for a responsive, mobile-first design
-- **Dark Mode Support**: Easily switch between light and dark themes
+- **Advanced Theme Management**: 
+    - Easily switch between light, dark, and system themes.
+    - Option to sync with the operating system's theme preference.
+    - Remembers the last used theme when system sync is disabled.
 
 ## Tech Stack
 
@@ -63,12 +66,14 @@ A modern, user-friendly application that leverages multiple AI models to provide
 
 ### UI/UX Design Principles
 
-- **User-Centric Approach**: Designed with legal professionals and laypeople in mind
-- **Accessibility**: WCAG 2.1 AA compliant design for inclusive user experience
-- **Minimalist Interface**: Clean, distraction-free workspace focusing on the legal content
-- **Intuitive Navigation**: Logical information architecture with clear user flows
-- **Visual Hierarchy**: Important information is emphasized through typography and spacing
-- **Contextual Help**: Tooltips and guidance embedded throughout the interface
+- **User-Centric Approach**: Designed with legal professionals and laypeople in mind, ensuring an intuitive and efficient experience.
+- **Accessibility**: Adherence to WCAG 2.1 AA guidelines to provide an inclusive user experience for all users.
+- **Minimalist Interface**: A clean, distraction-free workspace that prioritizes legal content and ease of use.
+- **Intuitive Navigation**: Logical information architecture and clear user flows for seamless interaction.
+- **Visual Hierarchy**: Strategic use of typography, spacing, and color to emphasize important information and guide user attention.
+- **Contextual Help**: Embedded tooltips and guidance throughout the interface to assist users.
+- **Responsive Design**: A mobile-first approach ensuring a consistent and optimal experience across all devices.
+- **Theming**: Comprehensive theme management allowing users to select light, dark, or system-synchronized themes for personalized comfort and reduced eye strain.
 
 ### Design System
 
@@ -97,7 +102,8 @@ A modern, user-friendly application that leverages multiple AI models to provide
 
 ## Version History
 
-- **Beta 0.75** (Current): Improved UI/UX, enhanced model accuracy, and added advanced case citation features
+- **Beta 0.8** (Current): Implemented advanced theme management with light, dark, and system sync options. Enhanced UI/UX for profile settings.
+- **Beta 0.75**: Improved UI/UX, enhanced model accuracy, and added advanced case citation features
 - **Beta 0.7**: Improved UI/UX, enhanced model accuracy, and added advanced case citation features
 - **Beta 0.6**: Improved UI/UX, enhanced model accuracy, and added advanced case citation features
 - **Beta 0.5**: Updated all pages, enhanced GitHub integration, expanded design documentation

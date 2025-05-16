@@ -58,7 +58,7 @@ export function NavigationBar() {
 
   const menuItems = [
     { id: 'home', label: "Home", href: "/", icon: <Home className="h-4 w-4" /> },
-    { id: 'about', label: "About", href: "#about", icon: <Info className="h-4 w-4" /> },
+    { id: 'about', label: "About", href: "/about", icon: <Info className="h-4 w-4" /> },
     { id: 'services', label: "Services", href: "#services", icon: <Sparkles className="h-4 w-4" /> },
     { id: 'legal-tools', label: "Legal Tools", href: "/legal-bert", icon: <Scale className="h-4 w-4" /> },
     { id: 'contact', label: "Contact", href: "#contact", icon: <Phone className="h-4 w-4" /> },
@@ -89,8 +89,8 @@ export function NavigationBar() {
             className="hidden md:flex items-center gap-6"
           >
             <ul className="flex items-center gap-4">
-              {menuItems.map((item, index) => {
-                const isActive = (pathname === item.href || (item.href.startsWith("#") && pathname === "/"));
+              {menuItems.map((item) => {
+                const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
                   <li
                     key={item.id}
@@ -223,8 +223,8 @@ export function NavigationBar() {
         >
           <nav>
             <ul className="flex flex-col gap-3 rounded-xl bg-background/95 shadow-lg px-3 py-2 border border-border">
-              {menuItems.map((item, index) => {
-                const isActive = (pathname === item.href || (item.href.startsWith("#") && pathname === "/"));
+              {menuItems.map((item) => {
+                const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
                   <li
                     key={item.id}
@@ -232,7 +232,7 @@ export function NavigationBar() {
                   >
                     <Link
                       href={item.href}
-                      className="text-muted-foreground hover:text-primary transition-colors px-2 py-1.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/70 flex items-center gap-2"
+                      className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 px-2 py-1.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                       onClick={() => setIsOpen(false)}
                       aria-current={isActive ? "page" : undefined}
                       tabIndex={0}

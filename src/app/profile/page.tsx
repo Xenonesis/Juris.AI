@@ -1,17 +1,53 @@
 "use client";
 
 import { ProfileForm } from "@/components/profile/profile-form";
-import { User, Shield, Bell, Download, LockKeyhole, Key } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { User, Shield, Bell, Download, Key, LockKeyhole } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"; // Added CardDescription
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { ApiKeysForm } from "@/components/profile/api-keys-form";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import { useTheme } from "next-themes"; // Import useTheme
 
 function ProfileContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("profile");
+  const { theme, setTheme } = useTheme(); // Get theme context
+
+  // Initialize syncWithSystem based on the current theme
+  const [syncWithSystem, setSyncWithSystem] = useState(theme === "system");
+  
+  // Store the last non-system theme. Default to 'light' if current is 'system' or undefined.
+  const [lastNonSystemTheme, setLastNonSystemTheme] = useState<string | undefined>(
+    theme && theme !== "system" ? theme : "light" 
+  );
+
+  // Effect to update the toggle if the theme is changed externally (e.g., via ThemeToggle)
+  // Also updates the lastNonSystemTheme if a specific theme (light/dark) is chosen.
+  useEffect(() => {
+    setSyncWithSystem(theme === "system");
+    if (theme && theme !== "system") {
+      setLastNonSystemTheme(theme);
+    }
+  }, [theme]);
+
+  const handleSyncToggle = (checked: boolean) => {
+    if (checked) {
+      // When turning sync ON
+      // We need to store the current theme if it's not 'system' before switching
+      if (theme && theme !== "system") {
+        setLastNonSystemTheme(theme);
+      }
+      setTheme("system");
+    } else {
+      // When turning sync OFF
+      // Revert to the last known non-system theme, or default to 'light'
+      setTheme(lastNonSystemTheme || "light");
+    }
+    // The useEffect above will update syncWithSystem state based on the new theme
+  };
 
   useEffect(() => {
     // Set active tab based on query parameter if it exists
@@ -84,9 +120,19 @@ function ProfileContent() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Security features coming soon. You'll be able to manage passwords, 
+                  Security features coming soon. You&apos;ll be able to manage passwords, 
                   two-factor authentication, and connected devices.
                 </p>
+                <div className="flex items-center space-x-2 pt-2">
+                  <Switch
+                    id="sync-theme"
+                    checked={syncWithSystem}
+                    onCheckedChange={handleSyncToggle} // Use the new handler
+                  />
+                  <Label htmlFor="sync-theme" className="text-sm font-medium">
+                    Sync with system theme (Dark/Light mode)
+                  </Label>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -121,8 +167,8 @@ function ProfileContent() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Notification settings coming soon. You'll be able to customize 
-                  email notifications, app alerts, and more.
+                  Notification settings coming soon. You&apos;ll be able to customize
+                  how you receive updates and alerts from Juris.ai.
                 </p>
               </CardContent>
             </Card>
@@ -157,4 +203,4 @@ export default function ProfilePage() {
       <ProfileContent />
     </Suspense>
   );
-} 
+}

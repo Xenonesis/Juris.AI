@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'; // Added CardFooter
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/supabase-auth-provider';
-import { Eye, EyeOff, Info, Key, Plus, Save, Trash } from 'lucide-react';
+import { Eye, EyeOff, Info, Key, Plus, Save, Trash, Copy, Check } from 'lucide-react'; // Added Copy and Check
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge'; // Added Badge
 
 interface ApiKey {
   id?: string;
@@ -29,18 +30,13 @@ export function ApiKeysForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showApiKeys, setShowApiKeys] = useState<Record<string, boolean>>({});
+  const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null); // State for copy feedback
   const [newKey, setNewKey] = useState<Partial<ApiKey>>({
     model_type: '',
     api_key: '',
   });
 
-  useEffect(() => {
-    if (user) {
-      fetchApiKeys();
-    }
-  }, [user]);
-
-  const fetchApiKeys = async () => {
+  const fetchApiKeys = useCallback(async () => { // Wrapped in useCallback
     if (!user) return;
     
     setLoading(true);
@@ -68,7 +64,13 @@ export function ApiKeysForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, supabase]); // Added supabase to dependency array
+
+  useEffect(() => {
+    if (user) {
+      fetchApiKeys();
+    }
+  }, [user, fetchApiKeys]); // Added fetchApiKeys to dependency array
 
   const handleAddKey = async () => {
     if (!user || !newKey.model_type || !newKey.api_key) {
@@ -148,6 +150,11 @@ export function ApiKeysForm() {
   const handleDeleteKey = async (id: string) => {
     if (!user) return;
     
+    // Optimistic update: remove key from UI immediately
+    const originalApiKeys = [...apiKeys];
+    setApiKeys(apiKeys.filter(key => key.id !== id));
+    setMessage(null); // Clear previous messages
+
     setLoading(true);
     try {
       const { error } = await supabase
@@ -155,10 +162,11 @@ export function ApiKeysForm() {
         .delete()
         .eq('id', id);
       
-      if (error) throw error;
-      
-      // Update local state
-      setApiKeys(apiKeys.filter(key => key.id !== id));
+      if (error) {
+        // Revert optimistic update if error occurs
+        setApiKeys(originalApiKeys);
+        throw error;
+      }
       
       setMessage({
         type: 'success',
@@ -166,6 +174,10 @@ export function ApiKeysForm() {
       });
     } catch (error) {
       console.error('Error deleting API key:', error);
+      // Revert optimistic update if error occurs (if not already reverted)
+      if (apiKeys.length !== originalApiKeys.length) {
+        setApiKeys(originalApiKeys);
+      }
       setMessage({
         type: 'error',
         text: 'Failed to delete API key. Please try again.'
@@ -182,146 +194,227 @@ export function ApiKeysForm() {
     });
   };
 
+  const handleCopyKey = (apiKey: string, id: string) => {
+    navigator.clipboard.writeText(apiKey);
+    setCopiedKeyId(id);
+    setMessage({ type: 'success', text: 'API Key copied to clipboard!' });
+    setTimeout(() => {
+      setCopiedKeyId(null);
+      setMessage(null); // Clear message after a few seconds
+    }, 2000);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8"> {/* Increased spacing */}
       {message && (
-        <Alert variant={message.type === 'error' ? 'destructive' : 'default'} className="mb-4">
-          <AlertTitle>{message.type === 'success' ? 'Success' : 'Error'}</AlertTitle>
+        <Alert variant={message.type === 'error' ? 'destructive' : 'default'} className="mb-6 transition-all duration-300 ease-in-out"> {/* Increased bottom margin */}
+          <AlertTitle>{message.type === 'success' ? 'Success!' : 'Error'}</AlertTitle>
           <AlertDescription>{message.text}</AlertDescription>
         </Alert>
       )}
       
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Your AI Model API Keys</h3>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Info className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs">
-                  Your API keys are stored securely and used by Juris.ai to generate AI responses using the model of your choice.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+      <Card className="shadow-lg border-border/40"> {/* Added shadow and border */}
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl flex items-center gap-2"> {/* Increased size and added gap */}
+              <Key className="h-6 w-6 text-primary" /> {/* Made icon larger */}
+              Your AI Model API Keys
+            </CardTitle>
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                    <Info className="h-5 w-5" /> {/* Made icon larger */}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs bg-popover text-popover-foreground p-3 rounded-md shadow-lg"> {/* Styled tooltip */}
+                  <p>
+                    Manage your API keys for various AI models. These keys are stored securely and enable Juris.ai to provide AI-powered features.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <CardDescription className="mt-1"> {/* Added margin top */}
+            Add, view, or remove API keys for services like OpenAI, Gemini, etc.
+          </CardDescription>
+        </CardHeader>
         
-        {apiKeys.length > 0 ? (
-          <div className="grid gap-4">
-            {apiKeys.map((key) => (
-              <Card key={key.id} className="bg-muted/50">
-                <CardContent className="pt-6 px-4 pb-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Key className="h-4 w-4 text-primary" />
-                        <span className="font-medium">{key.model_type}</span>
+        <CardContent className="space-y-6"> {/* Increased spacing */}
+          {apiKeys.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2"> {/* Changed to 2 columns on medium screens and increased gap */}
+              {apiKeys.map((key) => (
+                <Card key={key.id} className="bg-card border border-border/30 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out"> {/* Added border and shadow effects */}
+                  <CardHeader className="pb-3"> {/* Reduced padding bottom */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Key className="h-5 w-5 text-primary" /> {/* Made icon larger */}
+                        <span className="font-semibold text-lg text-foreground">{key.model_type}</span> {/* Increased font size and weight */}
                       </div>
-                      <div className="relative">
-                        <Input 
-                          type={showApiKeys[key.id as string] ? 'text' : 'password'} 
-                          value={key.api_key} 
-                          readOnly 
-                          className="pr-10 font-mono text-sm"
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full"
-                          onClick={() => toggleKeyVisibility(key.id as string)}
-                        >
-                          {showApiKeys[key.id as string] ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
+                      <Badge variant={showApiKeys[key.id as string] ? "secondary" : "outline"} className="text-xs">
+                        {showApiKeys[key.id as string] ? "Visible" : "Hidden"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3"> {/* Added spacing */}
+                    <div className="relative flex items-center">
+                      <Input 
+                        type={showApiKeys[key.id as string] ? 'text' : 'password'} 
+                        value={key.api_key} 
+                        readOnly 
+                        className="pr-20 font-mono text-sm bg-muted/30 border-border/50 focus-visible:ring-primary/50" // Added background and focus style
+                      />
+                      <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground" // Adjusted size and colors
+                                onClick={() => toggleKeyVisibility(key.id as string)}
+                              >
+                                {showApiKeys[key.id as string] ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              <p>{showApiKeys[key.id as string] ? "Hide" : "Show"} Key</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground" // Adjusted size and colors
+                                onClick={() => handleCopyKey(key.api_key, key.id as string)}
+                              >
+                                {copiedKeyId === key.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              <p>Copy Key</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </div>
+                    {key.updated_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Last updated: {new Date(key.updated_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </CardContent>
+                  <CardFooter className="pt-4 flex justify-end"> {/* Added padding top and alignment */}
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDeleteKey(key.id as string)}
                       disabled={loading}
+                      className="group hover:bg-destructive/90 transition-colors" // Added hover effect
                     >
-                      <Trash className="h-4 w-4 mr-1" />
+                      <Trash className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" /> {/* Added hover effect */}
                       Remove
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-muted/50 rounded-lg p-6 text-center">
-            <Key className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-            <h4 className="text-sm font-medium mb-1">No API Keys Added</h4>
-            <p className="text-sm text-muted-foreground">
-              Add API keys below to use your preferred AI models with Juris.ai
-            </p>
-          </div>
-        )}
-      </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-muted/20 border border-dashed border-border/50 rounded-lg p-8 text-center flex flex-col items-center justify-center min-h-[200px]"> {/* Enhanced empty state styling */}
+              <Key className="h-12 w-12 text-muted-foreground mb-4" /> {/* Made icon larger */}
+              <h4 className="text-lg font-semibold mb-2 text-foreground">No API Keys Yet</h4> {/* Increased font size */}
+              <p className="text-sm text-muted-foreground max-w-xs">
+                You haven&apos;t added any API keys. Add one below to connect your preferred AI models with Juris.ai.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
       
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-medium mb-4">Add New API Key</h3>
-        <div className="grid gap-4">
+      <Card className="shadow-lg border-border/40"> {/* Added shadow and border */}
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-2"> {/* Increased size and added gap */}
+            <Plus className="h-6 w-6 text-primary" /> {/* Made icon larger */}
+            Add or Update API Key
+          </CardTitle>
+          <CardDescription className="mt-1"> {/* Added margin top */}
+            Provide your API key for a specific AI model. If a key for the selected model already exists, it will be updated.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6"> {/* Increased gap */}
           <div>
-            <Label htmlFor="model_type">AI Model</Label>
+            <Label htmlFor="model_type" className="font-semibold text-foreground">AI Model Provider</Label> {/* Styled label */}
             <Select
               value={newKey.model_type || ''}
-              onValueChange={(value) => setNewKey({...newKey, model_type: value})}
+              onValueChange={(value) => {
+                setNewKey({...newKey, model_type: value });
+                setMessage(null); // Clear message on model change
+              }}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select AI model" />
+              <SelectTrigger className="mt-1 bg-input border-border/50 focus:border-primary focus:ring-primary/50"> {/* Styled trigger */}
+                <SelectValue placeholder="Select AI model provider" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover text-popover-foreground border-border/50"> {/* Styled content */}
                 <SelectItem value="gemini">Google Gemini</SelectItem>
                 <SelectItem value="mistral">Mistral AI</SelectItem>
-                <SelectItem value="openai">OpenAI</SelectItem>
+                <SelectItem value="openai">OpenAI (GPT Models)</SelectItem>
                 <SelectItem value="anthropic">Anthropic Claude</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div>
-            <Label htmlFor="api_key">API Key</Label>
-            <div className="relative">
+            <Label htmlFor="api_key" className="font-semibold text-foreground">API Key</Label> {/* Styled label */}
+            <div className="relative mt-1">
               <Input
                 id="api_key"
-                type="password"
-                placeholder="Enter your API key"
+                type="password" // Keep as password for security
+                placeholder="Enter your API key here"
                 value={newKey.api_key || ''}
-                onChange={(e) => setNewKey({...newKey, api_key: e.target.value})}
-                className="pr-10 font-mono"
+                onChange={(e) => {
+                  setNewKey({...newKey, api_key: e.target.value});
+                  setMessage(null); // Clear message on input change
+                }}
+                className="pr-10 font-mono bg-input border-border/50 focus:border-primary focus:ring-primary/50" // Styled input
               />
+              {/* It's generally better not to have a show/hide toggle for the *new* key input for simplicity and security focus during input */}
             </div>
+            {newKey.model_type && apiKeys.find(k => k.model_type === newKey.model_type) && (
+              <p className="text-xs text-amber-600 dark:text-amber-500 mt-2">
+                <Info className="h-3 w-3 inline mr-1" />
+                An API key for {newKey.model_type} already exists. Saving will update the existing key.
+              </p>
+            )}
           </div>
-          
+        </CardContent>
+        <CardFooter className="border-t border-border/30 pt-6"> {/* Added border and padding */}
           <Button 
-            className="w-full mt-2" 
+            className="w-full sm:w-auto group transition-all duration-300 ease-in-out hover:shadow-md" // Responsive width and hover effects
             onClick={handleAddKey}
             disabled={loading || !newKey.model_type || !newKey.api_key}
           >
-            <Save className="h-4 w-4 mr-2" />
-            Save API Key
+            <Save className="h-5 w-5 mr-2 group-hover:animate-pulse" /> {/* Made icon larger and added hover animation */}
+            {loading ? 'Saving...' : (apiKeys.find(k => k.model_type === newKey.model_type) ? 'Update Key' : 'Save New Key')}
           </Button>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
       
-      <div className="bg-muted/30 rounded-lg p-4 text-sm text-muted-foreground">
-        <div className="flex items-start gap-2">
-          <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="mb-1">Your API keys are stored securely in our database.</p>
-            <p>You will be charged according to the pricing model of each AI provider.</p>
-          </div>
-        </div>
-      </div>
+      <Alert variant="default" className="bg-muted/30 border-primary/20"> {/* Styled alert */}
+        <Info className="h-5 w-5 text-primary" /> {/* Made icon larger */}
+        <AlertTitle className="font-semibold text-foreground">Important Information</AlertTitle> {/* Styled title */}
+        <AlertDescription className="text-muted-foreground space-y-1 mt-1"> {/* Added spacing and margin */}
+          <p>Your API keys are encrypted and stored securely in our database.</p>
+          <p>Usage of these keys will be subject to the pricing and terms of service of the respective AI model providers (e.g., Google, OpenAI).</p>
+          <p>Ensure your keys have the necessary permissions and quotas for the intended use with Juris.ai.</p>
+        </AlertDescription>
+      </Alert>
     </div>
   );
-} 
+}
