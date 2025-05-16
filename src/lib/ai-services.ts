@@ -1,13 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { searchCasetextParallel, searchLexisNexis, searchWestlaw, LegalCase, Statute } from './legal-apis';
+import { getApiKey } from './api-key-service';
 
-// Initialize Gemini API - ensure you're using a valid API key in .env
-const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCYZrSd57RHna4ujKA5Q_rCRJ18oLe7z2o';
-const genAI = new GoogleGenerativeAI(geminiApiKey);
+// Default fallback API keys from environment variables
+const defaultGeminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCYZrSd57RHna4ujKA5Q_rCRJ18oLe7z2o';
+const defaultMistralApiKey = process.env.NEXT_PUBLIC_MISTRAL_API_KEY || 'lM5RfAcTeqAq2IYtMQjrgfdtlly9VeUE';
+const defaultOpenAIApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY || '';
+const defaultAnthropicApiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || '';
 
-// Initialize Mistral API - ensure you're using a valid API key in .env
-const mistralApiKey = process.env.NEXT_PUBLIC_MISTRAL_API_KEY || 'lM5RfAcTeqAq2IYtMQjrgfdtlly9VeUE';
+// API URLs
 const mistralApiUrl = 'https://api.mistral.ai/v1';
+const openaiApiUrl = 'https://api.openai.com/v1';
+const anthropicApiUrl = 'https://api.anthropic.com/v1';
 
 // Legal APIs
 const CASELAW_API_KEY = process.env.NEXT_PUBLIC_CASELAW_API_KEY || '2b9f1b0d7e3c4a5b8e9d0c1a2f3e4d5b';
@@ -20,8 +24,12 @@ const LEGAL_DISCLAIMER = "DISCLAIMER: This information is provided for general i
  * Handles chat with Gemini API
  * Note: Free tier has strict rate limits
  */
-export async function geminiChat(prompt: string): Promise<string> {
+export async function geminiChat(prompt: string, apiKey?: string): Promise<string> {
   try {
+    // Use provided API key or fall back to default
+    const geminiApiKey = apiKey || defaultGeminiApiKey;
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    
     // Create a chat instance with the correct model name
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Using Flash model (lower quota usage)
     
@@ -42,7 +50,12 @@ export async function geminiChat(prompt: string): Promise<string> {
     
     // Check for rate limit errors
     if (error.message && error.message.includes('429') && error.message.includes('quota')) {
-      return 'The Gemini AI service has reached its rate limit. Please try again later or switch to Mistral AI.';
+      return 'The Gemini AI service has reached its rate limit. Please try again later or switch to another AI model.';
+    }
+
+    // Check for API key errors
+    if (error.message && (error.message.includes('invalid API key') || error.message.includes('API key not valid'))) {
+      return 'The Gemini API key is invalid. Please check your API key in the settings.';
     }
     
     return 'Sorry, there was an error processing your request with Gemini.';
@@ -52,8 +65,11 @@ export async function geminiChat(prompt: string): Promise<string> {
 /**
  * Handles chat with Mistral API
  */
-export async function mistralChat(prompt: string): Promise<string> {
+export async function mistralChat(prompt: string, apiKey?: string): Promise<string> {
   try {
+    // Use provided API key or fall back to default
+    const mistralApiKey = apiKey || defaultMistralApiKey;
+    
     const response = await fetch(`${mistralApiUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -80,31 +96,176 @@ export async function mistralChat(prompt: string): Promise<string> {
 
     const data = await response.json();
     return data.choices[0].message.content;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error with Mistral AI:', error);
+    
+    // Check for API key errors
+    if (error.message && (
+      error.message.includes('invalid API key') || 
+      error.message.includes('API key not valid') ||
+      error.message.includes('401')
+    )) {
+      return 'The Mistral API key is invalid. Please check your API key in the settings.';
+    }
+    
     return 'Sorry, there was an error processing your request with Mistral.';
   }
 }
 
 /**
- * Gets AI response with fallback support
+ * Handles chat with OpenAI's GPT-4
+ */
+export async function openaiChat(prompt: string, apiKey?: string): Promise<string> {
+  try {
+    // Use provided API key or fall back to default
+    const openaiApiKey = apiKey || defaultOpenAIApiKey;
+    
+    if (!openaiApiKey) {
+      throw new Error('OpenAI API key not provided');
+    }
+    
+    const response = await fetch(`${openaiApiUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openaiApiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4', // Using GPT-4 for best legal understanding
+        messages: [
+          { 
+            role: 'user', 
+            content: prompt 
+          }
+        ],
+        temperature: 0.3, // Lower temperature for factual responses
+        max_tokens: 1000, // Allow for detailed legal analysis
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error: any) {
+    console.error('Error with OpenAI:', error);
+    
+    // Check for API key errors
+    if (error.message && (
+      error.message.includes('invalid API key') || 
+      error.message.includes('API key not valid') ||
+      error.message.includes('401')
+    )) {
+      return 'The OpenAI API key is invalid. Please check your API key in the settings.';
+    }
+    
+    // Check for rate limit errors
+    if (error.message && error.message.includes('429')) {
+      return 'The OpenAI service has reached its rate limit. Please try again later or switch to another AI model.';
+    }
+    
+    return 'Sorry, there was an error processing your request with OpenAI.';
+  }
+}
+
+/**
+ * Handles chat with Anthropic's Claude
+ */
+export async function claudeChat(prompt: string, apiKey?: string): Promise<string> {
+  try {
+    // Use provided API key or fall back to default
+    const anthropicApiKey = apiKey || defaultAnthropicApiKey;
+    
+    if (!anthropicApiKey) {
+      throw new Error('Anthropic API key not provided');
+    }
+    
+    const response = await fetch(`${anthropicApiUrl}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': anthropicApiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-opus-20240229', // Using Claude 3 Opus for best reasoning
+        messages: [
+          { 
+            role: 'user', 
+            content: prompt 
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 1000
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Anthropic API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.content[0].text;
+  } catch (error: any) {
+    console.error('Error with Claude AI:', error);
+    
+    // Check for API key errors
+    if (error.message && (
+      error.message.includes('invalid API key') || 
+      error.message.includes('API key not valid') ||
+      error.message.includes('401')
+    )) {
+      return 'The Anthropic/Claude API key is invalid. Please check your API key in the settings.';
+    }
+    
+    return 'Sorry, there was an error processing your request with Claude.';
+  }
+}
+
+/**
+ * Gets AI response with user's API key if available
  */
 export async function getAIResponse(
   message: string, 
-  provider: 'gemini' | 'mistral' = 'mistral' // Changed default to Mistral due to Gemini quota issues
+  provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' = 'mistral',
+  apiKeyMap: Record<string, string> = {}
 ): Promise<string> {
   try {
-    if (provider === 'mistral') {
-      return await mistralChat(message);
+    // Get the appropriate API key for the selected provider
+    const apiKey = getApiKey(apiKeyMap, provider, 
+      provider === 'mistral' ? defaultMistralApiKey :
+      provider === 'gemini' ? defaultGeminiApiKey :
+      provider === 'openai' ? defaultOpenAIApiKey :
+      provider === 'anthropic' ? defaultAnthropicApiKey : undefined
+    );
+    
+    switch (provider) {
+      case 'mistral':
+        return await mistralChat(message, apiKey || undefined);
+      case 'gemini':
+        return await geminiChat(message, apiKey || undefined);
+      case 'openai':
+        return await openaiChat(message, apiKey || undefined);
+      case 'anthropic':
+        return await claudeChat(message, apiKey || undefined);
+      default:
+        return await mistralChat(message, apiKey || undefined);
     }
-    return await geminiChat(message);
   } catch (error) {
     console.error('Error in getAIResponse:', error);
     
-    // If primary provider fails, try fallback
-    if (provider === 'gemini') {
+    // If primary provider fails, try fallback to Mistral
+    if (provider !== 'mistral') {
       console.log('Falling back to Mistral AI');
-      return await mistralChat(message);
+      const fallbackApiKey = getApiKey(apiKeyMap, 'mistral', defaultMistralApiKey);
+      return await mistralChat(message, fallbackApiKey || undefined);
     }
     
     return 'Sorry, all AI providers failed to process your request. Please try again later.';

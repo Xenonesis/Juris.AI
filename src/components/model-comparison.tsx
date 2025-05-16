@@ -94,7 +94,7 @@ export function ModelComparison({ results }: ModelComparisonProps) {
                 {Object.entries(results).map(
                   ([model, result]) =>
                     result && activeModel === model && (
-                      <TabsContent key={model} value={model} className="mt-4 space-y-4">
+                      <TabsContent key={`tab-content-${model}`} value={model} className="mt-4 space-y-4">
                         <motion.div 
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}

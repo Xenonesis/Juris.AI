@@ -17,8 +17,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Law Advisor - AI-Powered Legal Assistance",
-  description: "Get legal advice from multiple AI models with case studies and jurisdiction-specific guidance",
+  title: "Juris.Ai",
+  description: "Juris.Ai – AI-powered legal assistance. Fast, smart law answers from powerful AI with jurisdictional insight.",
+  icons: [
+    { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }
+  ],
 };
 
 export const viewport: Viewport = {

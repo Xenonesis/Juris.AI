@@ -10,7 +10,6 @@ import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/supabase-auth-provider';
 import { createBrowserClient } from '@supabase/ssr';
 import { AuthResponse } from '@supabase/supabase-js';
-import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 export function AuthForm() {
@@ -172,48 +171,8 @@ export function AuthForm() {
     }
   };
 
-  const formVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const staggerChildren = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const inputVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 24
-      }
-    }
-  };
-
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={formVariants}
-      className="w-full max-w-md mx-auto"
-    >
+    <div className="w-full max-w-md mx-auto animate-fadeIn">
       <Tabs defaultValue="login" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="login">Login</TabsTrigger>
@@ -228,13 +187,8 @@ export function AuthForm() {
             </CardHeader>
             <form onSubmit={handleSignIn}>
               <CardContent>
-                <motion.div 
-                  className="space-y-4"
-                  variants={staggerChildren}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <motion.div className="space-y-2" variants={inputVariants}>
+                <div className="space-y-4">
+                  <div className="space-y-2 transition-all duration-300">
                     <label htmlFor="email" className="text-sm font-medium">Email</label>
                     <Input
                       id="email"
@@ -245,8 +199,8 @@ export function AuthForm() {
                       required
                       className="transition-all focus:ring-2 focus:ring-primary/20"
                     />
-                  </motion.div>
-                  <motion.div className="space-y-2" variants={inputVariants}>
+                  </div>
+                  <div className="space-y-2 transition-all duration-300">
                     <label htmlFor="password" className="text-sm font-medium">Password</label>
                     <Input
                       id="password"
@@ -257,48 +211,46 @@ export function AuthForm() {
                       required
                       className="transition-all focus:ring-2 focus:ring-primary/20"
                     />
-                  </motion.div>
+                  </div>
                   
                   {error && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-3 text-sm bg-destructive/10 border border-destructive/30 text-destructive rounded-md flex items-center gap-2"
-                    >
-                      <AlertCircle className="h-4 w-4" />
-                      {error}
-                    </motion.div>
+                    <div className="p-3 rounded-md bg-destructive/10 text-destructive flex items-center gap-2 text-sm animate-fadeIn">
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <p>{error}</p>
+                    </div>
                   )}
                   
                   {success && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-3 text-sm bg-green-500/10 border border-green-500/30 text-green-600 rounded-md flex items-center gap-2"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      {success}
-                    </motion.div>
+                    <div className="p-3 rounded-md bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 flex items-center gap-2 text-sm animate-fadeIn">
+                      <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                      <p>{success}</p>
+                    </div>
                   )}
-                </motion.div>
+                </div>
               </CardContent>
-              <CardFooter>
-                <motion.div
-                  className="w-full"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+              <CardFooter className="flex justify-between">
+                <Button 
+                  type="button" 
+                  variant="link" 
+                  onClick={() => router.push('/auth/forgot-password')} 
+                  className="px-0"
                 >
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Logging in...
-                      </>
-                    ) : (
-                      'Login'
-                    )}
-                  </Button>
-                </motion.div>
+                  Forgot password?
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="transition-all duration-300"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-1">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    <span>Login</span>
+                  )}
+                </Button>
               </CardFooter>
             </form>
           </Card>
@@ -308,17 +260,12 @@ export function AuthForm() {
           <Card className="border-2 shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl">Create an account</CardTitle>
-              <CardDescription>Enter your details to create a new account</CardDescription>
+              <CardDescription>Sign up for a new account to get started</CardDescription>
             </CardHeader>
             <form onSubmit={handleSignUp}>
               <CardContent>
-                <motion.div 
-                  className="space-y-4"
-                  variants={staggerChildren}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <motion.div className="space-y-2" variants={inputVariants}>
+                <div className="space-y-4">
+                  <div className="space-y-2 transition-all duration-300">
                     <label htmlFor="signup-email" className="text-sm font-medium">Email</label>
                     <Input
                       id="signup-email"
@@ -329,67 +276,56 @@ export function AuthForm() {
                       required
                       className="transition-all focus:ring-2 focus:ring-primary/20"
                     />
-                  </motion.div>
-                  <motion.div className="space-y-2" variants={inputVariants}>
+                  </div>
+                  <div className="space-y-2 transition-all duration-300">
                     <label htmlFor="signup-password" className="text-sm font-medium">Password</label>
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Create a strong password"
+                      placeholder="Create a password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      minLength={6}
                       required
                       className="transition-all focus:ring-2 focus:ring-primary/20"
                     />
-                    <p className="text-xs text-muted-foreground">Password must be at least 6 characters</p>
-                  </motion.div>
+                    <p className="text-xs text-muted-foreground mt-1">Password must be at least 6 characters long</p>
+                  </div>
                   
                   {error && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-3 text-sm bg-destructive/10 border border-destructive/30 text-destructive rounded-md flex items-center gap-2"
-                    >
-                      <AlertCircle className="h-4 w-4" />
-                      {error}
-                    </motion.div>
+                    <div className="p-3 rounded-md bg-destructive/10 text-destructive flex items-center gap-2 text-sm animate-fadeIn">
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <p>{error}</p>
+                    </div>
                   )}
                   
                   {success && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-3 text-sm bg-green-500/10 border border-green-500/30 text-green-600 rounded-md flex items-center gap-2"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      {success}
-                    </motion.div>
+                    <div className="p-3 rounded-md bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 flex items-center gap-2 text-sm animate-fadeIn">
+                      <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                      <p>{success}</p>
+                    </div>
                   )}
-                </motion.div>
+                </div>
               </CardContent>
               <CardFooter>
-                <motion.div
-                  className="w-full"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                <Button 
+                  type="submit" 
+                  className="w-full transition-all duration-300"
+                  disabled={loading}
                 >
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating account...
-                      </>
-                    ) : (
-                      'Create Account'
-                    )}
-                  </Button>
-                </motion.div>
+                  {loading ? (
+                    <div className="flex items-center gap-1">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Creating account...</span>
+                    </div>
+                  ) : (
+                    <span>Sign Up</span>
+                  )}
+                </Button>
               </CardFooter>
             </form>
           </Card>
         </TabsContent>
       </Tabs>
-    </motion.div>
+    </div>
   );
 } 

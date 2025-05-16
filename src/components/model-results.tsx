@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Trophy, TrendingUp, Clock, Brain } from "lucide-react";
-import { fadeIn, cardHover } from "@/lib/motion";
 
 // Types for model performance metrics
 interface ModelPerformance {
@@ -87,28 +85,21 @@ export function ModelResults({ performances }: ModelResultsProps) {
       <div className="flex flex-wrap gap-4 justify-between items-center mb-2">
         <h2 className="text-xl font-bold">Model Performance Comparison</h2>
         {bestModel && (
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", duration: 0.5 }}
-          >
+          <div className="animate-fadeIn">
             <Badge className={`${modelInfo[bestModel as keyof typeof modelInfo].badgeColor} flex items-center gap-1.5 py-1.5 px-3`}>
               <Trophy className="w-3.5 h-3.5" />
               Best Model: {modelInfo[bestModel as keyof typeof modelInfo].name}
             </Badge>
-          </motion.div>
+          </div>
         )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Object.entries(performances).map(([model, metrics], index) => (
-          <motion.div
+          <div
             key={model}
-            variants={fadeIn("up", 0.1 * index)}
-            initial="hidden"
-            animate="show"
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            className="animate-fadeIn transition-transform duration-300 hover:scale-[1.02]"
+            style={{ animationDelay: `${index * 100}ms` }}
           >
             <Card className={`h-full overflow-hidden border-2 transition-all ${bestModel === model ? 'border-primary' : 'border-border'}`}>
               <CardContent className="p-4">
@@ -168,7 +159,7 @@ export function ModelResults({ performances }: ModelResultsProps) {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

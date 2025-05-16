@@ -1,4 +1,4 @@
-# Law Advisor - AI-Powered Legal Assistant (Beta 0.6)
+# Law Advisor - AI-Powered Legal Assistant (Beta 0.7)
 
 A modern, user-friendly application that leverages multiple AI models to provide comprehensive legal advice, case studies, and win probability estimations.
 
@@ -14,10 +14,13 @@ A modern, user-friendly application that leverages multiple AI models to provide
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15.3
-- **UI Framework**: Tailwind CSS 4
-- **Component Library**: ShadCN UI
-- **AI Integration**: Ready for OpenAI, Anthropic, Google AI, and Mistral
+| Technology       | Logo                  | Version | Description                                      |
+|-----------------|-----------------------|---------|--------------------------------------------------|
+| Next.js          | ![Next.js](public/next.svg) | 15.3    | React framework for building web applications     |
+| Tailwind CSS     | ![Tailwind CSS](public/file.svg) | 4       | Utility-first CSS framework                      |
+| ShadCN UI        | ![ShadCN UI](public/file.svg) |         | Component library for building user interfaces |
+| AI Integrations  | ![AI](public/globe.svg)     | Various  | OpenAI, Anthropic, Google AI, and Mistral ready |
+
 
 ## Getting Started
 
@@ -94,7 +97,8 @@ A modern, user-friendly application that leverages multiple AI models to provide
 
 ## Version History
 
-- **Beta 0.6** (Current): Improved UI/UX, enhanced model accuracy, and added advanced case citation features
+- **Beta 0.7** (Current): Improved UI/UX, enhanced model accuracy, and added advanced case citation features
+- **Beta 0.6**: Improved UI/UX, enhanced model accuracy, and added advanced case citation features
 - **Beta 0.5**: Updated all pages, enhanced GitHub integration, expanded design documentation
 - **Beta 0.4**: GitHub integration and comprehensive documentation updates
 - **Beta 0.3**: Expanded design system documentation and UI refinements

@@ -176,6 +176,10 @@
     animation: fadeIn 0.3s ease-in forwards;
   }
   
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in forwards;
+  }
+  
   .animate-fade-out {
     animation: fadeOut 0.3s ease-out forwards;
   }

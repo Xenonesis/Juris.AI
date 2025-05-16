@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Trophy, Bot, Copy, Check } from "lucide-react";
+import { Trophy, Bot, Copy, Check, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { fadeIn, cardHover } from "@/lib/motion";
+import { Separator } from "./ui/separator";
 
 interface ModelPerformance {
   accuracy: number;
@@ -34,6 +35,7 @@ interface BestModelResultProps {
 export function BestModelResult({ results, performances }: BestModelResultProps) {
   const [bestModel, setBestModel] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [formattedContent, setFormattedContent] = useState<string | null>(null);
   
   // Model information with names, colors, and descriptions
   const modelInfo = {
@@ -67,6 +69,23 @@ export function BestModelResult({ results, performances }: BestModelResultProps)
     },
   };
 
+  // Format the content to remove asterisks and improve readability
+  useEffect(() => {
+    if (bestModel && results[bestModel as keyof typeof results]) {
+      let content = results[bestModel as keyof typeof results] || "";
+      
+      // Remove asterisks from section titles and replace with proper styling
+      content = content
+        // Replace "**Title:**" patterns with clean headings
+        .replace(/\*\*(.*?):\*\*/g, "$1:")
+        // Remove remaining asterisks for emphasis
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/\*(.*?)\*/g, "$1");
+      
+      setFormattedContent(content);
+    }
+  }, [bestModel, results]);
+
   // Determine the best model based on overall performance score
   useEffect(() => {
     if (Object.keys(performances).length === 0) return;
@@ -96,13 +115,67 @@ export function BestModelResult({ results, performances }: BestModelResultProps)
     return <div className="p-6 text-center">No results available</div>;
   }
 
+  // Format paragraphs properly for better readability
+  const formatDisplayContent = (content: string | null) => {
+    if (!content) return null;
+    
+    const paragraphs = content.split('\n\n').filter(p => p.trim());
+    
+    return (
+      <>
+        {paragraphs.map((paragraph, index) => {
+          // Check if this is a section header (ends with colon and is short)
+          if (paragraph.trim().endsWith(':') && paragraph.length < 50) {
+            return (
+              <h3 key={index} className="text-lg font-semibold mt-3 mb-2 text-primary">
+                {paragraph.trim()}
+              </h3>
+            );
+          }
+          
+          // Check if this might be a list
+          if (paragraph.includes('\n')) {
+            const lines = paragraph.split('\n');
+            
+            // If lines start with numbers or dashes, format as a list
+            if (lines.some(line => /^\d+\.|\-/.test(line.trim()))) {
+              return (
+                <ul key={index} className="my-3 space-y-1 list-inside">
+                  {lines.map((line, lineIndex) => {
+                    const formattedLine = line
+                      .replace(/^(\d+\.\s*)/, "")
+                      .replace(/^(\-\s*)/, "");
+                    
+                    return (
+                      <li key={lineIndex} className="flex items-start">
+                        <ArrowRight className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-primary" />
+                        <span>{formattedLine.trim()}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              );
+            }
+          }
+          
+          // Regular paragraph
+          return (
+            <p key={index} className="my-2 text-sm sm:text-base">
+              {paragraph.trim()}
+            </p>
+          );
+        })}
+      </>
+    );
+  };
+
   return (
     <motion.div
       variants={cardHover()}
       initial="idle"
       whileHover="hover"
     >
-      <Card className="overflow-hidden transition-all border-2 border-primary">
+      <Card className="overflow-hidden transition-all border-2 border-primary shadow-lg">
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
@@ -126,7 +199,7 @@ export function BestModelResult({ results, performances }: BestModelResultProps)
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button variant="ghost" size="sm" onClick={handleCopy} disabled={copied}>
+                <Button variant="outline" size="sm" onClick={handleCopy} disabled={copied}>
                   {copied ? (
                     <>
                       <Check className="w-3.5 h-3.5 mr-1.5" />
@@ -149,16 +222,16 @@ export function BestModelResult({ results, performances }: BestModelResultProps)
               </p>
             </div>
             
+            <Separator className="my-1" />
+            
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="bg-muted/50 p-4 rounded-md border border-border"
+              className="bg-muted/50 p-5 rounded-md border border-border"
             >
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <p className="whitespace-pre-line text-sm sm:text-base mb-0">
-                  {results[bestModel as keyof typeof results]}
-                </p>
+                {formatDisplayContent(formattedContent)}
               </div>
             </motion.div>
             

@@ -24,11 +24,24 @@ CREATE TABLE IF NOT EXISTS public.chat_messages (
   ai_name TEXT -- Name of the AI provider that generated this message
 );
 
+-- Create API keys table for storing user's AI model API keys
+CREATE TABLE IF NOT EXISTS public.api_keys (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  model_type TEXT NOT NULL,
+  api_key TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id, model_type)
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_chat_messages_user_id ON public.chat_messages(user_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON public.chat_messages(created_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_created_at ON public.profiles(created_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_updated_at ON public.profiles(updated_at);
+CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON public.api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_model_type ON public.api_keys(model_type);
 
 -- Set up RLS (Row Level Security) policies
 -- Profiles: Users can only read and update their own profiles
@@ -73,6 +86,35 @@ BEGIN
     ) THEN
         DROP POLICY "Users can insert their own messages" ON public.chat_messages;
     END IF;
+    
+    -- Drop API keys policies if they exist
+    IF EXISTS (
+        SELECT 1 FROM pg_policy 
+        WHERE polname = 'Users can view their own API keys' AND polrelid = 'public.api_keys'::regclass
+    ) THEN
+        DROP POLICY "Users can view their own API keys" ON public.api_keys;
+    END IF;
+    
+    IF EXISTS (
+        SELECT 1 FROM pg_policy 
+        WHERE polname = 'Users can insert their own API keys' AND polrelid = 'public.api_keys'::regclass
+    ) THEN
+        DROP POLICY "Users can insert their own API keys" ON public.api_keys;
+    END IF;
+    
+    IF EXISTS (
+        SELECT 1 FROM pg_policy 
+        WHERE polname = 'Users can update their own API keys' AND polrelid = 'public.api_keys'::regclass
+    ) THEN
+        DROP POLICY "Users can update their own API keys" ON public.api_keys;
+    END IF;
+    
+    IF EXISTS (
+        SELECT 1 FROM pg_policy 
+        WHERE polname = 'Users can delete their own API keys' AND polrelid = 'public.api_keys'::regclass
+    ) THEN
+        DROP POLICY "Users can delete their own API keys" ON public.api_keys;
+    END IF;
 END $$;
 
 -- Create policies
@@ -103,6 +145,29 @@ CREATE POLICY "Users can insert their own messages"
   ON public.chat_messages
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
+
+-- API Keys: Users can only read, create, update and delete their own API keys
+ALTER TABLE public.api_keys ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own API keys"
+  ON public.api_keys
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own API keys"
+  ON public.api_keys
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own API keys"
+  ON public.api_keys
+  FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own API keys"
+  ON public.api_keys
+  FOR DELETE
+  USING (auth.uid() = user_id);
 
 -- Create a trigger to automatically create a profile when a new user signs up
 -- First check if the function exists and drop it if it does
@@ -138,4 +203,7 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 -- Create the trigger on auth.users
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user(); 
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Add comments to tables
+COMMENT ON TABLE public.api_keys IS 'Stores API keys for different AI models used by users'; 

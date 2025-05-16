@@ -57,9 +57,9 @@ export function LegalQueryInput({
   const isMobile = width > 0 && width < 640;
   
   const exampleQueries = [
-    "I have a dispute with my landlord over security deposit",
-    "What are my rights if my employer fired me without cause?",
-    "Can I challenge a speeding ticket if the speed limit sign was obscured?",
+    { id: 'landlord', text: "I have a dispute with my landlord over security deposit" },
+    { id: 'employer', text: "What are my rights if my employer fired me without cause?" },
+    { id: 'ticket', text: "Can I challenge a speeding ticket if the speed limit sign was obscured?" },
   ];
 
   return (
@@ -103,7 +103,7 @@ export function LegalQueryInput({
                 </span>
                 {exampleQueries.map((example, index) => (
                   <motion.div
-                    key={index}
+                    key={example.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index }}
@@ -113,11 +113,11 @@ export function LegalQueryInput({
                     <Badge 
                       variant="outline" 
                       className="cursor-pointer hover:bg-accent hover:border-primary/20 transition-colors py-1.5"
-                      onClick={() => setQuery(example)}
+                      onClick={() => setQuery(example.text)}
                     >
-                      {example.length > 30 && isMobile
-                        ? example.slice(0, 30) + '...' 
-                        : example}
+                      {example.text.length > 30 && isMobile
+                        ? example.text.slice(0, 30) + '...' 
+                        : example.text}
                     </Badge>
                   </motion.div>
                 ))}
@@ -150,7 +150,7 @@ export function LegalQueryInput({
       >
         <Alert className="mt-4 bg-muted border-muted-foreground/20">
           <AlertDescription className="text-xs text-muted-foreground">
-            <strong>Note:</strong> The information provided by Law Advisor is not a
+            <strong>Note:</strong> The information provided by Juris.Ai is not a
             substitute for professional legal advice. Always consult with a
             qualified attorney for your specific legal needs.
           </AlertDescription>

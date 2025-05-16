@@ -56,15 +56,19 @@ export function Footer() {
             className="space-y-4"
           >
             <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Law Advisor
+              Juris.Ai
             </h3>
             <p className="text-sm text-muted-foreground max-w-xs">
               AI-powered legal assistance platform helping users navigate complex legal questions with multi-model analysis.
             </p>
             <div className="flex items-center gap-4 pt-2">
-              {[Github, Linkedin, Mail].map((Icon, index) => (
+              {[
+                { id: 'github', icon: Github },
+                { id: 'linkedin', icon: Linkedin },
+                { id: 'mail', icon: Mail }
+              ].map(({ id, icon: Icon }) => (
                 <motion.a
-                  key={index}
+                  key={id}
                   href="#"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -116,7 +120,7 @@ export function Footer() {
           className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t mt-8 pt-6"
         >
           <p className="text-xs text-muted-foreground">
-            © {currentYear} Law Advisor. All rights reserved.
+            © {currentYear} Juris.Ai. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             Made with <Heart className="h-3 w-3 text-destructive" /> for a better legal experience

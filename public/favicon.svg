@@ -1,0 +1,17 @@
+<!--
+  Favicon for Law & AI App
+  Minimal: Simplified scales and AI orb
+  Size: 32x32, fits favicon specs
+-->
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="8" fill="#101820"/>
+  <!-- Central pillar -->
+  <rect x="15" y="5" width="2" height="12" rx="1" fill="#FFD700"/>
+  <!-- AI orb -->
+  <circle cx="16" cy="8" r="3" fill="#36C2F0" stroke="#FFD700" stroke-width="1"/>
+  <!-- Arms -->
+  <rect x="8" y="13" width="16" height="2" rx="1" fill="#FFD700"/>
+  <!-- Scales -->
+  <circle cx="10" cy="19" r="2" fill="#1647A8" stroke="#FFD700" stroke-width="1"/>
+  <circle cx="22" cy="19" r="2" fill="#1647A8" stroke="#FFD700" stroke-width="1"/>
+</svg>
