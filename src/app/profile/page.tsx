@@ -7,9 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ApiKeysForm } from "@/components/profile/api-keys-form";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-export default function ProfilePage() {
+function ProfileContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -148,5 +148,13 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="container py-8 md:py-12 max-w-5xl mx-auto px-4">Loading profile...</div>}>
+      <ProfileContent />
+    </Suspense>
   );
 } 

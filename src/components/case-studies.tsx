@@ -132,7 +132,7 @@ export function CaseStudies({ cases, caseStudies, selectedJurisdiction }: CaseSt
     return (
       <motion.div
         key={cs.title + (cs.year || '')}
-        variants={fadeIn("up", 0.15, 0)}
+        variants={fadeIn("up", 0.15)}
         initial="hidden"
         animate="show"
         className="mb-4"
