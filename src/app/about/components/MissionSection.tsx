@@ -12,24 +12,27 @@ const MissionSection = () => {
             Our Mission
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-muted-foreground space-y-5 text-base md:text-lg leading-relaxed">
-          <p className="text-lg md:text-xl">
-            At Juris.Ai, our core mission is to <strong className="text-foreground">democratize access to legal understanding and resources</strong> through the transformative power of artificial intelligence. We recognize that navigating the complexities of the legal system can be a daunting and often prohibitive experience for many.
+        <CardContent className="text-muted-foreground space-y-6 text-base md:text-lg leading-relaxed">
+          <p className="text-lg md:text-xl font-semibold text-foreground">
+            Empowering everyone with accessible legal understanding.
           </p>
           <p>
-            We are driven by the conviction that everyone deserves to comprehend their rights, understand legal documents, and access preliminary legal insights without facing exorbitant costs or an overwhelming deluge of jargon. Juris.Ai is engineered to be an <strong className="text-foreground">intuitive and intelligent partner</strong>, empowering individuals, students, and legal professionals alike.
+            At Juris.Ai, our mission is to <strong className="text-foreground">democratize access to legal information and resources</strong> using advanced artificial intelligence. We understand that the legal landscape can be complex and intimidating, creating significant barriers for individuals and even professionals.
           </p>
           <p>
-            Our goal is to bridge the critical gap in legal accessibility by providing sophisticated yet user-friendly tools that:
+            We believe that understanding your rights and navigating legal matters shouldn&apos;t require extensive legal training or prohibitive costs. Juris.Ai is built as your <strong className="text-foreground">intelligent and intuitive legal partner</strong>, designed to make legal concepts understandable and actionable for everyone.
           </p>
-          <ul className="list-disc list-inside space-y-2 pl-4 text-muted-foreground">
-            <li><strong className="text-foreground">Simplify Complexity:</strong> Translate dense legal texts into clear, understandable language.</li>
-            <li><strong className="text-foreground">Enhance Efficiency:</strong> Offer rapid analysis and insights, saving valuable time and effort.</li>
-            <li><strong className="text-foreground">Promote Education:</strong> Serve as a learning resource for those seeking to understand legal concepts and case law.</li>
-            <li><strong className="text-foreground">Foster Confidence:</strong> Equip users with the knowledge to approach legal matters with greater assurance.</li>
+          <p>
+            Our commitment is to bridge the gap in legal accessibility by providing sophisticated, user-friendly tools that deliver:
+          </p>
+          <ul className="list-disc list-inside space-y-3 pl-4 text-muted-foreground">
+            <li><strong className="text-foreground">Simplified Legal Language:</strong> Transforming complex legal documents and jargon into clear, easy-to-understand explanations.</li>
+            <li><strong className="text-foreground">Efficient Insights:</strong> Providing rapid analysis and relevant information to save you time and effort.</li>
+            <li><strong className="text-foreground">Educational Support:</strong> Serving as a valuable resource for learning about legal concepts, case law, and precedents.</li>
+            <li><strong className="text-foreground">Increased Confidence:</strong> Equipping you with the knowledge needed to approach legal situations with greater assurance.</li>
           </ul>
           <p>
-            We are committed to continuously advancing our AI capabilities and expanding our offerings to ensure Juris.Ai remains a <strong className="text-foreground">reliable, ethical, and indispensable resource</strong> in the evolving legal-tech landscape.
+            We are dedicated to the continuous evolution of our AI capabilities and the expansion of our services, ensuring Juris.Ai remains a <strong className="text-foreground">trusted, ethical, and essential tool</strong> in the dynamic legal technology space.
           </p>
         </CardContent>
       </Card>

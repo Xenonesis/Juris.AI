@@ -27,7 +27,6 @@ import { fadeIn } from "@/lib/motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -67,7 +66,7 @@ export function Footer() {
         { label: "About Us", href: "/about", icon: Users },
         { label: "Our Team", href: "#", icon: Building2 },
         { label: "Careers", href: "#", icon: Briefcase },
-        { label: "Contact", href: "#", icon: PhoneCall },
+        { label: "Contact", href: "/collaboration", icon: PhoneCall },
         { label: "Support", href: "#", icon: HelpCircle },
       ],
     },

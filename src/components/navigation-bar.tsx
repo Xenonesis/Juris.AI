@@ -61,7 +61,7 @@ export function NavigationBar() {
     { id: 'about', label: "About", href: "/about", icon: <Info className="h-4 w-4" /> },
     { id: 'services', label: "Services", href: "#services", icon: <Sparkles className="h-4 w-4" /> },
     { id: 'legal-tools', label: "Legal Tools", href: "/legal-bert", icon: <Scale className="h-4 w-4" /> },
-    { id: 'contact', label: "Contact", href: "#contact", icon: <Phone className="h-4 w-4" /> },
+    { id: 'contact', label: "Contact", href: "/collaboration", icon: <Phone className="h-4 w-4" /> },
   ];
 
   return (

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const AboutPage = () => {
   return (
-    <div className="container mx-auto px-4 py-12 md:py-20 bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-900">
+    <div className="container mx-auto px-4 py-16 md:py-24 bg-gradient-to-b from-background to-slate-50 dark:from-background dark:to-slate-900">
       <AboutHeader />
       <MissionSection />
       <ValueSection />

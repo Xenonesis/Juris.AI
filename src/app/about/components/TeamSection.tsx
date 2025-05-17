@@ -33,18 +33,18 @@ const TeamSection = () => {
       </h2>
       <div className="flex flex-wrap justify-center gap-10">
         {teamMembers.map((member) => (
-          <Card key={member.name} className="w-full max-w-md shadow-xl rounded-xl overflow-hidden bg-card hover:bg-card/90 transition-colors duration-300 group">
-            <CardHeader className="text-center pt-8 px-6 pb-2">
-              <Avatar className="w-24 h-24 md:w-28 md:h-28 mx-auto mb-4 border-2 border-primary/40 dark:border-primary/30 shadow-lg group-hover:scale-105 transition-transform duration-300">
+          <Card key={member.name} className="w-full max-w-sm shadow-xl rounded-xl overflow-hidden border border-border hover:border-primary/50 bg-card/80 backdrop-blur-sm group">
+            <CardHeader className="text-center pt-8 px-6 pb-4">
+              <Avatar className="w-28 h-28 md:w-32 md:h-32 mx-auto mb-4 border-2 border-primary/40 dark:border-primary/30 shadow-lg group-hover:scale-105 transition-transform duration-300">
                 {member.avatarUrl && <AvatarImage src={member.avatarUrl} alt={member.name} className="object-cover" />}
-                <AvatarFallback className="text-3xl bg-primary/10 text-primary">
+                <AvatarFallback className="text-4xl bg-primary/10 text-primary">
                   {member.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle className="text-2xl md:text-3xl font-bold mt-0 mb-1 text-card-foreground group-hover:text-primary transition-colors">
+              <CardTitle className="text-2xl md:text-3xl font-bold mt-0 mb-1 text-foreground group-hover:text-primary transition-colors">
                 {member.name}
               </CardTitle>
-              <p className="text-base text-primary/90 dark:text-primary/80 font-medium mb-3">
+              <p className="text-base text-primary/90 dark:text-primary/80 font-medium mb-4">
                 {member.role}
               </p>
             </CardHeader>
@@ -52,7 +52,7 @@ const TeamSection = () => {
               <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-6">
                 {member.bio}
               </p>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-center gap-4">
                 {member.portfolioUrl && (
                   <a href={member.portfolioUrl} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" size="sm" className="group/button bg-transparent hover:bg-primary/10 border-muted-foreground/40 hover:border-primary/70 text-muted-foreground hover:text-primary transition-colors duration-200">

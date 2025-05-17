@@ -2,7 +2,7 @@ import React from 'react';
 
 const AboutHeader = () => {
   return (
-    <header className="text-center mb-16 md:mb-20">
+    <header className="text-center mb-20 md:mb-24">
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent mb-4">
         About Juris.Ai
       </h1>
