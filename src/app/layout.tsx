@@ -7,6 +7,7 @@ import { NavigationBar } from "@/components/navigation-bar";
 import { PageTransition } from "@/components/page-transition";
 import { Footer } from "@/components/footer";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +63,7 @@ export default function RootLayout({
               </main>
               <Footer />
               <ScrollToTop />
+              <Toaster />
             </div>
           </SupabaseAuthProvider>
         </ThemeProvider>

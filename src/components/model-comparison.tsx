@@ -6,8 +6,8 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Badge } from "./ui/badge";
-import { Bot, Copy, Check } from "lucide-react";
-import { fadeIn, cardHover } from "@/lib/motion";
+import { Bot, Copy, Check, Globe } from "lucide-react";
+import { cardHover } from "@/lib/motion";
 
 interface ModelComparisonProps {
   results: {
@@ -16,9 +16,12 @@ interface ModelComparisonProps {
     gemini: string | null;
     mistral: string | null;
   };
+  jurisdiction?: string;
 }
 
-export function ModelComparison({ results }: ModelComparisonProps) {
+import { localJurisdictions } from "./jurisdiction-select";
+
+export function ModelComparison({ results, jurisdiction }: ModelComparisonProps) {
   const [activeModel, setActiveModel] = useState<"gpt" | "claude" | "gemini" | "mistral">("gpt");
   const [copied, setCopied] = useState(false);
 
@@ -57,6 +60,12 @@ export function ModelComparison({ results }: ModelComparisonProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Helper function to get jurisdiction label from value
+  function getJurisdictionLabel(value: string): string {
+    const jurisdiction = localJurisdictions.find(j => j.value === value);
+    return jurisdiction ? jurisdiction.label : value;
+  }
+
   return (
     <motion.div
       variants={cardHover()}
@@ -66,6 +75,14 @@ export function ModelComparison({ results }: ModelComparisonProps) {
       <Card className="overflow-hidden transition-all">
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col space-y-4">
+            {jurisdiction && (
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="text-xs py-0 px-2 bg-primary/5 flex items-center gap-1.5">
+                  <Globe className="h-3 w-3" />
+                  {getJurisdictionLabel(jurisdiction)} Jurisdiction
+                </Badge>
+              </div>
+            )}
             <Tabs defaultValue={activeModel} onValueChange={(value) => setActiveModel(value as "gpt" | "claude" | "gemini" | "mistral")}>
               <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1">
                 {Object.entries(results).map(

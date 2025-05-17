@@ -6,8 +6,12 @@
  */
 
 // API Constants
+// These would be used in real API implementations
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CASETEXT_API_KEY = process.env.NEXT_PUBLIC_CASETEXT_API_KEY || 'demo_key_casetext';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LEXISNEXIS_API_KEY = process.env.NEXT_PUBLIC_LEXISNEXIS_API_KEY || 'demo_key_lexisnexis';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const WESTLAW_API_KEY = process.env.NEXT_PUBLIC_WESTLAW_API_KEY || 'demo_key_westlaw';
 
 // Common types
@@ -140,22 +144,100 @@ function generateMockCases(query: string, jurisdiction: string, limit: number): 
   const courtMap: {[key: string]: string[]} = {
     'us': ['Supreme Court of the United States', 'U.S. Court of Appeals', 'U.S. District Court'],
     'uk': ['UK Supreme Court', 'Court of Appeal', 'High Court of Justice'],
-    'canada': ['Supreme Court of Canada', 'Federal Court of Canada', 'Ontario Court of Appeal'],
-    'australia': ['High Court of Australia', 'Federal Court of Australia', 'Supreme Court of New South Wales'],
+    'ca': ['Supreme Court of Canada', 'Federal Court of Canada', 'Ontario Court of Appeal'],
+    'au': ['High Court of Australia', 'Federal Court of Australia', 'Supreme Court of New South Wales'],
     'eu': ['European Court of Justice', 'European Court of Human Rights', 'General Court'],
     'in': ['Supreme Court of India', 'High Court of Delhi', 'High Court of Mumbai'],
     'np': ['Supreme Court of Nepal', 'High Court of Nepal', 'District Court of Kathmandu'],
     'cn': ['Supreme People\'s Court', 'High People\'s Court', 'Intermediate People\'s Court']
   };
   
+  // Map jurisdiction codes to jurisdiction-specific plaintiffs and defendants
+  const plaintiffMap: {[key: string]: string[]} = {
+    'us': ['Smith', 'Johnson', 'Brown', 'Davis', 'Wilson', 'Miller'],
+    'uk': ['Taylor', 'Jones', 'Williams', 'Singh', 'Brown', 'Evans'],
+    'ca': ['Tremblay', 'Roy', 'Gagnon', 'Lee', 'Wilson', 'MacDonald'],
+    'au': ['Smith', 'Jones', 'Williams', 'Brown', 'Wilson', 'Taylor'],
+    'eu': ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Dupont'],
+    'in': ['Sharma', 'Singh', 'Patel', 'Kumar', 'Agarwal', 'Verma'],
+    'np': ['Shrestha', 'Tamang', 'Rai', 'Gurung', 'Thapa', 'Sherpa'],
+    'cn': ['Zhang', 'Wang', 'Li', 'Liu', 'Chen', 'Yang']
+  };
+  
+  const defendantMap: {[key: string]: string[]} = {
+    'us': ['United States', 'City of New York', 'State of California', 'Department of Justice', 'Microsoft Inc.', 'Facebook Inc.'],
+    'uk': ['Crown Prosecution Service', 'National Health Service', 'British Airways', 'Royal Mail', 'City of London', 'BBC'],
+    'ca': ['Government of Canada', 'Province of Ontario', 'City of Toronto', 'Air Canada', 'Royal Bank of Canada', 'Canadian Broadcasting Corporation'],
+    'au': ['Commonwealth of Australia', 'State of New South Wales', 'City of Sydney', 'Qantas', 'National Australia Bank', 'Telstra'],
+    'eu': ['European Commission', 'Council of the European Union', 'Deutsche Bank', 'Volkswagen AG', 'Airbus SE', 'Total SE'],
+    'in': ['Union of India', 'State of Maharashtra', 'Delhi Development Authority', 'Tata Motors', 'Reliance Industries', 'State Bank of India'],
+    'np': ['Government of Nepal', 'Nepal Electricity Authority', 'Nepal Airlines', 'Nepal Bank', 'Nepal Telecom', 'Kathmandu Metropolitan City'],
+    'cn': ['People\'s Republic of China', 'Ministry of Commerce', 'Shanghai Municipal Government', 'Bank of China', 'China Mobile', 'Alibaba Group']
+  };
+  
   // Get courts for the jurisdiction or default to US
   const courts = courtMap[jurisdiction] || courtMap['us'];
   
-  // Common case name patterns
-  const plaintiffs = ['Smith', 'Johnson', 'Brown', 'Davis', 'Wilson', 'Miller', 'Moore', 'Taylor', 'Anderson', 'Thomas'];
-  const defendants = ['State', 'City of New York', 'United States', 'Jones Corp', 'ABC Company', 'Department of Justice', 'Microsoft', 'Apple Inc.', 'Facebook', 'Google'];
+  // Get jurisdiction-specific plaintiffs and defendants or default to US
+  const plaintiffs = plaintiffMap[jurisdiction] || plaintiffMap['us'];
+  const defendants = defendantMap[jurisdiction] || defendantMap['us'];
   
-  // Legal topics based on terms in the query
+  // Jurisdiction-specific legal terms
+  const legalTermMap: {[key: string]: {[key: string]: string}} = {
+    'us': {
+      'prosecution': 'United States',
+      'supreme_court': 'Supreme Court of the United States',
+      'constitution': 'U.S. Constitution',
+      'civil_procedure': 'Federal Rules of Civil Procedure'
+    },
+    'uk': {
+      'prosecution': 'Crown Prosecution Service',
+      'supreme_court': 'UK Supreme Court',
+      'constitution': 'Constitutional principles',
+      'civil_procedure': 'Civil Procedure Rules'
+    },
+    'ca': {
+      'prosecution': 'Crown',
+      'supreme_court': 'Supreme Court of Canada',
+      'constitution': 'Canadian Charter of Rights and Freedoms',
+      'civil_procedure': 'Federal Courts Rules'
+    },
+    'au': {
+      'prosecution': 'Commonwealth Director of Public Prosecutions',
+      'supreme_court': 'High Court of Australia',
+      'constitution': 'Australian Constitution',
+      'civil_procedure': 'Federal Court Rules'
+    },
+    'in': {
+      'prosecution': 'State',
+      'supreme_court': 'Supreme Court of India',
+      'constitution': 'Constitution of India',
+      'civil_procedure': 'Code of Civil Procedure'
+    },
+    'np': {
+      'prosecution': 'Government of Nepal',
+      'supreme_court': 'Supreme Court of Nepal',
+      'constitution': 'Constitution of Nepal',
+      'civil_procedure': 'Civil Procedure Code'
+    },
+    'cn': {
+      'prosecution': 'People\'s Procuratorate',
+      'supreme_court': 'Supreme People\'s Court',
+      'constitution': 'Constitution of the People\'s Republic of China',
+      'civil_procedure': 'Civil Procedure Law'
+    },
+    'eu': {
+      'prosecution': 'European Public Prosecutor\'s Office',
+      'supreme_court': 'European Court of Justice',
+      'constitution': 'Treaty on European Union',
+      'civil_procedure': 'European Rules of Civil Procedure'
+    }
+  };
+  
+  // Get the legal terms for this jurisdiction
+  const legalTerms = legalTermMap[jurisdiction] || legalTermMap['us'];
+  
+  // Legal topics based on terms in the query, adapted to jurisdiction
   const legalTopics: {[key: string]: {p: string[], d: string[]}} = {
     'eviction': {
       p: ['Tenant', 'Renter', 'Leaseholder'],
@@ -178,8 +260,13 @@ function generateMockCases(query: string, jurisdiction: string, limit: number): 
       d: ['Employer', 'Corporation', 'Company', 'Business'].concat(defendants)
     },
     'criminal': {
-      p: ['State', 'United States', 'People', 'Commonwealth', 'Prosecution'],
+      p: [legalTerms['prosecution'], 'People', 'Commonwealth'],
       d: plaintiffs
+    },
+    // Add a general case type to handle default cases
+    'general': {
+      p: plaintiffs.concat(['Petitioner', 'Applicant', 'Claimant']),
+      d: defendants.concat(['Respondent', 'State', 'Agency'])
     }
   };
   
@@ -192,14 +279,11 @@ function generateMockCases(query: string, jurisdiction: string, limit: number): 
     }
   }
   
-  // Get appropriate parties
-  const partySet = legalTopics[caseType] || {p: plaintiffs, d: defendants};
-  
   // Generate cases
   for (let i = 0; i < limit; i++) {
     // Select random elements
-    const plaintiff = partySet.p[Math.floor(Math.random() * partySet.p.length)];
-    const defendant = partySet.d[Math.floor(Math.random() * partySet.d.length)];
+    const plaintiff = legalTopics[caseType].p[Math.floor(Math.random() * legalTopics[caseType].p.length)];
+    const defendant = legalTopics[caseType].d[Math.floor(Math.random() * legalTopics[caseType].d.length)];
     const court = courts[Math.floor(Math.random() * courts.length)];
     
     // Generate a recent date
@@ -208,9 +292,19 @@ function generateMockCases(query: string, jurisdiction: string, limit: number): 
     const day = 1 + Math.floor(Math.random() * 28);
     const date = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     
-    // Generate a citation
+    // Generate a jurisdiction-specific citation
     const volume = 100 + Math.floor(Math.random() * 900);
-    const reporter = jurisdiction === 'us' ? 'U.S.' : (jurisdiction === 'uk' ? 'UKSC' : 'F.Supp.3d');
+    const reporterMap: {[key: string]: string} = {
+      'us': 'U.S.',
+      'uk': 'UKSC',
+      'ca': 'SCR',
+      'au': 'HCA',
+      'in': 'SCC',
+      'np': 'NKP',
+      'cn': 'SCPR',
+      'eu': 'CJEU'
+    };
+    const reporter = reporterMap[jurisdiction] || 'F.Supp.3d';
     const page = 100 + Math.floor(Math.random() * 900);
     
     // Calculate relevance with highest relevance for first result
@@ -223,13 +317,175 @@ function generateMockCases(query: string, jurisdiction: string, limit: number): 
       court: court,
       decision_date: date,
       jurisdiction: jurisdiction,
-      summary: `This case involves ${terms.join(', ')} in the context of ${caseType} law.`,
+      summary: generateCaseSummary(terms, caseType, jurisdiction, legalTerms),
       full_text_url: `https://example.com/cases/${jurisdiction}/${year}/${plaintiff.toLowerCase()}-v-${defendant.toLowerCase().replace(/\s+/g, '-')}`,
       relevance: relevance
     });
   }
   
   return cases;
+}
+
+// Generate jurisdiction-specific case summaries
+function generateCaseSummary(terms: string[], caseType: string, jurisdiction: string, legalTerms: {[key: string]: string}): string {
+  // Create jurisdiction-specific legal principles and terminology
+  const jurisdictionMap: {[key: string]: {principles: string[], terminology: string[]}} = {
+    'us': {
+      principles: [
+        'stare decisis',
+        'due process under the Fifth Amendment',
+        'equal protection under the Fourteenth Amendment',
+        'First Amendment protections',
+        'Fourth Amendment search and seizure principles'
+      ],
+      terminology: [
+        'federal jurisdiction',
+        'constitutional rights',
+        'Supreme Court precedent',
+        'federal regulations',
+        'state law claims'
+      ]
+    },
+    'uk': {
+      principles: [
+        'parliamentary sovereignty',
+        'rule of law',
+        'separation of powers',
+        'judicial precedent',
+        'duty of care'
+      ],
+      terminology: [
+        'statutory interpretation',
+        'common law principles',
+        'Crown proceedings',
+        'judicial review',
+        'ratio decidendi'
+      ]
+    },
+    'ca': {
+      principles: [
+        'reasonable expectation of privacy',
+        'Charter rights',
+        'provincial jurisdiction',
+        'duty to consult',
+        'reasonable doubt'
+      ],
+      terminology: [
+        'Canadian Charter analysis',
+        'provincial statutes',
+        'Crown liability',
+        'indigenous rights',
+        'reasonable person standard'
+      ]
+    },
+    'au': {
+      principles: [
+        'statutory interpretation',
+        'federalism',
+        'separation of powers',
+        'natural justice',
+        'duty of care'
+      ],
+      terminology: [
+        'Commonwealth jurisdiction',
+        'state powers',
+        'High Court precedent',
+        'administrative review',
+        'tortious liability'
+      ]
+    },
+    'in': {
+      principles: [
+        'constitutional supremacy',
+        'fundamental rights',
+        'directive principles',
+        'judicial review',
+        'separation of powers'
+      ],
+      terminology: [
+        'writ jurisdiction',
+        'constitutional remedies',
+        'public interest litigation',
+        'statutory interpretation',
+        'fundamental rights violations'
+      ]
+    },
+    'np': {
+      principles: [
+        'constitutional supremacy',
+        'fundamental rights',
+        'separation of powers',
+        'judicial independence',
+        'rule of law'
+      ],
+      terminology: [
+        'constitutional bench',
+        'writ petitions',
+        'public interest litigation',
+        'interim orders',
+        'civil code provisions'
+      ]
+    },
+    'cn': {
+      principles: [
+        'socialist legal system',
+        'people\'s democratic dictatorship',
+        'rule by law',
+        'administrative regulations',
+        'collective interests'
+      ],
+      terminology: [
+        'Supreme People\'s Court interpretation',
+        'administrative enforcement',
+        'civil code provisions',
+        'procuratorate supervision',
+        'civil disputes'
+      ]
+    },
+    'eu': {
+      principles: [
+        'proportionality',
+        'subsidiarity',
+        'direct effect',
+        'supremacy of EU law',
+        'uniform application'
+      ],
+      terminology: [
+        'directive implementation',
+        'preliminary rulings',
+        'member state obligations',
+        'harmonization measures',
+        'treaty provisions'
+      ]
+    }
+  };
+
+  // Get jurisdiction-specific legal language or default to US
+  const legalLanguage = jurisdictionMap[jurisdiction] || jurisdictionMap['us'];
+  
+  // Pick some relevant legal principles and terminology for this jurisdiction
+  const principle = legalLanguage.principles[Math.floor(Math.random() * legalLanguage.principles.length)];
+  const term = legalLanguage.terminology[Math.floor(Math.random() * legalLanguage.terminology.length)];
+  
+  // Get topics from the query
+  const topicPhrases = {
+    'eviction': ['landlord-tenant relationship', 'leasehold interests', 'property rights'],
+    'contract': ['contractual obligations', 'damages for breach', 'specific performance'],
+    'injury': ['duty of care', 'negligence', 'proximate cause'],
+    'employment': ['workplace rights', 'employer obligations', 'labor standards'],
+    'criminal': ['criminal liability', 'prosecutorial discretion', 'sentencing guidelines'],
+    'general': ['legal rights', 'judicial interpretation', 'statutory provisions']
+  };
+  
+  // Select appropriate phrases
+  const topicPhrase = topicPhrases[caseType as keyof typeof topicPhrases] || topicPhrases['general'];
+  const phrase = topicPhrase[Math.floor(Math.random() * topicPhrase.length)];
+  
+  // Include jurisdiction-specific constitution or legislation reference if available
+  const constitutionReference = legalTerms['constitution'] || 'applicable law';
+  
+  // Craft a jurisdiction-specific summary
+  return `This ${jurisdiction.toUpperCase()} jurisdiction case established important precedent regarding ${terms.join(', ')} in ${caseType} law. The court applied the principle of ${principle} and analyzed ${phrase} in the context of ${term}. The ruling cited ${constitutionReference} and established a framework for similar cases in ${jurisdiction.toUpperCase()} courts.`;
 }
 
 function generateMockStatutes(query: string, jurisdiction: string, limit: number): Statute[] {

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Trophy, Bot, Copy, Check, ArrowRight } from "lucide-react";
+import { Trophy, Copy, Check, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
-import { fadeIn, cardHover } from "@/lib/motion";
+import { cardHover } from "@/lib/motion";
 import { Separator } from "./ui/separator";
 
 interface ModelPerformance {
@@ -30,9 +30,12 @@ interface BestModelResultProps {
     gemini?: ModelPerformance;
     mistral?: ModelPerformance;
   };
+  jurisdiction?: string;
 }
 
-export function BestModelResult({ results, performances }: BestModelResultProps) {
+import { localJurisdictions } from "./jurisdiction-select";
+
+export function BestModelResult({ results, performances, jurisdiction }: BestModelResultProps) {
   const [bestModel, setBestModel] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [formattedContent, setFormattedContent] = useState<string | null>(null);
@@ -169,6 +172,12 @@ export function BestModelResult({ results, performances }: BestModelResultProps)
     );
   };
 
+  // Helper function to get jurisdiction label from value
+  function getJurisdictionLabel(value: string): string {
+    const jurisdiction = localJurisdictions.find(j => j.value === value);
+    return jurisdiction ? jurisdiction.label : value;
+  }
+
   return (
     <motion.div
       variants={cardHover()}
@@ -178,7 +187,15 @@ export function BestModelResult({ results, performances }: BestModelResultProps)
       <Card className="overflow-hidden transition-all border-2 border-primary shadow-lg">
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+            <div className="flex flex-col space-y-2 mb-4">
+              {jurisdiction && (
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs py-0 px-2 bg-primary/5">
+                    {getJurisdictionLabel(jurisdiction)} Jurisdiction
+                  </Badge>
+                </div>
+              )}
+              <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <Badge className={`${modelInfo[bestModel as keyof typeof modelInfo].badgeColor} flex items-center gap-1.5 py-1.5 px-3`}>
                   <Trophy className="w-3.5 h-3.5 mr-1" />
@@ -213,6 +230,7 @@ export function BestModelResult({ results, performances }: BestModelResultProps)
                   )}
                 </Button>
               </motion.div>
+            </div>
             </div>
             
             <div className="flex items-center gap-2 my-2">

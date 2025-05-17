@@ -8,8 +8,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
-import { cardHover, fadeIn } from "@/lib/motion";
-import { useState, useEffect } from "react";
+import { cardHover } from "@/lib/motion";
+import { useState, useEffect, useMemo } from "react";
 
 // Custom hook for window width
 function useWindowSize() {
@@ -45,6 +45,7 @@ interface LegalQueryInputProps {
   setQuery: (query: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
+  jurisdiction?: string;
 }
 
 export function LegalQueryInput({
@@ -52,16 +53,78 @@ export function LegalQueryInput({
   setQuery,
   onSubmit,
   isLoading,
+  jurisdiction = 'us',
 }: LegalQueryInputProps) {
   const { width } = useWindowSize();
   const isMobile = width > 0 && width < 640;
   
-  const exampleQueries = [
-    { id: 'landlord', text: "I have a dispute with my landlord over security deposit" },
-    { id: 'employer', text: "What are my rights if my employer fired me without cause?" },
-    { id: 'ticket', text: "Can I challenge a speeding ticket if the speed limit sign was obscured?" },
-  ];
+  // Jurisdiction-specific suggestions for fallback
+  const localSuggestions = useMemo<Record<string, Array<{id: string, text: string}>>>(() => ({
+    'us': [
+      { id: 'us-bankruptcy', text: "How do I file for bankruptcy protection?" },
+      { id: 'us-will', text: "What are the requirements for a valid will?" },
+      { id: 'us-discrimination', text: "Can I sue my employer for discrimination?" },
+    ],
+    'uk': [
+      { id: 'uk-tenant', text: "What are my rights as a tenant in the UK?" },
+      { id: 'uk-parking', text: "How do I appeal a parking fine in London?" },
+      { id: 'uk-divorce', text: "What is the process for divorce in England?" },
+    ],
+    'ca': [
+      { id: 'ca-leave', text: "How does parental leave work in Canada?" },
+      { id: 'ca-traffic', text: "What are my rights in a traffic stop?" },
+      { id: 'ca-will', text: "How do I contest a will in Canada?" },
+    ],
+    'au': [
+      { id: 'au-defamation', text: "What are the defamation laws in Australia?" },
+      { id: 'au-dismissal', text: "How do I fight an unfair dismissal?" },
+      { id: 'au-tenant', text: "What are my rights as a tenant in Sydney?" },
+    ],
+    'in': [
+      { id: 'in-rti', text: "How do I file an RTI application?" },
+      { id: 'in-property', text: "What are the steps to fight a property dispute?" },
+      { id: 'in-bail', text: "How does the bail process work in India?" },
+    ],
+    'np': [
+      { id: 'np-inheritance', text: "What are property inheritance laws in Nepal?" },
+      { id: 'np-company', text: "How do I register a company in Nepal?" },
+      { id: 'np-labor', text: "What are labor laws for foreign employment?" },
+    ],
+    'cn': [
+      { id: 'cn-business', text: "What are the business registration requirements?" },
+      { id: 'cn-ip', text: "How do intellectual property rights work in China?" },
+      { id: 'cn-labor', text: "What is the process for labor dispute resolution?" },
+    ],
+    'eu': [
+      { id: 'eu-gdpr', text: "What are my GDPR rights as a consumer?" },
+      { id: 'eu-consumer', text: "How do EU consumer protection laws work?" },
+      { id: 'eu-employment', text: "What should I know about EU employment contracts?" },
+    ]
+  }), []);
+  
+  const defaultSuggestions = useMemo(() => [
+    { id: 'tenant', text: "What are my tenant rights regarding property repairs?" },
+    { id: 'inheritance', text: "How do I contest a will in probate court?" },
+    { id: 'contract', text: "Can I void a contract signed under false pretenses?" },
+  ], []);
+  
+  // State for the suggestions
+  const initialSuggestions = useMemo(() => localSuggestions[jurisdiction] || defaultSuggestions, [jurisdiction, localSuggestions, defaultSuggestions]);
+  const [suggestions, setSuggestions] = useState(initialSuggestions);
+  const [suggestionsSource, setSuggestionsSource] = useState<'user' | 'server' | 'default'>('default');
 
+  // Effect to update suggestions when jurisdiction changes
+  useEffect(() => {
+    // Just use the local suggestions based on jurisdiction
+    if (localSuggestions[jurisdiction]) {
+      setSuggestions(localSuggestions[jurisdiction]);
+      setSuggestionsSource('server'); // Mark as server-sourced to show the icon
+    } else {
+      setSuggestions(defaultSuggestions);
+      setSuggestionsSource('default');
+    }
+  }, [jurisdiction, localSuggestions, defaultSuggestions]); // Include all dependencies
+  
   return (
     <form onSubmit={onSubmit} className="w-full">
       <motion.div
@@ -101,7 +164,23 @@ export function LegalQueryInput({
                 <span className="text-sm text-muted-foreground flex items-center gap-1 mr-1">
                   <Lightbulb className="h-4 w-4" /> Try:
                 </span>
-                {exampleQueries.map((example, index) => (
+                {suggestionsSource !== 'default' && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="outline" className="text-xs px-1 py-0 border-muted-foreground/30 cursor-help">
+                          {suggestionsSource === 'user' ? '👤' : '🔥'}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">
+                          {suggestionsSource === 'user' ? 'Based on your history' : 'Popular queries'}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                {suggestions.map((example, index) => (
                   <motion.div
                     key={example.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -112,8 +191,8 @@ export function LegalQueryInput({
                   >
                     <Badge 
                       variant="outline" 
-                      className="cursor-pointer hover:bg-accent hover:border-primary/20 transition-colors py-1.5"
-                      onClick={() => setQuery(example.text)}
+                      className={`cursor-pointer hover:bg-accent hover:border-primary/20 transition-colors py-1.5 ${example.id.startsWith('loading') ? 'opacity-50' : ''}`}
+                      onClick={() => example.id.startsWith('loading') ? null : setQuery(example.text)}
                     >
                       {example.text.length > 30 && isMobile
                         ? example.text.slice(0, 30) + '...' 

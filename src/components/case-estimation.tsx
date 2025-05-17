@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { localJurisdictions } from "./jurisdiction-select";
 import { AlertTriangle, CheckCircle2, CircleHelp, Scale } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { fadeIn, cardHover, pulse } from "@/lib/motion";
@@ -9,9 +10,10 @@ import { Progress } from "./ui/progress";
 
 interface CaseEstimationProps {
   winPercentage: number | null;
+  jurisdiction?: string;
 }
 
-export function CaseEstimation({ winPercentage }: CaseEstimationProps) {
+export function CaseEstimation({ winPercentage, jurisdiction }: CaseEstimationProps) {
   if (winPercentage === null) {
     return (
       <motion.div
@@ -157,7 +159,8 @@ export function CaseEstimation({ winPercentage }: CaseEstimationProps) {
                 { text: "Legal precedents", value: (winPercentage > 50 ? "Favorable" : "Mixed") },
                 { text: "Jurisdiction considerations", value: (winPercentage > 40 ? "Supportive" : "Challenging") },
                 { text: "Similar case outcomes", value: `${Math.round(winPercentage/10)} of 10 successful` },
-                { text: "Strength of evidence", value: (winPercentage > 60 ? "Strong" : "Moderate") }
+                { text: "Strength of evidence", value: (winPercentage > 60 ? "Strong" : "Moderate") },
+                { text: "Jurisdiction", value: jurisdiction ? getJurisdictionLabel(jurisdiction) : "Not specified" }
               ].map((factor, index) => (
                 <motion.div
                   key={factor.text}
@@ -179,6 +182,12 @@ export function CaseEstimation({ winPercentage }: CaseEstimationProps) {
       </Card>
     </motion.div>
   );
+}
+
+// Helper function to get jurisdiction label from value
+function getJurisdictionLabel(value: string): string {
+  const jurisdiction = localJurisdictions.find(j => j.value === value);
+  return jurisdiction ? jurisdiction.label : value;
 }
 
 function FactorItem({ text, value }: { text: string; value: string }) {

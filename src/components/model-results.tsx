@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Trophy, TrendingUp, Clock, Brain } from "lucide-react";
+import { Trophy, TrendingUp, Clock, Brain, Globe } from "lucide-react";
+import { localJurisdictions } from "./jurisdiction-select";
 
 // Types for model performance metrics
 interface ModelPerformance {
@@ -21,9 +22,10 @@ interface ModelResultsProps {
     gemini?: ModelPerformance;
     mistral?: ModelPerformance;
   };
+  jurisdiction?: string;
 }
 
-export function ModelResults({ performances }: ModelResultsProps) {
+export function ModelResults({ performances, jurisdiction }: ModelResultsProps) {
   const [bestModel, setBestModel] = useState<string | null>(null);
   
   // Model information with names and colors
@@ -70,20 +72,48 @@ export function ModelResults({ performances }: ModelResultsProps) {
   // Helper function to render metric bars
   const renderMetricBar = (value: number, max: number = 100) => {
     const percentage = (value / max) * 100;
+    // Using a utility function to get width class based on percentage
+    const widthClass = getWidthClass(percentage);
     return (
       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-        <div 
-          className="h-2.5 rounded-full bg-primary"
-          style={{ width: `${percentage}%` }}
-        ></div>
+        <div className={`h-2.5 rounded-full bg-primary ${widthClass}`}></div>
       </div>
     );
   };
 
+  // Helper function to convert percentage to Tailwind width class
+  const getWidthClass = (percentage: number): string => {
+    // Clamping percentage between 0-100
+    const clampedPercentage = Math.min(100, Math.max(0, percentage));
+    
+    // For precise widths, we'll use the CSS variable approach
+    // This creates a class with a CSS variable that can be used in the component
+    return `w-[${clampedPercentage}%]`;
+  };
+  
+  // Helper function to get animation delay class
+  const getAnimationDelayClass = (index: number): string => {
+    return `[animation-delay:${index * 100}ms]`;
+  };
+
+  // Helper function to get jurisdiction label from value
+  function getJurisdictionLabel(value: string): string {
+    const jurisdiction = localJurisdictions.find(j => j.value === value);
+    return jurisdiction ? jurisdiction.label : value;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-4 justify-between items-center mb-2">
-        <h2 className="text-xl font-bold">Model Performance Comparison</h2>
+        <div className="flex flex-col space-y-2">
+          <h2 className="text-xl font-bold">Model Performance Comparison</h2>
+          {jurisdiction && (
+            <Badge variant="outline" className="text-xs py-0 px-2 bg-primary/5 flex items-center gap-1.5 w-fit">
+              <Globe className="h-3 w-3" />
+              {getJurisdictionLabel(jurisdiction)} Jurisdiction
+            </Badge>
+          )}
+        </div>
         {bestModel && (
           <div className="animate-fadeIn">
             <Badge className={`${modelInfo[bestModel as keyof typeof modelInfo].badgeColor} flex items-center gap-1.5 py-1.5 px-3`}>
@@ -98,8 +128,7 @@ export function ModelResults({ performances }: ModelResultsProps) {
         {Object.entries(performances).map(([model, metrics], index) => (
           <div
             key={model}
-            className="animate-fadeIn transition-transform duration-300 hover:scale-[1.02]"
-            style={{ animationDelay: `${index * 100}ms` }}
+            className={`animate-fadeIn transition-transform duration-300 hover:scale-[1.02] ${getAnimationDelayClass(index)}`}
           >
             <Card className={`h-full overflow-hidden border-2 transition-all ${bestModel === model ? 'border-primary' : 'border-border'}`}>
               <CardContent className="p-4">
@@ -152,8 +181,7 @@ export function ModelResults({ performances }: ModelResultsProps) {
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-1.5">
                     <div 
-                      className={`h-3 rounded-full ${bestModel === model ? 'bg-primary' : 'bg-gray-500'}`}
-                      style={{ width: `${metrics.overall}%` }}
+                      className={`h-3 rounded-full ${bestModel === model ? 'bg-primary' : 'bg-gray-500'} ${getWidthClass(metrics.overall)}`}
                     ></div>
                   </div>
                 </div>

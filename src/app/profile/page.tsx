@@ -1,7 +1,8 @@
 "use client";
 
 import { ProfileForm } from "@/components/profile/profile-form";
-import { User, Shield, Bell, Download, Key, LockKeyhole } from "lucide-react";
+import { JurisdictionSettings } from "@/components/profile/jurisdiction-settings";
+import { User, Shield, Bell, Download, Key, LockKeyhole, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"; // Added CardDescription
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
@@ -52,7 +53,7 @@ function ProfileContent() {
   useEffect(() => {
     // Set active tab based on query parameter if it exists
     const tab = searchParams.get("tab");
-    if (tab && ["profile", "security", "api-keys", "notifications"].includes(tab)) {
+    if (tab && ["profile", "security", "api-keys", "notifications", "jurisdictions"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -71,7 +72,7 @@ function ProfileContent() {
       
       <div className="mb-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-8 w-full max-w-md grid grid-cols-4 h-auto">
+          <TabsList className="mb-8 w-full max-w-md grid grid-cols-5 h-auto">
             <TabsTrigger value="profile" className="flex items-center gap-1 py-2 data-[state=active]:shadow-md">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Profile</span>
@@ -83,6 +84,10 @@ function ProfileContent() {
             <TabsTrigger value="api-keys" className="flex items-center gap-1 py-2 data-[state=active]:shadow-md">
               <Key className="h-4 w-4" />
               <span className="hidden sm:inline">API Keys</span>
+            </TabsTrigger>
+            <TabsTrigger value="jurisdictions" className="flex items-center gap-1 py-2 data-[state=active]:shadow-md">
+              <Globe className="h-4 w-4" />
+              <span className="hidden sm:inline">Jurisdictions</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-1 py-2 data-[state=active]:shadow-md">
               <Bell className="h-4 w-4" />
@@ -152,6 +157,10 @@ function ProfileContent() {
                 <ApiKeysForm />
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="jurisdictions">
+            <JurisdictionSettings />
           </TabsContent>
           
           <TabsContent value="notifications">
