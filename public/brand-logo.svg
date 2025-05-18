@@ -1,0 +1,26 @@
+<!--
+  Brand Logo for Law & AI Web App
+  Concept: Scales of Justice + AI Neural Circuit
+  Colors: Deep blue, silver/gold, teal (works well for both light/dark modes)
+-->
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="40" fill="#101820"/>
+  <!-- Scales central pillar -->
+  <rect x="87" y="36" width="6" height="75" rx="3" fill="#FFD700"/>
+  <!-- Top circle (AI orb) -->
+  <circle cx="90" cy="40" r="10" fill="#36C2F0" stroke="#FFD700" stroke-width="3"/>
+  <!-- Left scale - semicircle -->
+  <path d="M60 90 Q65 120, 90 120 Q115 120, 120 90" stroke="#FFD700" stroke-width="4" fill="none"/>
+  <circle cx="65" cy="117" r="9" fill="#1647A8" stroke="#FFD700" stroke-width="2"/>
+  <circle cx="115" cy="117" r="9" fill="#1647A8" stroke="#FFD700" stroke-width="2"/>
+  <!-- Horizontal arms -->
+  <rect x="55" y="70" width="70" height="6" rx="3" fill="#FFD700"/>
+  <!-- AI neural pattern: two circuits from orb to arms-->
+  <path d="M90 50 Q92 65, 125 76" stroke="#36C2F0" stroke-width="2" fill="none"/>
+  <circle cx="125" cy="76" r="3" fill="#36C2F0"/>
+  <path d="M90 50 Q88 65, 55 76" stroke="#36C2F0" stroke-width="2" fill="none"/>
+  <circle cx="55" cy="76" r="3" fill="#36C2F0"/>
+  <!-- Dotted base for AI -->
+  <rect x="85" y="135" width="10" height="18" rx="4" fill="#36C2F0"/>
+  <circle cx="90" cy="157" r="3" fill="#FFD700"/>
+</svg>

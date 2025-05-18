@@ -1,0 +1,24 @@
+<!--
+  Juris.Ai Favicon
+  Combines a law gavel (justice) and AI neural connection motif.
+  Simple style: readable at small sizes.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Gavel handle: orange law color -->
+  <rect x="14" y="42" width="36" height="6" rx="3" fill="#ffae42" stroke="#2d2d2d" stroke-width="2" transform="rotate(-25 14 42)" />
+  <!-- Gavel head: strong contrast for legal imagery -->
+  <rect x="32" y="24" width="20" height="8" rx="3" fill="#22223b" stroke="#2d2d2d" stroke-width="2" />
+  <!-- Small neural dots: AI/circuit effect, blue for tech -->
+  <circle cx="18" cy="53" r="2.2" fill="#487cf0" />
+  <circle cx="12" cy="45" r="1.8" fill="#487cf0" />
+  <circle cx="26" cy="55" r="1.5" fill="#487cf0" />
+  <circle cx="44" cy="17" r="1.8" fill="#487cf0" />
+  <circle cx="56" cy="26" r="2.3" fill="#487cf0" />
+  <!-- Connection lines for AI -->
+  <path d="M20 52 L15 46" stroke="#487cf0" stroke-width="1.3" />
+  <path d="M21 53.5 L27 54.8" stroke="#487cf0" stroke-width="1.1" />
+  <path d="M53 30 L45 31" stroke="#487cf0" stroke-width="1" />
+  <path d="M56 26 Q59 24 56 20" stroke="#487cf0" stroke-width="1" fill="none" />
+  <!-- Justice/Ethics accent: faint scales-shape arc -->
+  <path d="M51 32 Q58 36 45 38" stroke="#ffd700" stroke-width="1.3" fill="none" />
+</svg>
