@@ -1,37 +1,61 @@
-# Law Advisor - AI-Powered Legal Assistant (1.05(beta))
+# Juris.AI - AI-Powered Legal Assistant (1.3 Beta)
 
-A modern, user-friendly application that leverages multiple AI models to provide comprehensive legal advice, case studies, and win probability estimations.
+A cutting-edge legal assistant that combines multiple AI models with an intuitive interface to deliver comprehensive legal insights, case analysis, and strategic recommendations.
 
-## Features
+## 🚀 Features
 
-- **Multiple AI Model Analysis**: Compares legal advice from GPT-4, Claude, Gemini, and Mistral
-- **Model Comparison**: Toggle between different AI models' outputs to get diverse perspectives
-- **Case Studies**: Displays relevant legal case studies based on your query
-- **Win Estimation**: Estimates the probability of winning a case using AI analysis
-- **Jurisdiction Selection**: Localizes legal advice based on selected jurisdiction
-- **Modern UI**: Built with Tailwind CSS and ShadCN UI for a responsive, mobile-first design
-- **Advanced Theme Management**: 
-    - Easily switch between light, dark, and system themes.
-    - Option to sync with the operating system's theme preference.
-    - Remembers the last used theme when system sync is disabled.
+### 🤖 AI-Powered Insights
+- **Multi-Model Analysis**: Compare legal perspectives from GPT-4, Claude, Gemini, and Mistral
+- **Smart Comparison**: Side-by-side model outputs with visual highlighting of key differences
+- **Case Law Database**: Access to relevant case studies and legal precedents
+- **Win Probability**: AI-powered case outcome predictions with confidence scoring
+- **Jurisdiction-Aware**: Contextual advice based on selected legal jurisdiction
 
-## Tech Stack
+### 🎨 Enhanced UI/UX
+- **Modern, Clean Interface**: Redesigned with a focus on clarity and ease of use
+- **Responsive Design**: Seamless experience across desktop, tablet, and mobile devices
+- **Interactive Elements**: Hover states, loading animations, and smooth transitions
+- **Dark/Light Mode**: Automatic theme switching with system preference detection
+- **Keyboard Navigation**: Full keyboard accessibility and shortcuts
+- **Loading States**: Improved visual feedback during AI processing
 
-| Technology       | Logo                  | Version | Description                                      |
-|-----------------|-----------------------|---------|--------------------------------------------------|
-| Next.js          | ![Next.js](public/next.svg) | 15.3    | React framework for building web applications     |
-| Tailwind CSS     | ![Tailwind CSS](public/file.svg) | 4       | Utility-first CSS framework                      |
-| ShadCN UI        | ![ShadCN UI](public/file.svg) |         | Component library for building user interfaces |
-| AI Integrations  | ![AI](public/globe.svg)     | Various  | OpenAI, Anthropic, Google AI, and Mistral ready |
+### ⚡ Productivity Tools
+- **Chat Interface**: Natural language interaction with AI legal assistants
+- **Document Analysis**: Upload and analyze legal documents (PDF, DOCX)
+- **Citation Generator**: Automatically format legal citations
+- **Search Functionality**: Quick access to previous queries and results
+- **Export Options**: Save or share analysis in multiple formats (PDF, DOCX, TXT)
+
+## 🛠 Tech Stack
+
+### 💻 Core Technologies
+- **<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original-wordmark.svg" width="16" height="16" alt="Next.js"> Next.js 14** - React framework with App Router and Server Components
+- **<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="16" height="16" alt="TypeScript"> TypeScript** - Type-safe JavaScript for better developer experience
+- **<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-plain.svg" width="16" height="16" alt="Tailwind CSS"> Tailwind CSS** - Utility-first CSS framework for rapid UI development
+- **<img src="https://ui.shadcn.com/favicon.ico" width="16" height="16" alt="ShadCN"> ShadCN/UI** - Beautifully designed, accessible components
+- **<img src="https://www.framer.com/favicon.ico" width="16" height="16" alt="Framer Motion"> Framer Motion** - Smooth animations and transitions
+
+### 🧠 AI & Backend
+- **<img src="https://openai.com/favicon.ico" width="16" height="16" alt="OpenAI"> OpenAI API** - GPT-4 for advanced natural language understanding
+- **<img src="https://www.anthropic.com/favicon.ico" width="16" height="16" alt="Anthropic"> Anthropic Claude** - Alternative AI perspective for legal analysis
+- **<img src="https://www.gstatic.com/lamda/images/favicon_v1_150160cddffa5e56.png" width="16" height="16" alt="Google Gemini"> Google Gemini** - Multimodal AI capabilities
+- **<img src="https://mistral.ai/favicon.ico" width="16" height="16" alt="Mistral"> Mistral** - Open-weight model for comparison
+- **<img src="https://vercel.com/favicon.ico" width="16" height="16" alt="Vercel"> Vercel AI SDK** - Streamlined AI integration
+
+### 🔧 Development Tools
+- **<img src="https://eslint.org/favicon.ico" width="16" height="16" alt="ESLint"> ESLint** & **<img src="https://prettier.io/favicon.ico" width="16" height="16" alt="Prettier"> Prettier** - Code quality and formatting
+- **<img src="https://typicode.github.io/husky/logo.png" width="16" height="16" alt="Husky"> Husky** - Git hooks for pre-commit checks
+- **<img src="https://commitizen-tools.github.io/commitizen/logo.png" width="16" height="16" alt="Commitizen"> Commitizen** - Consistent commit messages
+- **<img src="https://jestjs.io/img/favicon/favicon.ico" width="16" height="16" alt="Jest"> Jest** & **<img src="https://testing-library.com/img/octopus-64x64.png" width="16" height="16" alt="Testing Library"> React Testing Library** - Comprehensive test coverage
 
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 
 - Node.js 18+ and npm
 
-### Installation
+### ⚙️ Installation
 
 1. Clone the repository
    ```bash
@@ -51,7 +75,7 @@ A modern, user-friendly application that leverages multiple AI models to provide
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Usage
+## 💡 Usage
 
 1. Select your jurisdiction from the dropdown in the top-right corner
 2. Enter your legal question or describe your situation in the text area
@@ -62,36 +86,54 @@ A modern, user-friendly application that leverages multiple AI models to provide
    - **Win Estimation**: See the estimated probability of winning your case
    - **Documents**: (Coming soon) Access relevant legal documents
 
-## Design
+## 🎨 Design Philosophy
 
-### UI/UX Design Principles
+### 🎯 Core Design Principles
 
-- **User-Centric Approach**: Designed with legal professionals and laypeople in mind, ensuring an intuitive and efficient experience.
-- **Accessibility**: Adherence to WCAG 2.1 AA guidelines to provide an inclusive user experience for all users.
-- **Minimalist Interface**: A clean, distraction-free workspace that prioritizes legal content and ease of use.
-- **Intuitive Navigation**: Logical information architecture and clear user flows for seamless interaction.
-- **Visual Hierarchy**: Strategic use of typography, spacing, and color to emphasize important information and guide user attention.
-- **Contextual Help**: Embedded tooltips and guidance throughout the interface to assist users.
-- **Responsive Design**: A mobile-first approach ensuring a consistent and optimal experience across all devices.
-- **Theming**: Comprehensive theme management allowing users to select light, dark, or system-synchronized themes for personalized comfort and reduced eye strain.
+1. **Clarity First**
+   - Clean, uncluttered interface that prioritizes content
+   - Clear visual hierarchy with consistent spacing and typography
+   - Intuitive navigation with predictable interactions
 
-### Design System
+2. **Accessibility**
+   - WCAG 2.1 AA compliant
+   - Keyboard navigable interface
+   - Sufficient color contrast and text sizing
+   - Screen reader optimized components
 
-- **Color Palette**: Professional color scheme with accessible contrast ratios
-  - Primary: Deep blue (#1E40AF) represents trust and professionalism
-  - Secondary: Light blue (#60A5FA) for interactive elements
-  - Accent: Gold (#FCD34D) for highlights and important information
-  - Neutrals: Slate grays for text and backgrounds
-- **Typography**: Clear hierarchical type system using modern sans-serif fonts
-  - Headings: Inter (600 weight)
-  - Body: Inter (400 weight)
-  - Legal citations: Roboto Mono
-- **Component Library**: Consistent UI elements through ShadCN UI
-- **Responsive Design**: Mobile-first approach with fluid layouts
-- **Dark Mode**: Carefully crafted dark theme for reduced eye strain
-- **Animation**: Subtle micro-interactions to enhance user experience
+3. **Responsive & Adaptive**
+   - Mobile-first approach
+   - Fluid layouts that adapt to any screen size
+   - Optimized touch targets for mobile devices
 
-### Page Designs
+### 🎨 Design System
+
+#### 🎨 Color Palette
+- **Primary**: `#2563EB` (Confident, trustworthy blue)
+- **Secondary**: `#7C3AED` (Creative purple)
+- **Accent**: `#F59E0B` (Attention-grabbing amber)
+- **Success**: `#10B981` (Positive green)
+- **Danger**: `#EF4444` (Warning red)
+- **Neutrals**: Scale from `#F8FAFC` to `#0F172A`
+
+#### ✍️ Typography
+- **Headings**: `Inter` (600-700 weight)
+- **Body**: `Inter` (400-500 weight)
+- **Code/Mono**: `JetBrains Mono` (for legal citations and code)
+
+#### 🧩 Components
+- Built with ShadCN/UI for consistency
+- Custom animations with Framer Motion
+- Responsive design patterns
+- Dark/light theme support
+
+#### 🎬 Motion
+- Subtle animations for state changes
+- Meaningful transitions between views
+- Performance-optimized animations
+- Reduced motion preferences respected
+
+### 📱 Page Designs
 
 - **Landing Page**: Clean, professional layout with clear value proposition and CTA
 - **Auth Pages**: Streamlined login/signup flow with social authentication options
@@ -100,20 +142,37 @@ A modern, user-friendly application that leverages multiple AI models to provide
 - **Legal Analysis**: Interactive displays for multi-model comparisons and case citations
 - **Results Visualization**: Clear presentation of win probability with supporting evidence
 
-## Version History
+## 📜 Version History
 
-- **1.05(beta)** (Current): Updated README.md version.
-- **1.0(beta)**: Updated README.md version.
-- **1.0**: Initial stable release featuring multi-model AI analysis, case studies, win estimation, jurisdiction selection, modern UI with advanced theme management, and a comprehensive design system.
-- **Beta 0.9**: Implemented advanced theme management with light, dark, and system sync options. Enhanced UI/UX for profile settings.
-- **Beta 0.75**: Improved UI/UX, enhanced model accuracy, and added advanced case citation features
-- **Beta 0.7**: Improved UI/UX, enhanced model accuracy, and added advanced case citation features
-- **Beta 0.6**: Improved UI/UX, enhanced model accuracy, and added advanced case citation features
-- **Beta 0.5**: Updated all pages, enhanced GitHub integration, expanded design documentation
-- **Beta 0.4**: GitHub integration and comprehensive documentation updates
-- **Beta 0.3**: Expanded design system documentation and UI refinements
-- **Beta 0.2**: Enhanced design system implementation and UI improvements
-- **Beta 0.1**: Initial release with core functionality and UI
+### 🚀 Current Version
+- **1.3 (Beta)**
+  - Complete UI/UX overhaul with modern design language
+  - Enhanced chat interface with markdown support
+  - Improved mobile responsiveness
+  - Advanced theme customization options
+  - Performance optimizations
+  - Updated AI model integrations
+  - Additional bug fixes and minor improvements
+
+### ⏮️ Previous Versions
+- **1.2 (Beta)**
+  - Added document analysis features
+  - Implemented citation generator
+  - Enhanced search functionality
+  - Improved accessibility features
+
+- **1.1 (Beta)**
+  - Initial public beta release
+  - Multi-model AI analysis
+  - Case law database integration
+  - Win probability estimation
+  - Jurisdiction-aware responses
+
+- **1.0 (Alpha)**
+  - Core chat functionality
+  - Basic AI integration
+  - Initial UI components
+  - Theme system foundation
 
 ## Disclaimer
 
