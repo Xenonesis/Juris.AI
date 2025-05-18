@@ -1,42 +1,47 @@
-import { ChatComponent } from "@/components/chat/chat-component";
+import { ChatClientWrapper } from "@/components/chat/chat-client-wrapper";
 import Link from "next/link";
-import { MessageCircle, History, AlertTriangle } from "lucide-react";
+import { Plus, Settings, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import "./chat.css";
 
 export default function ChatPage() {
   return (
-    <div className="container max-w-6xl mx-auto py-6 md:py-12 px-4">
-      <div className="flex flex-col space-y-6">
-        <div className="grid gap-6 md:flex md:justify-between md:items-start">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <MessageCircle className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl md:text-3xl font-bold">Chat with Juris</h1>
-            </div>
-            <p className="text-muted-foreground max-w-lg">
-              Get expert legal advice across multiple jurisdictions from an AI-powered legal advisor.
-            </p>
-            <div className="flex items-center mt-2 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 rounded-lg p-3 text-sm">
-              <AlertTriangle className="h-4 w-4 mr-2 flex-shrink-0" />
-              <p className="text-xs md:text-sm">
-                Information provided is for general purposes only and does not constitute legal advice.
-              </p>
-            </div>
-          </div>
-          <div className="flex-shrink-0">
-            <Button variant="outline" className="flex items-center gap-2" asChild>
+    <div className="flex h-[100dvh] overflow-hidden bg-muted/20 dark:bg-background">
+      {/* Sidebar */}
+      <div className="w-[260px] border-r bg-muted/10 dark:bg-muted/5 hidden md:flex md:flex-col">
+        <div className="flex items-center justify-between p-4">
+          <h1 className="text-xl font-semibold tracking-tight">Juris AI</h1>
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/chat">
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">New chat</span>
+            </Link>
+          </Button>
+        </div>
+        <div className="flex-1 overflow-auto p-4 pt-0">
+          <div className="space-y-1">
+            <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/chat/history">
-                <History className="h-4 w-4" />
-                <span>View Chat History</span>
+                <History className="mr-2 h-4 w-4" />
+                Chat History
               </Link>
             </Button>
           </div>
         </div>
-        
-        <div className="min-h-[calc(100vh-240px)]">
-          <ChatComponent />
+        <div className="p-4 border-t">
+          <Button variant="outline" className="w-full justify-start" asChild>
+            <Link href="/profile">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Link>
+          </Button>
         </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <ChatClientWrapper />
       </div>
     </div>
   );
-} 
+}

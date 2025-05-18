@@ -18,6 +18,9 @@ import {
   ThumbsDown, Sparkles, SendHorizonal, Paperclip, PlusCircle, Key
 } from 'lucide-react';
 import Link from 'next/link';
+import { ChatUI } from '@/components/chat/chat-ui';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface CaseLaw {
   id: string;

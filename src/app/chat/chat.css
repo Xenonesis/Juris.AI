@@ -1,0 +1,4 @@
+/* Hide footer on chat page */
+body.chat-page footer {
+  display: none !important;
+}
