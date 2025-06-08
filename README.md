@@ -1,6 +1,13 @@
-# Juris.AI - AI-Powered Legal Assistant (1.3 Beta)
+# Juris.AI - AI-Powered Legal Assistant (1.4 Beta)
 
 A cutting-edge legal assistant that combines multiple AI models with an intuitive interface to deliver comprehensive legal insights, case analysis, and strategic recommendations.
+
+## 🆕 Latest Updates (v1.4)
+- ✅ **All packages updated** to latest versions for enhanced security and performance
+- 🔒 **Security vulnerabilities fixed** - resolved 7 critical security issues
+- 📦 **Dependencies upgraded** - react-pdf v9.2.1, transformers v1.8.3
+- ⚡ **Production build optimized** - faster loading and improved performance
+- 🛠️ **Next.js 15.3.2 compatibility** - latest framework features
 
 ## 🚀 Features
 
@@ -145,6 +152,15 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
 ## 📜 Version History
 
 ### 🚀 Current Version
+- **1.4 (Beta)** - *Latest Update*
+  - **🔄 Package Updates**: All dependencies updated to latest versions
+  - **🔒 Security Fixes**: Resolved 7 critical security vulnerabilities
+  - **📦 Dependencies**: Updated react-pdf to v9.2.1 and transformers to v1.8.3
+  - **⚡ Performance**: Optimized build process and reduced bundle size
+  - **🛠️ Build System**: Enhanced Next.js 15.3.2 compatibility
+  - **✅ Production Ready**: Fully tested and production-optimized build
+
+### ⏮️ Previous Versions
 - **1.3 (Beta)**
   - Complete UI/UX overhaul with modern design language
   - Enhanced chat interface with markdown support
