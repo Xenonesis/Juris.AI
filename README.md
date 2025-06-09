@@ -1,13 +1,18 @@
-# Juris.AI - AI-Powered Legal Assistant (1.4 Beta)
+# Juris.AI - AI-Powered Legal Assistant (v1.7)
 
 A cutting-edge legal assistant that combines multiple AI models with an intuitive interface to deliver comprehensive legal insights, case analysis, and strategic recommendations.
 
-## 🆕 Latest Updates (v1.4)
-- ✅ **All packages updated** to latest versions for enhanced security and performance
-- 🔒 **Security vulnerabilities fixed** - resolved 7 critical security issues
-- 📦 **Dependencies upgraded** - react-pdf v9.2.1, transformers v1.8.3
-- ⚡ **Production build optimized** - faster loading and improved performance
-- 🛠️ **Next.js 15.3.2 compatibility** - latest framework features
+## 🆕 Latest Updates (v1.7)
+- 🎨 **Complete UI/UX Overhaul** - Modern, professional design with enhanced user experience
+- ⚡ **Performance Optimizations** - Lazy loading, code splitting, and improved loading states
+- 🔧 **Enhanced Components** - New loading buttons, skeleton loaders, and interactive elements
+- 🎯 **Improved Accessibility** - Better keyboard navigation and screen reader support
+- 📱 **Mobile Responsiveness** - Optimized for all device sizes with touch-friendly interactions
+- 🌈 **Advanced Theming** - Enhanced dark/light mode with smooth transitions
+- 🚀 **Production Ready** - Fully optimized build with performance monitoring
+- 🔒 **Security Enhanced** - Latest security patches and dependency updates
+- 📊 **Better Analytics** - Performance monitoring and user experience tracking
+- 🎭 **Animation System** - Smooth transitions and micro-interactions throughout the app
 
 ## 🚀 Features
 
@@ -66,8 +71,8 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/your-username/law-advisor.git
-   cd law-advisor
+   git clone https://github.com/Xenonesis/Juris.AI.git
+   cd Juris.AI
    ```
 
 2. Install dependencies
@@ -152,7 +157,20 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
 ## 📜 Version History
 
 ### 🚀 Current Version
-- **1.4 (Beta)** - *Latest Update*
+- **1.7** - *Latest Release*
+  - **🎨 Complete UI/UX Overhaul**: Modern, professional design with enhanced user experience
+  - **⚡ Performance Optimizations**: Lazy loading, code splitting, and improved loading states
+  - **🔧 Enhanced Components**: New loading buttons, skeleton loaders, and interactive elements
+  - **🎯 Improved Accessibility**: Better keyboard navigation and screen reader support
+  - **📱 Mobile Responsiveness**: Optimized for all device sizes with touch-friendly interactions
+  - **🌈 Advanced Theming**: Enhanced dark/light mode with smooth transitions
+  - **🚀 Production Ready**: Fully optimized build with performance monitoring
+  - **🔒 Security Enhanced**: Latest security patches and dependency updates
+  - **📊 Better Analytics**: Performance monitoring and user experience tracking
+  - **🎭 Animation System**: Smooth transitions and micro-interactions throughout the app
+
+### ⏮️ Previous Versions
+- **1.4 (Beta)**
   - **🔄 Package Updates**: All dependencies updated to latest versions
   - **🔒 Security Fixes**: Resolved 7 critical security vulnerabilities
   - **📦 Dependencies**: Updated react-pdf to v9.2.1 and transformers to v1.8.3
@@ -160,7 +178,6 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
   - **🛠️ Build System**: Enhanced Next.js 15.3.2 compatibility
   - **✅ Production Ready**: Fully tested and production-optimized build
 
-### ⏮️ Previous Versions
 - **1.3 (Beta)**
   - Complete UI/UX overhaul with modern design language
   - Enhanced chat interface with markdown support
@@ -169,8 +186,6 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
   - Performance optimizations
   - Updated AI model integrations
   - Additional bug fixes and minor improvements
-
-### ⏮️ Previous Versions
 - **1.2 (Beta)**
   - Added document analysis features
   - Implemented citation generator

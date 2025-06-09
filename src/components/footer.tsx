@@ -88,7 +88,7 @@ export function Footer() {
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
       viewport={{ once: true }}
-      className="w-full border-t bg-gradient-to-b from-background to-card/60 backdrop-blur-sm mt-12 pt-8 md:pt-12"
+      className="w-full border-t border-border/60 gradient-bg-surface backdrop-blur-sm mt-12 pt-8 md:pt-12 footer-light-mode gradient-overlay-mesh"
     >
       <div className="container mx-auto px-4 pb-6 md:pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 md:gap-8">
@@ -101,17 +101,17 @@ export function Footer() {
             className="lg:col-span-4 space-y-4 md:space-y-6"
           >
             <div>
-              <h3 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              <h3 className="text-xl md:text-3xl font-bold gradient-text-vibrant">
                 Juris.Ai
               </h3>
-              <p className="text-xs md:text-sm text-muted-foreground max-w-xs mt-2 md:mt-3">
+              <p className="text-xs md:text-sm text-muted-foreground max-w-xs mt-2 md:mt-3 font-medium">
                 AI-powered legal assistance platform helping users navigate complex legal questions with multi-model analysis.
               </p>
             </div>
             
             {/* Newsletter Subscription - Hidden on mobile, visible on larger screens */}
             <div className="hidden md:block space-y-3">
-              <h4 className="font-medium text-sm">Subscribe to our newsletter</h4>
+              <h4 className="font-medium text-sm text-foreground">Subscribe to our newsletter</h4>
               <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2">
                 <Input
                   type="email"
@@ -119,17 +119,17 @@ export function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-background"
+                  className="bg-background border-border/60 text-foreground placeholder:text-muted-foreground"
                 />
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   variant={subscribed ? "default" : "default"}
-                  className={`whitespace-nowrap transition-all ${subscribed ? "bg-green-600 hover:bg-green-700" : ""}`}
+                  className={`whitespace-nowrap transition-all border border-primary/20 ${subscribed ? "bg-green-600 hover:bg-green-700 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}
                 >
                   {subscribed ? "Subscribed!" : "Subscribe"}
                 </Button>
               </form>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-medium">
                 Get the latest legal updates and news.
               </p>
             </div>
@@ -139,13 +139,13 @@ export function Footer() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      className="w-full flex items-center gap-2"
+                    <Button
+                      variant="outline"
+                      className="w-full flex items-center gap-2 border-border/60 text-foreground hover:bg-primary/10"
                       onClick={() => document.getElementById('mobile-newsletter-form')?.classList.toggle('hidden')}
                     >
                       <Mail className="h-4 w-4" />
-                      <span className="text-xs">Subscribe</span>
+                      <span className="text-xs font-medium">Subscribe</span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -153,10 +153,10 @@ export function Footer() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              
-              <form 
-                id="mobile-newsletter-form" 
-                onSubmit={handleSubscribe} 
+
+              <form
+                id="mobile-newsletter-form"
+                onSubmit={handleSubscribe}
                 className="hidden space-y-2"
               >
                 <Input
@@ -165,12 +165,12 @@ export function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-background text-sm"
+                  className="bg-background text-sm border-border/60 text-foreground placeholder:text-muted-foreground"
                 />
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   variant={subscribed ? "default" : "default"}
-                  className={`w-full text-xs ${subscribed ? "bg-green-600 hover:bg-green-700" : ""}`}
+                  className={`w-full text-xs border border-primary/20 ${subscribed ? "bg-green-600 hover:bg-green-700 text-white" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}
                 >
                   {subscribed ? "Subscribed!" : "Subscribe"}
                 </Button>
@@ -179,7 +179,7 @@ export function Footer() {
             
             {/* Social Media Links */}
             <div className="space-y-2 md:space-y-3">
-              <h4 className="font-medium text-xs md:text-sm">Follow Us</h4>
+              <h4 className="font-medium text-xs md:text-sm text-foreground">Follow Us</h4>
               <div className="flex items-center gap-3">
                 {[
                   { id: 'github', icon: Github, href: "https://github.com/", label: "GitHub" },
@@ -195,7 +195,7 @@ export function Footer() {
                           rel="noopener noreferrer"
                           whileHover={{ scale: 1.1, y: -2 }}
                           whileTap={{ scale: 0.9 }}
-                          className="p-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                          className="p-2 rounded-full social-icon transition-colors"
                         >
                           <Icon className="h-4 w-4 md:h-5 md:w-5" />
                         </motion.a>
@@ -221,7 +221,7 @@ export function Footer() {
                 viewport={{ once: true }}
                 className="space-y-4"
               >
-                <h4 className="font-semibold text-base">{section.title}</h4>
+                <h4 className="font-semibold text-base text-foreground">{section.title}</h4>
                 <ul className="space-y-3">
                   {section.links.map((link, linkIndex) => (
                     <motion.li
@@ -231,11 +231,11 @@ export function Footer() {
                       transition={{ delay: 0.1 * linkIndex }}
                       viewport={{ once: true }}
                     >
-                      <Link 
+                      <Link
                         href={link.href}
-                        className="text-sm text-muted-foreground hover:text-primary hover:underline underline-offset-4 transition-all flex items-center gap-2 group"
+                        className="text-sm text-muted-foreground hover:text-foreground dark:hover:text-primary hover:underline underline-offset-4 transition-all flex items-center gap-2 group"
                       >
-                        <link.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                        <link.icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground dark:group-hover:text-primary transition-colors" />
                         {link.label}
                       </Link>
                     </motion.li>
@@ -256,7 +256,7 @@ export function Footer() {
                 viewport={{ once: true }}
                 className="space-y-2"
               >
-                <h4 className="font-semibold text-sm">{section.title}</h4>
+                <h4 className="font-semibold text-sm text-foreground">{section.title}</h4>
                 <div className="grid grid-cols-5 gap-2">
                   {section.links.map((link) => (
                     <TooltipProvider key={link.label}>
@@ -266,12 +266,12 @@ export function Footer() {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                           >
-                            <Link 
+                            <Link
                               href={link.href}
-                              className="flex flex-col items-center justify-center text-center p-2 rounded-lg bg-card/80 hover:bg-primary/10 transition-colors"
+                              className="flex flex-col items-center justify-center text-center p-2 rounded-lg mobile-nav-card transition-colors"
                             >
-                              <link.icon className="h-5 w-5 text-muted-foreground" />
-                              <span className="text-[10px] mt-1 text-muted-foreground">
+                              <link.icon className="h-5 w-5 text-foreground/70 dark:text-muted-foreground" />
+                              <span className="text-[11px] mt-1 text-foreground/70 dark:text-muted-foreground font-medium">
                                 {link.label.split(' ')[0]}
                               </span>
                             </Link>
@@ -295,13 +295,21 @@ export function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="flex flex-col sm:flex-row justify-between items-center gap-3 border-t mt-6 md:mt-12 pt-4 md:pt-6"
+          className="flex flex-col sm:flex-row justify-between items-center gap-3 border-t border-border/60 mt-6 md:mt-12 pt-4 md:pt-6"
         >
-          <p className="text-[10px] md:text-xs text-muted-foreground text-center sm:text-left">
+          <p className="text-xs md:text-sm text-muted-foreground text-center sm:text-left font-medium">
             © {currentYear} Juris.Ai. All rights reserved.
           </p>
-          <p className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1">
-            Made with <Heart className="h-3 w-3 text-destructive" /> for a better legal experience
+          <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-2 font-medium">
+            Made with
+            <motion.span
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-flex items-center justify-center"
+            >
+              <Heart className="h-4 w-4 text-red-500 fill-current heart-icon" />
+            </motion.span>
+            for a better legal experience
           </p>
         </motion.div>
       </div>

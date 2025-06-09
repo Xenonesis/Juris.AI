@@ -1,6 +1,6 @@
 {
-  "name": "law-advisor",
-  "version": "0.1.0",
+  "name": "juris-ai",
+  "version": "1.7.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

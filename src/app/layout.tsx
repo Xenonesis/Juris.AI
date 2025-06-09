@@ -44,6 +44,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Suppress browser extension errors
+              window.addEventListener('error', function(e) {
+                if (e.filename && (
+                  e.filename.includes('universal-blocker.js') ||
+                  e.filename.includes('feedback-manager.js') ||
+                  e.filename.includes('content-blocker.js') ||
+                  e.filename.includes('content.js')
+                )) {
+                  e.preventDefault();
+                  return false;
+                }
+              });
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >

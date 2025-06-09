@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Info, Lightbulb, Send } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
+import { LoadingButton } from "./ui/loading-button";
 import { cardHover } from "@/lib/motion";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, memo, useCallback } from "react";
 
 // Custom hook for window width
 function useWindowSize() {
@@ -48,7 +48,7 @@ interface LegalQueryInputProps {
   jurisdiction?: string;
 }
 
-export function LegalQueryInput({
+export const LegalQueryInput = memo(function LegalQueryInput({
   query,
   setQuery,
   onSubmit,
@@ -132,14 +132,17 @@ export function LegalQueryInput({
         initial="idle"
         whileHover="hover"
       >
-        <Card className="bg-card border shadow-md transition-all">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+        <Card className="bg-card/80 backdrop-blur-sm border-muted/50 shadow-xl card-hover">
+          <CardHeader className="pb-4 border-b border-muted/30">
+            <CardTitle className="text-lg sm:text-xl flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center">
+                <Send className="h-4 w-4 text-primary-foreground" />
+              </div>
               Describe your legal situation
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help hover:text-primary transition-colors" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[280px] sm:max-w-80">
                     <p>Provide details about your legal question or situation. The more specific you are, the more accurate the advice will be.</p>
@@ -154,9 +157,9 @@ export function LegalQueryInput({
               <Textarea
                 id="legal-query"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="E.g., I have a dispute with my landlord over security deposit..."
-                className="min-h-[120px] sm:min-h-[160px] resize-none focus:ring-primary"
+                onChange={useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value), [setQuery])}
+                placeholder="E.g., I have a dispute with my landlord over security deposit, or I need help understanding my employment contract..."
+                className="min-h-[140px] sm:min-h-[180px] resize-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 bg-background/50 border-muted/50"
                 disabled={isLoading}
               />
               
@@ -204,19 +207,29 @@ export function LegalQueryInput({
             </div>
           </CardContent>
           
-          <CardFooter className="flex flex-col sm:flex-row gap-3 justify-between pt-4 border-t">
-            <p className="text-xs text-muted-foreground max-w-xs">
-              Our AI will analyze your query using multiple legal models to provide comprehensive advice.
-            </p>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button 
-                type="submit" 
-                disabled={isLoading || !query.trim()}
-                className="gap-2 w-full sm:w-auto"
+          <CardFooter className="flex flex-col sm:flex-row gap-4 justify-between pt-6 border-t border-muted/30">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+              <p className="text-xs text-muted-foreground max-w-xs">
+                Our AI will analyze your query using multiple legal models to provide comprehensive advice.
+              </p>
+            </div>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <LoadingButton
+                type="submit"
+                isLoading={isLoading}
+                loadingText="Analyzing Legal Query..."
+                disabled={!query.trim()}
+                className={`
+                  gap-2 w-full sm:w-auto btn-gradient shadow-lg hover:shadow-xl
+                  transition-all duration-300 font-semibold
+                  ${isLoading ? 'loading-button-active' : ''}
+                `}
+                size="lg"
               >
-                {isLoading ? "Analyzing..." : "Get Legal Advice"}
-                {!isLoading && <Send className="h-4 w-4" />}
-              </Button>
+                Get Legal Advice
+                <Send className="h-4 w-4" />
+              </LoadingButton>
             </motion.div>
           </CardFooter>
         </Card>
@@ -237,4 +250,4 @@ export function LegalQueryInput({
       </motion.div>
     </form>
   );
-} 
+});

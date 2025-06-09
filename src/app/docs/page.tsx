@@ -5,7 +5,7 @@ import { BookText, Code2, Database, GitMerge, LayoutDashboard, Lightbulb, Puzzle
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
+import { NextJsBadge, TypeScriptBadge, TailwindBadge, SupabaseBadge, AIBadge } from '@/components/tech-badge';
 
 export const metadata: Metadata = {
   title: "Project Documentation - Juris.Ai",
@@ -26,26 +26,11 @@ const DocsPage = () => {
           Welcome to the official documentation for Juris.Ai. Here you&apos;ll find comprehensive information about the project.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Badge variant="outline" className="px-3 py-1 text-sm bg-primary/5 border-primary/20">
-            <Code2 className="h-3.5 w-3.5 mr-1" />
-            Next.js
-          </Badge>
-          <Badge variant="outline" className="px-3 py-1 text-sm bg-primary/5 border-primary/20">
-            <Code2 className="h-3.5 w-3.5 mr-1" />
-            TypeScript
-          </Badge>
-          <Badge variant="outline" className="px-3 py-1 text-sm bg-primary/5 border-primary/20">
-            <Code2 className="h-3.5 w-3.5 mr-1" />
-            Tailwind CSS
-          </Badge>
-          <Badge variant="outline" className="px-3 py-1 text-sm bg-primary/5 border-primary/20">
-            <Database className="h-3.5 w-3.5 mr-1" />
-            Supabase
-          </Badge>
-          <Badge variant="outline" className="px-3 py-1 text-sm bg-primary/5 border-primary/20">
-            <Lightbulb className="h-3.5 w-3.5 mr-1" />
-            AI Integration
-          </Badge>
+          <NextJsBadge />
+          <TypeScriptBadge />
+          <TailwindBadge />
+          <SupabaseBadge />
+          <AIBadge />
         </div>
       </header>
 

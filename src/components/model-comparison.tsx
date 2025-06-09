@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Badge } from "./ui/badge";
-import { Bot, Copy, Check, Globe } from "lucide-react";
+import { Bot, Copy, Check, Globe, ChevronDown, ChevronUp, Maximize2 } from "lucide-react";
 import { cardHover } from "@/lib/motion";
 
 interface ModelComparisonProps {
@@ -24,6 +24,8 @@ import { localJurisdictions } from "./jurisdiction-select";
 export function ModelComparison({ results, jurisdiction }: ModelComparisonProps) {
   const [activeModel, setActiveModel] = useState<"gpt" | "claude" | "gemini" | "mistral">("gpt");
   const [copied, setCopied] = useState(false);
+  const [expandedModels, setExpandedModels] = useState<Record<string, boolean>>({});
+  const [fullscreenModel, setFullscreenModel] = useState<string | null>(null);
 
   const modelInfo = {
     gpt: {
@@ -54,7 +56,7 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
 
   const handleCopy = () => {
     if (!results[activeModel]) return;
-    
+
     navigator.clipboard.writeText(results[activeModel] || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -65,6 +67,45 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
     const jurisdiction = localJurisdictions.find(j => j.value === value);
     return jurisdiction ? jurisdiction.label : value;
   }
+
+  // Helper function to check if content needs "Read More"
+  const shouldShowReadMore = (content: string) => {
+    return content.length > 1000 || content.split('\n\n').length > 5;
+  };
+
+  // Helper function to toggle expansion for a specific model
+  const toggleExpansion = (model: string) => {
+    setExpandedModels(prev => ({
+      ...prev,
+      [model]: !prev[model]
+    }));
+  };
+
+  // Helper function to format content with truncation
+  const formatContent = (content: string, model: string) => {
+    const isExpanded = expandedModels[model];
+    const needsReadMore = shouldShowReadMore(content);
+
+    if (!needsReadMore) {
+      return content;
+    }
+
+    if (isExpanded) {
+      return content;
+    }
+
+    // Truncate to first 800 characters or 3 paragraphs, whichever is shorter
+    const paragraphs = content.split('\n\n');
+    if (paragraphs.length > 3) {
+      return paragraphs.slice(0, 3).join('\n\n') + '\n\n...';
+    }
+
+    if (content.length > 800) {
+      return content.substring(0, 800) + '...';
+    }
+
+    return content;
+  };
 
   return (
     <motion.div
@@ -148,15 +189,71 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
                             {modelInfo[model as keyof typeof modelInfo].description}
                           </p>
                           
-                          <motion.div 
+                          <motion.div
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.1 }}
-                            className="bg-muted/50 p-3 sm:p-4 rounded-md border border-border"
+                            className={`bg-muted/50 p-3 sm:p-4 rounded-md border border-border relative ${
+                              fullscreenModel === model ? 'fixed inset-4 z-50 overflow-y-auto bg-background/95 backdrop-blur-sm' : ''
+                            }`}
                           >
-                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                              <p className="whitespace-pre-line text-sm sm:text-base">{result}</p>
+                            {/* Fullscreen toggle button */}
+                            <div className="flex justify-end mb-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setFullscreenModel(fullscreenModel === model ? null : model)}
+                                className="opacity-60 hover:opacity-100 transition-opacity"
+                              >
+                                <Maximize2 className="h-4 w-4" />
+                              </Button>
                             </div>
+
+                            <div className={`prose prose-sm dark:prose-invert max-w-none prose-enhanced ${
+                              fullscreenModel === model ? 'prose-lg' : ''
+                            }`}>
+                              <AnimatePresence mode="wait">
+                                <motion.div
+                                  key={expandedModels[model] ? 'expanded' : 'collapsed'}
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  <p className="whitespace-pre-line text-sm sm:text-base leading-relaxed">
+                                    {formatContent(result, model)}
+                                  </p>
+                                </motion.div>
+                              </AnimatePresence>
+                            </div>
+
+                            {/* Read More / Show Less button */}
+                            {shouldShowReadMore(result) && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="flex justify-center mt-4 pt-4 border-t border-border/50"
+                              >
+                                <Button
+                                  variant="outline"
+                                  onClick={() => toggleExpansion(model)}
+                                  className="flex items-center gap-2 read-more-btn"
+                                >
+                                  {expandedModels[model] ? (
+                                    <>
+                                      <ChevronUp className="h-4 w-4" />
+                                      Show Less
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="h-4 w-4" />
+                                      Read More
+                                    </>
+                                  )}
+                                </Button>
+                              </motion.div>
+                            )}
                           </motion.div>
                         </motion.div>
                       </TabsContent>

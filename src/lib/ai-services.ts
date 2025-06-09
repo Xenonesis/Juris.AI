@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { searchCasetextParallel, searchLexisNexis, searchWestlaw, LegalCase, Statute } from './legal-apis';
 import { getApiKey } from './api-key-service';
+import { apiCache, createCacheKey, withCache } from './api-cache';
 
 // Default fallback API keys from environment variables
 const defaultGeminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCYZrSd57RHna4ujKA5Q_rCRJ18oLe7z2o';
@@ -230,13 +231,14 @@ export async function claudeChat(prompt: string, apiKey?: string): Promise<strin
 }
 
 /**
- * Gets AI response with user's API key if available
+ * Gets AI response with user's API key if available (with caching)
  */
-export async function getAIResponse(
-  message: string, 
-  provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' = 'mistral',
-  apiKeyMap: Record<string, string> = {}
-): Promise<string> {
+export const getAIResponse = withCache(
+  async (
+    message: string,
+    provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' = 'mistral',
+    apiKeyMap: Record<string, string> = {}
+  ): Promise<string> => {
   try {
     // Get the appropriate API key for the selected provider
     const apiKey = getApiKey(apiKeyMap, provider, 
@@ -267,16 +269,23 @@ export async function getAIResponse(
       const fallbackApiKey = getApiKey(apiKeyMap, 'mistral', defaultMistralApiKey);
       return await mistralChat(message, fallbackApiKey || undefined);
     }
-    
+
     return 'Sorry, all AI providers failed to process your request. Please try again later.';
   }
-}
+  },
+  // Cache key generator
+  (message: string, provider?: 'openai' | 'anthropic' | 'gemini' | 'mistral', apiKeyMap?: Record<string, string>) =>
+    createCacheKey('ai-response', provider || 'mistral', message.slice(0, 100)),
+  // Cache for 10 minutes
+  10 * 60 * 1000
+);
 
 /**
- * Fetch relevant case law based on query and jurisdiction
+ * Fetch relevant case law based on query and jurisdiction (with caching)
  * Uses real legal APIs when available
  */
-export async function fetchRelevantCaseLaw(query: string, jurisdiction: string = 'us'): Promise<LegalCase[]> {
+export const fetchRelevantCaseLaw = withCache(
+  async (query: string, jurisdiction: string = 'us'): Promise<LegalCase[]> => {
   try {
     // Try to fetch cases from Casetext (or mock version)
     const cases = await searchCasetextParallel(query, jurisdiction, 3);
@@ -319,7 +328,12 @@ export async function fetchRelevantCaseLaw(query: string, jurisdiction: string =
       return [];
     }
   }
-}
+  },
+  // Cache key generator
+  (query: string, jurisdiction: string) => createCacheKey('case-law', jurisdiction, query.slice(0, 50)),
+  // Cache for 30 minutes
+  30 * 60 * 1000
+);
 
 /**
  * Fetch relevant statutes based on query and jurisdiction

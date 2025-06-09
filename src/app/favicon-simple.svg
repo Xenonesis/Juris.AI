@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Solid background for better ICO compatibility -->
+  <rect x="4" y="4" width="56" height="56" rx="14" ry="14" fill="#2563EB" />
+  
+  <!-- Scale icon -->
+  <g fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Central pillar -->
+    <line x1="32" y1="20" x2="32" y2="44" />
+    <!-- Top of scale -->
+    <line x1="28" y1="20" x2="36" y2="20" />
+    <!-- Left scale arm -->
+    <line x1="20" y1="28" x2="32" y2="24" />
+    <!-- Right scale arm -->
+    <line x1="32" y1="24" x2="44" y2="28" />
+    <!-- Left scale pan -->
+    <path d="M16 32 Q20 30 24 32 Q20 34 16 32 Z" />
+    <!-- Right scale pan -->
+    <path d="M40 36 Q44 34 48 36 Q44 38 40 36 Z" />
+    <!-- Left chain -->
+    <line x1="20" y1="28" x2="20" y2="32" />
+    <!-- Right chain -->
+    <line x1="44" y1="28" x2="44" y2="36" />
+    <!-- Base -->
+    <line x1="26" y1="44" x2="38" y2="44" />
+  </g>
+</svg>

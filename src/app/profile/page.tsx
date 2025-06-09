@@ -59,16 +59,31 @@ function ProfileContent() {
   }, [searchParams]);
 
   return (
-    <div className="container py-8 md:py-12 max-w-5xl mx-auto px-4">
-      <div className="space-y-2 mb-8">
-        <div className="flex items-center gap-2">
-          <User className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Your Profile</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10 py-8 md:py-12">
+      <div className="container max-w-5xl mx-auto px-4">
+        <div className="space-y-4 mb-12">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center shadow-lg">
+              <User className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-high-contrast text-shadow">Your Profile</h1>
+              <p className="text-muted-foreground max-w-2xl mt-2">
+                Manage your account information, security settings, and communication preferences
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-sm text-muted-foreground">Account Active</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+              <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+              <span className="text-sm text-muted-foreground">Secure Connection</span>
+            </div>
+          </div>
         </div>
-        <p className="text-muted-foreground max-w-2xl">
-          Manage your account information, security settings, and communication preferences
-        </p>
-      </div>
       
       <div className="mb-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -96,17 +111,19 @@ function ProfileContent() {
           </TabsList>
           
           <TabsContent value="profile">
-            <Card className="shadow-md border-muted/80">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" />
+            <Card className="shadow-xl border-muted/50 card-hover bg-card/80 backdrop-blur-sm">
+              <CardHeader className="border-b border-muted/30">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center">
+                    <User className="h-4 w-4 text-primary-foreground" />
+                  </div>
                   Profile Information
                 </CardTitle>
                 <CardDescription>
                   Update your personal information and how it appears across services
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-8">
                 <ProfileForm />
               </CardContent>
             </Card>
@@ -201,6 +218,7 @@ function ProfileContent() {
             </p>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

@@ -40,22 +40,39 @@ export default function LegalBertPage() {
   };
 
   return (
-    <div className="container max-w-5xl mx-auto py-8 px-4 animate-fadeIn">
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
-          <FileText className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">InLegalBERT Analysis</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10 py-8 px-4">
+      <div className="container max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 rounded-2xl professional-gradient flex items-center justify-center shadow-lg animate-bounce-gentle">
+              <FileText className="h-8 w-8 text-white dark:text-white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-bold text-high-contrast text-shadow mb-4">InLegalBERT Analysis</h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Advanced legal text analysis powered by specialized BERT language models for professional-grade document processing
+          </p>
+          <div className="flex items-center justify-center gap-6 mt-8">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-sm text-muted-foreground">BERT Model Ready</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+              <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+              <span className="text-sm text-muted-foreground">Real-time Analysis</span>
+            </div>
+          </div>
         </div>
-        <p className="text-muted-foreground">
-          Advanced legal text analysis powered by specialized BERT language models
-        </p>
-      </div>
       
-      <div className="transition-all duration-300">
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="text-xl">Legal Text Analyzer</CardTitle>
-            <CardDescription>Enter legal documents, clauses, or text for detailed analysis</CardDescription>
+        <Card className="shadow-2xl border-muted/30 card-hover bg-card/80 backdrop-blur-sm">
+          <CardHeader className="border-b border-muted/30">
+            <CardTitle className="text-xl flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center">
+                <FileText className="h-4 w-4 text-primary-foreground" />
+              </div>
+              Legal Text Analyzer
+            </CardTitle>
+            <CardDescription>Enter legal documents, clauses, or text for detailed analysis using advanced BERT models</CardDescription>
           </CardHeader>
           
           <CardContent className="space-y-4">
@@ -111,9 +128,8 @@ export default function LegalBertPage() {
             </Button>
           </CardFooter>
         </Card>
-      </div>
-      
-      {result && (
+
+        {result && (
         <div className="mt-8 transition-all duration-300 animate-fadeIn">
           <Card className="shadow-md">
             <CardHeader>
@@ -148,16 +164,17 @@ export default function LegalBertPage() {
             </CardContent>
           </Card>
         </div>
-      )}
-      
-      <div className="mt-8 animate-fadeIn" style={{ animationDelay: "200ms" }}>
+        )}
+
+        <div className="mt-8 animate-fadeIn [animation-delay:200ms]">
         <Alert className="bg-muted border-muted-foreground/20">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription className="text-xs text-muted-foreground">
             InLegalBERT provides analysis based on AI language models. Results should be reviewed by legal professionals and are not a substitute for professional legal advice.
           </AlertDescription>
         </Alert>
+        </div>
       </div>
     </div>
   );
-} 
+}

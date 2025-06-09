@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Trophy, Copy, Check, ArrowRight } from "lucide-react";
+import { Trophy, Copy, Check, ArrowRight, ChevronDown, ChevronUp, Maximize2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { cardHover } from "@/lib/motion";
 import { Separator } from "./ui/separator";
@@ -39,6 +39,10 @@ export function BestModelResult({ results, performances, jurisdiction }: BestMod
   const [bestModel, setBestModel] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [formattedContent, setFormattedContent] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showReadMore, setShowReadMore] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isExpanding, setIsExpanding] = useState(false);
   
   // Model information with names, colors, and descriptions
   const modelInfo = {
@@ -76,7 +80,7 @@ export function BestModelResult({ results, performances, jurisdiction }: BestMod
   useEffect(() => {
     if (bestModel && results[bestModel as keyof typeof results]) {
       let content = results[bestModel as keyof typeof results] || "";
-      
+
       // Remove asterisks from section titles and replace with proper styling
       content = content
         // Replace "**Title:**" patterns with clean headings
@@ -84,8 +88,13 @@ export function BestModelResult({ results, performances, jurisdiction }: BestMod
         // Remove remaining asterisks for emphasis
         .replace(/\*\*(.*?)\*\*/g, "$1")
         .replace(/\*(.*?)\*/g, "$1");
-      
+
       setFormattedContent(content);
+
+      // Check if content is long enough to need "Read More" functionality
+      // Consider content long if it has more than 1000 characters or more than 5 paragraphs
+      const paragraphs = content.split('\n\n').filter(p => p.trim());
+      setShowReadMore(content.length > 1000 || paragraphs.length > 5);
     }
   }, [bestModel, results]);
 
@@ -108,11 +117,32 @@ export function BestModelResult({ results, performances, jurisdiction }: BestMod
 
   const handleCopy = () => {
     if (!bestModel || !results[bestModel as keyof typeof results]) return;
-    
+
     navigator.clipboard.writeText(results[bestModel as keyof typeof results] || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Keyboard shortcut for fullscreen (F key)
+  const handleKeyPress = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'f' || event.key === 'F') {
+      if (event.target === document.body || (event.target as HTMLElement)?.tagName === 'BODY') {
+        event.preventDefault();
+        setIsFullscreen(!isFullscreen);
+      }
+    }
+    // Escape key to exit fullscreen
+    if (event.key === 'Escape' && isFullscreen) {
+      setIsFullscreen(false);
+    }
+  }, [isFullscreen]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyPress);
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   if (!bestModel) {
     return <div className="p-6 text-center">No results available</div>;
@@ -121,53 +151,67 @@ export function BestModelResult({ results, performances, jurisdiction }: BestMod
   // Format paragraphs properly for better readability
   const formatDisplayContent = (content: string | null) => {
     if (!content) return null;
-    
+
     const paragraphs = content.split('\n\n').filter(p => p.trim());
-    
+
+    // If content should be truncated and not expanded, show only first few paragraphs
+    const displayParagraphs = showReadMore && !isExpanded
+      ? paragraphs.slice(0, 3)
+      : paragraphs;
+
+    const renderParagraph = (paragraph: string, index: number) => {
+      // Check if this is a section header (ends with colon and is short)
+      if (paragraph.trim().endsWith(':') && paragraph.length < 50) {
+        return (
+          <h3 key={index} className="text-lg font-semibold mt-3 mb-2 text-primary">
+            {paragraph.trim()}
+          </h3>
+        );
+      }
+
+      // Check if this might be a list
+      if (paragraph.includes('\n')) {
+        const lines = paragraph.split('\n');
+
+        // If lines start with numbers or dashes, format as a list
+        if (lines.some(line => /^\d+\.|\-/.test(line.trim()))) {
+          return (
+            <ul key={index} className="my-3 space-y-1 list-inside">
+              {lines.map((line, lineIndex) => {
+                const formattedLine = line
+                  .replace(/^(\d+\.\s*)/, "")
+                  .replace(/^(\-\s*)/, "");
+
+                return (
+                  <li key={lineIndex} className="flex items-start">
+                    <ArrowRight className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-primary" />
+                    <span>{formattedLine.trim()}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+      }
+
+      // Regular paragraph
+      return (
+        <p key={index} className="my-2 text-sm sm:text-base leading-relaxed">
+          {paragraph.trim()}
+        </p>
+      );
+    };
+
     return (
       <>
-        {paragraphs.map((paragraph, index) => {
-          // Check if this is a section header (ends with colon and is short)
-          if (paragraph.trim().endsWith(':') && paragraph.length < 50) {
-            return (
-              <h3 key={index} className="text-lg font-semibold mt-3 mb-2 text-primary">
-                {paragraph.trim()}
-              </h3>
-            );
-          }
-          
-          // Check if this might be a list
-          if (paragraph.includes('\n')) {
-            const lines = paragraph.split('\n');
-            
-            // If lines start with numbers or dashes, format as a list
-            if (lines.some(line => /^\d+\.|\-/.test(line.trim()))) {
-              return (
-                <ul key={index} className="my-3 space-y-1 list-inside">
-                  {lines.map((line, lineIndex) => {
-                    const formattedLine = line
-                      .replace(/^(\d+\.\s*)/, "")
-                      .replace(/^(\-\s*)/, "");
-                    
-                    return (
-                      <li key={lineIndex} className="flex items-start">
-                        <ArrowRight className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-primary" />
-                        <span>{formattedLine.trim()}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              );
-            }
-          }
-          
-          // Regular paragraph
-          return (
-            <p key={index} className="my-2 text-sm sm:text-base">
-              {paragraph.trim()}
+        {displayParagraphs.map(renderParagraph)}
+        {showReadMore && !isExpanded && paragraphs.length > 3 && (
+          <div className="mt-4 text-center">
+            <p className="text-sm text-muted-foreground mb-2">
+              ... and {paragraphs.length - 3} more sections
             </p>
-          );
-        })}
+          </div>
+        )}
       </>
     );
   };
@@ -242,15 +286,85 @@ export function BestModelResult({ results, performances, jurisdiction }: BestMod
             
             <Separator className="my-1" />
             
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="bg-muted/50 p-5 rounded-md border border-border"
+              className={`bg-muted/50 p-5 rounded-md border border-border relative ${
+                isFullscreen ? 'fixed inset-4 z-50 overflow-y-auto bg-background/95 backdrop-blur-sm' : ''
+              }`}
             >
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                {formatDisplayContent(formattedContent)}
+              {/* Fullscreen toggle button */}
+              <div className="flex justify-end mb-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="opacity-60 hover:opacity-100 transition-opacity"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </Button>
               </div>
+
+              <div className={`prose prose-sm dark:prose-invert max-w-none ${
+                isFullscreen ? 'prose-lg' : ''
+              }`}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={isExpanded ? 'expanded' : 'collapsed'}
+                    initial={{ opacity: 0, height: 'auto' }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 'auto' }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {formatDisplayContent(formattedContent)}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Read More / Show Less button */}
+              {showReadMore && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex justify-center mt-4 pt-4 border-t border-border/50"
+                >
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      setIsExpanding(true);
+                      // Small delay for smooth animation
+                      await new Promise(resolve => setTimeout(resolve, 100));
+                      setIsExpanded(!isExpanded);
+                      setIsExpanding(false);
+                    }}
+                    disabled={isExpanding}
+                    className="flex items-center gap-2 hover:bg-primary/5 transition-colors read-more-btn"
+                  >
+                    {isExpanding ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 0.5, repeat: Infinity, ease: "linear" }}
+                          className="h-4 w-4 border-2 border-current border-t-transparent rounded-full"
+                        />
+                        Loading...
+                      </>
+                    ) : isExpanded ? (
+                      <>
+                        <ChevronUp className="h-4 w-4" />
+                        Show Less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-4 w-4" />
+                        Read More
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
+              )}
             </motion.div>
             
             <motion.div

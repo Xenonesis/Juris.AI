@@ -18,8 +18,8 @@ const ValueSection = () => {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/60"></div>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                <Scale className="h-6 w-6 text-primary" />
+              <div className="p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors border border-primary/20">
+                <Scale className="h-6 w-6 text-primary dark:text-primary" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }} />
               </div>
               <CardTitle className="text-xl font-semibold text-foreground">Accuracy & Integrity</CardTitle>
             </div>
