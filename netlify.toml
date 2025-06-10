@@ -1,9 +1,9 @@
 [build]
-  # Build command for Next.js
-  command = "npm run build"
+  # Build command for Next.js with increased memory
+  command = "npm ci && npm run build"
 
   # Node.js version (explicitly set to avoid Python detection)
-  environment = { NODE_VERSION = "18" }
+  environment = { NODE_VERSION = "18.20.4", NPM_FLAGS = "--legacy-peer-deps" }
 
 # Use Netlify's Next.js plugin
 [[plugins]]
