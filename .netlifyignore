@@ -1,0 +1,28 @@
+# Netlify ignore file for Next.js project
+# Ignore development files
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore build artifacts
+.next/
+out/
+build/
+
+# Ignore dependencies
+node_modules/
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore any Vite-related files (this is a Next.js project)
+vite.config.*
+*.vite.*
+lovable-tagger*
