@@ -1,0 +1,60 @@
+[build]
+  # Build command for Next.js
+  command = "npm run build"
+
+  # Node.js version (explicitly set to avoid Python detection)
+  environment = { NODE_VERSION = "18" }
+
+# Use Netlify's Next.js plugin
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Next.js specific settings
+[build.processing]
+  # Skip form processing for static sites
+  skip_processing = false
+
+[build.processing.css]
+  # Enable CSS optimization
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  # Enable JS optimization
+  bundle = true
+  minify = true
+
+# Redirect rules for Next.js routing
+[[redirects]]
+  from = "/_next/*"
+  to = "/_next/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Environment variables (if needed)
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "production"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "production"
