@@ -1,18 +1,19 @@
-# Juris.AI - AI-Powered Legal Assistant (v1.7)
+# Juris.AI - AI-Powered Legal Assistant (v1.8)
 
 A cutting-edge legal assistant that combines multiple AI models with an intuitive interface to deliver comprehensive legal insights, case analysis, and strategic recommendations.
 
-## 🆕 Latest Updates (v1.7)
-- 🎨 **Complete UI/UX Overhaul** - Modern, professional design with enhanced user experience
-- ⚡ **Performance Optimizations** - Lazy loading, code splitting, and improved loading states
-- 🔧 **Enhanced Components** - New loading buttons, skeleton loaders, and interactive elements
-- 🎯 **Improved Accessibility** - Better keyboard navigation and screen reader support
-- 📱 **Mobile Responsiveness** - Optimized for all device sizes with touch-friendly interactions
-- 🌈 **Advanced Theming** - Enhanced dark/light mode with smooth transitions
-- 🚀 **Production Ready** - Fully optimized build with performance monitoring
-- 🔒 **Security Enhanced** - Latest security patches and dependency updates
-- 📊 **Better Analytics** - Performance monitoring and user experience tracking
-- 🎭 **Animation System** - Smooth transitions and micro-interactions throughout the app
+## 🆕 Latest Updates (v1.8)
+
+- 🎯 **Comprehensive Services Page** - Complete services showcase with detailed feature descriptions
+- 🎨 **Enhanced Light Mode Colors** - Vibrant, professional color palette with improved contrast
+- 💳 **Pricing Plans** - Clear pricing structure with Free, Professional, and Enterprise tiers
+- 🏆 **Service Comparison** - Detailed feature comparison table across all service levels
+- 💬 **User Testimonials** - Real user feedback and ratings from legal professionals
+- ❓ **Interactive FAQ** - Comprehensive FAQ section with expandable answers
+- ✨ **Enhanced Animations** - Smooth hover effects, transitions, and micro-interactions
+- 🎨 **Gradient Designs** - Beautiful gradient backgrounds and enhanced visual depth
+- 📱 **Mobile Optimized** - Fully responsive services page for all device sizes
+- 🔗 **Improved Navigation** - Updated navigation to link to dedicated services page
 
 ## 🚀 Features
 
@@ -37,6 +38,15 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
 - **Citation Generator**: Automatically format legal citations
 - **Search Functionality**: Quick access to previous queries and results
 - **Export Options**: Save or share analysis in multiple formats (PDF, DOCX, TXT)
+
+### 🎯 Services Page (New in v1.8)
+- **Comprehensive Service Showcase**: Detailed overview of all AI-powered legal services
+- **Pricing Plans**: Transparent pricing with Free, Professional, and Enterprise tiers
+- **Feature Comparison**: Side-by-side comparison of features across all plans
+- **User Testimonials**: Real feedback from legal professionals and students
+- **Interactive FAQ**: Expandable answers to common questions
+- **Enhanced Visual Design**: Vibrant colors, gradients, and smooth animations
+- **Mobile-First Design**: Fully responsive layout optimized for all devices
 
 ## 🛠 Tech Stack
 
@@ -148,6 +158,7 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
 ### 📱 Page Designs
 
 - **Landing Page**: Clean, professional layout with clear value proposition and CTA
+- **Services Page**: Comprehensive showcase of all legal services with pricing and comparisons
 - **Auth Pages**: Streamlined login/signup flow with social authentication options
 - **Chat Interface**: Intuitive conversation design with AI response formatting
 - **Profile Dashboard**: User-friendly profile management with settings and history
@@ -157,7 +168,20 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
 ## 📜 Version History
 
 ### 🚀 Current Version
-- **1.7** - *Latest Release*
+- **1.8** - *Latest Release*
+  - **🎯 Comprehensive Services Page**: Complete services showcase with detailed feature descriptions
+  - **🎨 Enhanced Light Mode Colors**: Vibrant, professional color palette with improved contrast
+  - **💳 Pricing Plans**: Clear pricing structure with Free, Professional, and Enterprise tiers
+  - **🏆 Service Comparison**: Detailed feature comparison table across all service levels
+  - **💬 User Testimonials**: Real user feedback and ratings from legal professionals
+  - **❓ Interactive FAQ**: Comprehensive FAQ section with expandable answers
+  - **✨ Enhanced Animations**: Smooth hover effects, transitions, and micro-interactions
+  - **🎨 Gradient Designs**: Beautiful gradient backgrounds and enhanced visual depth
+  - **📱 Mobile Optimized**: Fully responsive services page for all device sizes
+  - **🔗 Improved Navigation**: Updated navigation to link to dedicated services page
+
+### ⏮️ Previous Versions
+- **1.7** - *Previous Release*
   - **🎨 Complete UI/UX Overhaul**: Modern, professional design with enhanced user experience
   - **⚡ Performance Optimizations**: Lazy loading, code splitting, and improved loading states
   - **🔧 Enhanced Components**: New loading buttons, skeleton loaders, and interactive elements
@@ -169,7 +193,6 @@ A cutting-edge legal assistant that combines multiple AI models with an intuitiv
   - **📊 Better Analytics**: Performance monitoring and user experience tracking
   - **🎭 Animation System**: Smooth transitions and micro-interactions throughout the app
 
-### ⏮️ Previous Versions
 - **1.4 (Beta)**
   - **🔄 Package Updates**: All dependencies updated to latest versions
   - **🔒 Security Fixes**: Resolved 7 critical security vulnerabilities
