@@ -6,9 +6,6 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Netlify deployment configuration
-  trailingSlash: true,
-
   // Performance optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
