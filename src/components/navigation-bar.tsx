@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X, User, LogOut, MessageSquare, Home, Info, Phone, Sparkles, Scale, BookOpen } from "lucide-react";
+import { Menu, X, User, LogOut, MessageSquare, Home, Info, Phone, Sparkles, Scale, BookOpen, Search, Command } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
@@ -19,11 +20,12 @@ type NavUser = {
 
 export function NavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { user, isLoading, signOut } = useAuth();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
-  // Track scroll position for navbar styling
+  // Track scroll position for navbar styling and keyboard shortcuts
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
@@ -33,8 +35,26 @@ export function NavigationBar() {
       }
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Command/Ctrl + K to open search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      // Escape to close modals
+      if (e.key === 'Escape') {
+        setSearchOpen(false);
+        setIsOpen(false);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   // Avatar helper - get initials from name or email
@@ -50,6 +70,7 @@ export function NavigationBar() {
   }
 
   const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleSearch = () => setSearchOpen(!searchOpen);
 
   const handleSignOut = async () => {
     await signOut();
@@ -138,6 +159,29 @@ export function NavigationBar() {
               )}
             </ul>
             <div className="flex items-center gap-3">
+              {/* Search Button */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleSearch}
+                      className="hidden lg:flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      <Search className="h-4 w-4" />
+                      <span className="text-sm">Search</span>
+                      <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                        <span className="text-xs">⌘</span>K
+                      </kbd>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Search (⌘K)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
               {isLoading ? (
                 <div className="h-9 w-24 rounded-md bg-muted animate-pulse" />
               ) : user ? (
@@ -184,6 +228,17 @@ export function NavigationBar() {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-3">
+            {/* Mobile Search Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSearch}
+              aria-label="Search"
+              className="text-muted-foreground hover:text-primary"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+
             {user && (
               <TooltipProvider>
                 <Tooltip>
@@ -205,109 +260,258 @@ export function NavigationBar() {
               </TooltipProvider>
             )}
             <ThemeToggle />
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={toggleMenu}
               aria-label="Toggle menu"
               className="relative"
             >
-              <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary animate-pulse opacity-70"></div>
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <motion.div
+                animate={{ rotate: isOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </motion.div>
             </Button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ${isOpen ? 'opacity-100 h-auto pt-4 pb-2' : 'opacity-0 h-0'}`}
-        >
-          <nav>
-            <ul className="flex flex-col gap-3 rounded-xl bg-background/95 shadow-lg px-3 py-2 border border-border">
-              {menuItems.map((item) => {
-                const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-                return (
-                  <li
-                    key={item.id}
-                    className={`border-b border-border pb-2 ${isActive ? "text-primary font-semibold" : ""}`}
-                  >
-                    <Link
-                      href={item.href}
-                      className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 px-2 py-1.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                      onClick={() => setIsOpen(false)}
-                      aria-current={isActive ? "page" : undefined}
-                      tabIndex={0}
-                    >
-                      <span className={isActive ? "text-primary" : "text-muted-foreground"}>
-                        {item.icon}
-                      </span>
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
-              {user && (
-                <li
-                  className={`border-b border-border pb-2 ${pathname === "/chat" ? "text-primary font-semibold" : ""}`}
-                >
-                  <Link
-                    href="/chat"
-                    className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 px-2 py-1.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                    onClick={() => setIsOpen(false)}
-                    aria-current={pathname === "/chat" ? "page" : undefined}
-                    tabIndex={0}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Chat
-                    <Badge variant="outline" className="ml-1 py-0 h-4 text-[10px] font-normal">AI</Badge>
-                  </Link>
-                </li>
-              )}
-              {user ? (
-                <>
-                  <li
-                    className="border-b border-border pb-2 flex items-center gap-2"
-                  >
-                    <Link
-                      href="/profile"
-                      className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 px-2 py-1.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/70 w-full"
-                      onClick={() => setIsOpen(false)}
-                      aria-current={pathname === "/profile" ? "page" : undefined}
-                      tabIndex={0}
-                    >
-                      <User className="h-4 w-4" />
-                      View Profile
-                    </Link>
-                  </li>
-                  <li className="pt-2">
-                    <Button
-                      size="sm"
-                      className="w-full flex items-center justify-center gap-2"
-                      onClick={handleSignOut}
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Logout
-                    </Button>
-                  </li>
-                </>
-              ) :
-                <li className="pt-2">
-                  <Link
-                    href="/auth/login"
-                    className="w-full outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-md"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Button size="sm" className="w-full flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Sign In
-                    </Button>
-                  </Link>
-                </li>
-              }
-            </ul>
-          </nav>
-        </div>
+        {/* Enhanced Mobile Menu with Animation */}
+        <AnimatePresence>
+          {isOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+                onClick={() => setIsOpen(false)}
+              />
+
+              {/* Mobile Menu */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="md:hidden absolute top-full left-0 right-0 z-50 mt-2 mx-4"
+              >
+                <nav className="rounded-xl bg-background/95 backdrop-blur-lg shadow-xl border border-border/50 overflow-hidden">
+                  <div className="flex flex-col">
+                    {menuItems.map((item, index) => {
+                      const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+                      return (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1, duration: 0.3 }}
+                          className={`border-b border-border/30 last:border-b-0 ${isActive ? "bg-primary/5" : ""}`}
+                        >
+                          <Link
+                            href={item.href}
+                            className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200 flex items-center gap-3 px-4 py-3 group"
+                            onClick={() => setIsOpen(false)}
+                            aria-current={isActive ? "page" : undefined}
+                          >
+                            <span className={`transition-all duration-200 group-hover:scale-110 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                              {item.icon}
+                            </span>
+                            <span className={`font-medium ${isActive ? "text-primary" : ""}`}>
+                              {item.label}
+                            </span>
+                            {isActive && (
+                              <motion.div
+                                layoutId="mobile-active-indicator"
+                                className="ml-auto w-2 h-2 rounded-full bg-primary"
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                              />
+                            )}
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
+                    {user && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: menuItems.length * 0.1, duration: 0.3 }}
+                        className={`border-b border-border/30 ${pathname === "/chat" ? "bg-primary/5" : ""}`}
+                      >
+                        <Link
+                          href="/chat"
+                          className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200 flex items-center gap-3 px-4 py-3 group"
+                          onClick={() => setIsOpen(false)}
+                          aria-current={pathname === "/chat" ? "page" : undefined}
+                        >
+                          <MessageSquare className={`h-4 w-4 transition-all duration-200 group-hover:scale-110 ${pathname === "/chat" ? "text-primary" : "text-muted-foreground"}`} />
+                          <span className={`font-medium ${pathname === "/chat" ? "text-primary" : ""}`}>
+                            Chat
+                          </span>
+                          <Badge variant="outline" className="ml-auto py-0 h-4 text-[10px] font-normal">AI</Badge>
+                          {pathname === "/chat" && (
+                            <motion.div
+                              layoutId="mobile-active-indicator"
+                              className="w-2 h-2 rounded-full bg-primary"
+                              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            />
+                          )}
+                        </Link>
+                      </motion.div>
+                    )}
+
+                    {/* User Actions Section */}
+                    <div className="border-t border-border/30 bg-muted/20">
+                      {user ? (
+                        <>
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: (menuItems.length + 1) * 0.1, duration: 0.3 }}
+                          >
+                            <Link
+                              href="/profile"
+                              className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200 flex items-center gap-3 px-4 py-3 group"
+                              onClick={() => setIsOpen(false)}
+                              aria-current={pathname === "/profile" ? "page" : undefined}
+                            >
+                              <User className="h-4 w-4 transition-all duration-200 group-hover:scale-110" />
+                              <span className="font-medium">View Profile</span>
+                            </Link>
+                          </motion.div>
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: (menuItems.length + 2) * 0.1, duration: 0.3 }}
+                            className="p-4"
+                          >
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full flex items-center justify-center gap-2 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                              onClick={handleSignOut}
+                            >
+                              <LogOut className="h-4 w-4" />
+                              Logout
+                            </Button>
+                          </motion.div>
+                        </>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: (menuItems.length + 1) * 0.1, duration: 0.3 }}
+                          className="p-4"
+                        >
+                          <Link
+                            href="/auth/login"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            <Button size="sm" className="w-full flex items-center gap-2">
+                              <User className="h-4 w-4" />
+                              Sign In
+                            </Button>
+                          </Link>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+                </nav>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Search Command Palette */}
+        <AnimatePresence>
+          {searchOpen && (
+            <>
+              {/* Search Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+                onClick={() => setSearchOpen(false)}
+              />
+
+              {/* Search Modal */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="fixed top-[20%] left-1/2 transform -translate-x-1/2 w-full max-w-2xl mx-4 z-50"
+              >
+                <div className="bg-background/95 backdrop-blur-lg rounded-xl shadow-2xl border border-border/50 overflow-hidden">
+                  <div className="flex items-center gap-3 px-4 py-3 border-b border-border/30">
+                    <Search className="h-5 w-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search pages, features, and more..."
+                      className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
+                      autoFocus
+                    />
+                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                      ESC
+                    </kbd>
+                  </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+                    <div className="p-2">
+                      <div className="text-xs font-medium text-muted-foreground px-2 py-1 mb-2">Quick Actions</div>
+                      {menuItems.map((item) => (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          onClick={() => setSearchOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group"
+                        >
+                          <span className="text-muted-foreground group-hover:text-primary transition-colors">
+                            {item.icon}
+                          </span>
+                          <span className="font-medium">{item.label}</span>
+                        </Link>
+                      ))}
+
+                      {user && (
+                        <>
+                          <div className="text-xs font-medium text-muted-foreground px-2 py-1 mb-2 mt-4">User Actions</div>
+                          <Link
+                            href="/chat"
+                            onClick={() => setSearchOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group"
+                          >
+                            <MessageSquare className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <span className="font-medium">Chat with AI</span>
+                            <Badge variant="outline" className="ml-auto py-0 h-4 text-[10px] font-normal">AI</Badge>
+                          </Link>
+                          <Link
+                            href="/profile"
+                            onClick={() => setSearchOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group"
+                          >
+                            <User className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <span className="font-medium">View Profile</span>
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border/30 px-4 py-2 text-xs text-muted-foreground">
+                    Use ↑↓ to navigate, ↵ to select, ESC to close
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );
-} 
+}

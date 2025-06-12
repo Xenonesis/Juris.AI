@@ -1504,6 +1504,137 @@
   }
 
   /* ========================================
+     ENHANCED NAVBAR ANIMATIONS
+     ======================================== */
+
+  /* Navbar link hover effects */
+  .navbar-link {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .navbar-link::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+      oklch(var(--gradient-primary-start)),
+      oklch(var(--gradient-secondary-start)));
+    transition: width 0.3s ease-out;
+  }
+
+  .navbar-link:hover::before {
+    width: 100%;
+  }
+
+  .navbar-link.active::before {
+    width: 100%;
+  }
+
+  /* Enhanced mobile menu animations */
+  .mobile-menu-item {
+    transform: translateX(-20px);
+    opacity: 0;
+    animation: slideInLeft 0.3s ease-out forwards;
+  }
+
+  .mobile-menu-item:nth-child(1) { animation-delay: 0.1s; }
+  .mobile-menu-item:nth-child(2) { animation-delay: 0.2s; }
+  .mobile-menu-item:nth-child(3) { animation-delay: 0.3s; }
+  .mobile-menu-item:nth-child(4) { animation-delay: 0.4s; }
+  .mobile-menu-item:nth-child(5) { animation-delay: 0.5s; }
+
+  @keyframes slideInLeft {
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* Search modal animations */
+  .search-modal {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: hsl(var(--foreground));
+  }
+
+  .search-input::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Enhanced button hover effects */
+  .nav-button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle,
+      oklch(var(--gradient-primary-start) / 0.1) 0%,
+      transparent 70%);
+    transition: all 0.3s ease-out;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+  }
+
+  .nav-button:hover::before {
+    width: 200px;
+    height: 200px;
+  }
+
+  .nav-button:active {
+    transform: scale(0.95);
+  }
+
+  /* Logo enhancement */
+  .logo-container {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .logo-container:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 4px 12px oklch(var(--gradient-primary-start) / 0.3));
+  }
+
+  /* Theme toggle enhancement */
+  .theme-toggle {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .theme-toggle:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 4px 12px oklch(var(--gradient-primary-start) / 0.2);
+  }
+
+  /* Mobile menu backdrop */
+  .mobile-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .dark .mobile-backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  /* ========================================
      EXPANDABLE CONTENT STYLES
      ======================================== */
 
