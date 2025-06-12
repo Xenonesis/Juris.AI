@@ -10,10 +10,12 @@ import { format } from 'date-fns';
 interface ChatSession {
   date: string;
   messages: Array<{
-    id: string;
+    id?: string;
+    user_id: string;
     content: string;
-    role: 'user' | 'assistant';
+    is_user_message: boolean;
     created_at: string;
+    ai_name?: string;
   }>;
 }
 
@@ -26,11 +28,13 @@ export function ChatSidebar() {
     const fetchUser = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('ChatSidebar - User:', user?.id);
       setUser(user);
 
       if (user) {
         loadRecentSessions(user.id);
       } else {
+        console.log('ChatSidebar - No user found');
         setLoading(false);
       }
     };
@@ -60,6 +64,8 @@ export function ChatSidebar() {
         console.error('Error loading recent sessions:', error);
         return;
       }
+
+      console.log('Fetched messages:', messages?.length || 0, messages);
 
       if (messages && messages.length > 0) {
         // Group messages by date
@@ -96,7 +102,7 @@ export function ChatSidebar() {
   const getSessionTitle = (session: ChatSession) => {
     // Find the first user message to use as title
     const firstUserMessage = session.messages
-      .filter(msg => msg.role === 'user')
+      .filter(msg => msg.is_user_message === true)
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())[0];
 
     if (firstUserMessage) {
