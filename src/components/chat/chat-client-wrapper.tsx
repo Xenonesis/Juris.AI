@@ -1,7 +1,19 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { ModernChat } from './modern-chat';
+import { Loader2 } from 'lucide-react';
+
+function ChatLoading() {
+  return (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="flex flex-col items-center space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading chat...</p>
+      </div>
+    </div>
+  );
+}
 
 export function ChatClientWrapper() {
   useEffect(() => {
@@ -11,5 +23,9 @@ export function ChatClientWrapper() {
     };
   }, []);
 
-  return <ModernChat />;
+  return (
+    <Suspense fallback={<ChatLoading />}>
+      <ModernChat />
+    </Suspense>
+  );
 }
