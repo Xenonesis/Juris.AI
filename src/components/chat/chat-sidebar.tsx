@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import Link from "next/link";
 import { Plus, Settings, History, Scale, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format } from 'date-fns';
+// Removed date-fns import to fix deployment issue
 
 interface ChatSession {
   date: string;
@@ -28,13 +28,13 @@ export function ChatSidebar() {
     const fetchUser = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      console.log('ChatSidebar - User:', user?.id);
+      // Debug: console.log('ChatSidebar - User:', user?.id);
       setUser(user);
 
       if (user) {
         loadRecentSessions(user.id);
       } else {
-        console.log('ChatSidebar - No user found');
+        // Debug: console.log('ChatSidebar - No user found');
         setLoading(false);
       }
     };
@@ -65,7 +65,7 @@ export function ChatSidebar() {
         return;
       }
 
-      console.log('Fetched messages:', messages?.length || 0, messages);
+      // Debug: console.log('Fetched messages:', messages?.length || 0, messages);
 
       if (messages && messages.length > 0) {
         // Group messages by date
@@ -133,14 +133,14 @@ export function ChatSidebar() {
       } else if (diffInDays < 7) {
         return `${diffInDays} days ago`;
       } else {
-        return format(date, 'MMM d');
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       }
     }
   };
 
   const handleSessionClick = (session: ChatSession) => {
     // Navigate to chat with session parameter
-    const sessionDate = format(new Date(session.date), 'yyyy-MM-dd');
+    const sessionDate = new Date(session.date).toISOString().split('T')[0];
     window.location.href = `/chat?session=${sessionDate}`;
   };
 
