@@ -1,15 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef, ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { 
-  User, Bot, ThumbsUp, ThumbsDown, Copy, Send,
-  RefreshCcw, AlertTriangle, ChevronDown
+import {
+  RefreshCcw, AlertTriangle, ChevronDown, Loader2, Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,6 +15,10 @@ import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
 import { getAIResponse, getLegalAdvice } from '@/lib/ai-services';
 import { getUserApiKeys } from '@/lib/api-key-service';
+import { MessageBubble } from './message-bubble';
+import { EnhancedChatInput } from './enhanced-chat-input';
+import { WelcomeScreen } from './welcome-screen';
+import { useSearchParams } from 'next/navigation';
 
 interface ChatMessage {
   id?: string;
@@ -56,6 +57,7 @@ interface LegalSources {
 }
 
 export function ModernChat() {
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -73,25 +75,30 @@ export function ModernChat() {
   const [userApiKeys, setUserApiKeys] = useState<Record<string, string>>({});
   const [missingApiKeyWarning, setMissingApiKeyWarning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [regeneratingMessageId, setRegeneratingMessageId] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      
+
       if (user) {
-        loadChatHistory(user.id);
+        // Check if we should load a specific session
+        const sessionDate = searchParams.get('session');
+        if (sessionDate) {
+          loadSpecificSession(user.id, sessionDate);
+        } else {
+          loadChatHistory(user.id);
+        }
         loadUserApiKeys(user.id);
       }
     };
 
     fetchUser();
-  }, []);
+  }, [searchParams]);
 
   // Load user API keys
   const loadUserApiKeys = async (userId: string) => {
@@ -125,7 +132,7 @@ export function ModernChat() {
 
   const loadChatHistory = async (userId: string) => {
     setLoading(true);
-    
+
     try {
       const supabase = createClient();
       const { data, error } = await supabase
@@ -133,14 +140,45 @@ export function ModernChat() {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: true });
-      
+
       if (error) throw error;
-      
+
       if (data) {
         setMessages(data);
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSpecificSession = async (userId: string, sessionDate: string) => {
+    setLoading(true);
+
+    try {
+      const supabase = createClient();
+
+      // Load messages from the specific date
+      const startOfDay = new Date(sessionDate);
+      const endOfDay = new Date(sessionDate);
+      endOfDay.setDate(endOfDay.getDate() + 1);
+
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('created_at', startOfDay.toISOString())
+        .lt('created_at', endOfDay.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      if (data) {
+        setMessages(data);
+      }
+    } catch (error) {
+      console.error('Error loading specific session:', error);
     } finally {
       setLoading(false);
     }
@@ -286,12 +324,7 @@ export function ModernChat() {
     } finally {
       setProcessing(false);
       setIsTyping(false);
-      
-      // Focus input field after sending
-      setTimeout(() => {
-        textareaRef.current?.focus();
-      }, 300);
-      
+
       // Scroll to bottom again after response
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -310,14 +343,14 @@ export function ModernChat() {
   const handleMessageReaction = (messageId: string, reaction: 'like' | 'dislike') => {
     const currentReaction = messageReactions[messageId];
     const newReaction = currentReaction === reaction ? null : reaction;
-    
+
     const updatedReactions = {
       ...messageReactions,
       [messageId]: newReaction
     };
-    
+
     setMessageReactions(updatedReactions);
-    
+
     // Save to localStorage
     try {
       localStorage.setItem('messageReactions', JSON.stringify(updatedReactions));
@@ -326,22 +359,81 @@ export function ModernChat() {
     }
   };
 
-  // Auto-resize textarea height as user types
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessageInput(e.target.value);
-    
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+  const handleRegenerateMessage = async (messageId: string) => {
+    if (!user || processing || regeneratingMessageId) return;
+
+    // Find the message to regenerate
+    const messageIndex = messages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1) return;
+
+    const messageToRegenerate = messages[messageIndex];
+    if (messageToRegenerate.is_user_message) return; // Can't regenerate user messages
+
+    // Find the previous user message to get the original prompt
+    let userMessageIndex = messageIndex - 1;
+    while (userMessageIndex >= 0 && !messages[userMessageIndex].is_user_message) {
+      userMessageIndex--;
+    }
+
+    if (userMessageIndex < 0) return; // No user message found
+
+    const userMessage = messages[userMessageIndex];
+
+    setRegeneratingMessageId(messageId);
+    setProcessing(true);
+    setIsTyping(true);
+
+    try {
+      // Generate new AI response
+      let aiResponse;
+      if (legalMode) {
+        aiResponse = await getLegalAdvice(userMessage.content, aiProvider, jurisdiction);
+      } else {
+        aiResponse = await getAIResponse(userMessage.content, aiProvider, userApiKeys);
+      }
+
+      // Create the new AI response message
+      const newAiMessage: ChatMessage = {
+        id: messageId, // Keep the same ID to replace the existing message
+        user_id: user.id,
+        content: aiResponse,
+        is_user_message: false,
+        created_at: new Date().toISOString(),
+        ai_name: aiProvider,
+      };
+
+      // Update the message in the array
+      const updatedMessages = [...messages];
+      updatedMessages[messageIndex] = newAiMessage;
+      setMessages(updatedMessages);
+
+      // Save the regenerated message to the database
+      await saveMessage(newAiMessage);
+
+    } catch (error) {
+      console.error('Error regenerating message:', error);
+
+      // Show error message
+      const errorMessage: ChatMessage = {
+        id: `error-${Date.now()}`,
+        user_id: user.id,
+        content: 'Sorry, there was an error regenerating the response. Please try again.',
+        is_user_message: false,
+        created_at: new Date().toISOString(),
+      };
+
+      // Replace the message with error
+      const updatedMessages = [...messages];
+      updatedMessages[messageIndex] = errorMessage;
+      setMessages(updatedMessages);
+    } finally {
+      setProcessing(false);
+      setIsTyping(false);
+      setRegeneratingMessageId(null);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !processing) {
-      e.preventDefault();
-      formRef.current?.requestSubmit();
-    }
-  };
+
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -367,350 +459,243 @@ export function ModernChat() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Chat header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 backdrop-blur-sm p-3">
-        <div className="flex items-center">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="mr-2"
-            onClick={handleNewChat}
-          >
-            <RefreshCcw className="h-4 w-4 mr-1" />
-            New Chat
-          </Button>
-          
-          {messages.length > 0 && (
-            <Badge variant="outline" className="text-xs">
-              {aiProvider.charAt(0).toUpperCase() + aiProvider.slice(1)} AI
-            </Badge>
-          )}
-        </div>
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => setShowSettings(!showSettings)}
-          className="flex items-center gap-1"
-        >
-          Settings
-          <ChevronDown className="h-3 w-3 ml-1" />
-        </Button>
-      </header>
-      
-      {/* Settings panel (collapsible) */}
-      {showSettings && (
-        <div className="border-b bg-muted/20 p-3 grid gap-3 text-sm">
-          <div className="flex flex-wrap gap-4">
-            <div className="min-w-[180px]">
-              <Label htmlFor="ai-provider-select" className="text-xs mb-1 block">AI Provider</Label>
-              <Select 
-                value={aiProvider} 
-                onValueChange={(value) => setAiProvider(value as 'gemini' | 'mistral')}
+      {/* Enhanced Chat Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-md shadow-sm"
+      >
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="hover:bg-primary/10 hover:border-primary/30 transition-all duration-200"
+              onClick={handleNewChat}
+            >
+              <RefreshCcw className="h-4 w-4 mr-2" />
+              New Chat
+            </Button>
+
+            {messages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 }}
               >
-                <SelectTrigger id="ai-provider-select" className="h-8">
-                  <SelectValue placeholder="Select AI provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mistral">Mistral AI</SelectItem>
-                  <SelectItem value="gemini">Google Gemini</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="min-w-[140px]">
-              <div className="mb-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="legal-mode" className="text-xs">Legal Mode</Label>
-                  <Switch 
-                    id="legal-mode" 
-                    checked={legalMode} 
-                    onCheckedChange={setLegalMode}
-                  />
-                </div>
-              </div>
-              
-              {legalMode && (
-                <div className="mb-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-sources" className="text-xs">Show Sources</Label>
-                    <Switch 
-                      id="show-sources" 
-                      checked={showSources} 
-                      onCheckedChange={setShowSources}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {legalMode && (
-              <div className="min-w-[180px]">
-                <Label htmlFor="jurisdiction-select" className="text-xs mb-1 block">Jurisdiction</Label>
-                <Select value={jurisdiction} onValueChange={setJurisdiction}>
-                  <SelectTrigger id="jurisdiction-select" className="h-8">
-                    <SelectValue placeholder="Select jurisdiction" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="general">General</SelectItem>
-                    <SelectItem value="us">United States</SelectItem>
-                    <SelectItem value="uk">United Kingdom</SelectItem>
-                    <SelectItem value="eu">European Union</SelectItem>
-                    <SelectItem value="canada">Canada</SelectItem>
-                    <SelectItem value="australia">Australia</SelectItem>
-                    <SelectItem value="in">India</SelectItem>
-                    <SelectItem value="np">Nepal</SelectItem>
-                    <SelectItem value="cn">China</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
+                  {aiProvider.charAt(0).toUpperCase() + aiProvider.slice(1)} AI
+                </Badge>
+              </motion.div>
             )}
           </div>
-        </div>
-      )}
 
-      {/* API key warning */}
-      {missingApiKeyWarning && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 text-yellow-800 dark:text-yellow-300 text-xs flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4" />
-          <span>You don't have an API key for {aiProvider}. Results may be limited.</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSettings(!showSettings)}
+            className={cn(
+              "flex items-center gap-2 hover:bg-muted/50 transition-all duration-200",
+              showSettings && "bg-muted/50"
+            )}
+          >
+            Settings
+            <motion.div
+              animate={{ rotate: showSettings ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown className="h-3 w-3" />
+            </motion.div>
+          </Button>
         </div>
-      )}
+      </motion.header>
+      
+      {/* Enhanced Settings Panel */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="border-b bg-gradient-to-r from-muted/30 to-muted/20 overflow-hidden"
+          >
+            <div className="p-4 space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="ai-provider-select" className="text-sm font-medium">AI Provider</Label>
+                  <Select
+                    value={aiProvider}
+                    onValueChange={(value) => setAiProvider(value as 'gemini' | 'mistral')}
+                  >
+                    <SelectTrigger id="ai-provider-select" className="h-9 bg-background/50">
+                      <SelectValue placeholder="Select AI provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mistral">Mistral AI</SelectItem>
+                      <SelectItem value="gemini">Google Gemini</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="legal-mode" className="text-sm font-medium">Legal Mode</Label>
+                    <Switch
+                      id="legal-mode"
+                      checked={legalMode}
+                      onCheckedChange={setLegalMode}
+                    />
+                  </div>
+
+                  <AnimatePresence>
+                    {legalMode && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center justify-between"
+                      >
+                        <Label htmlFor="show-sources" className="text-sm font-medium">Show Sources</Label>
+                        <Switch
+                          id="show-sources"
+                          checked={showSources}
+                          onCheckedChange={setShowSources}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                <AnimatePresence>
+                  {legalMode && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ delay: 0.3 }}
+                      className="space-y-2"
+                    >
+                      <Label htmlFor="jurisdiction-select" className="text-sm font-medium">Jurisdiction</Label>
+                      <Select value={jurisdiction} onValueChange={setJurisdiction}>
+                        <SelectTrigger id="jurisdiction-select" className="h-9 bg-background/50">
+                          <SelectValue placeholder="Select jurisdiction" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="general">General</SelectItem>
+                          <SelectItem value="us">United States</SelectItem>
+                          <SelectItem value="uk">United Kingdom</SelectItem>
+                          <SelectItem value="eu">European Union</SelectItem>
+                          <SelectItem value="canada">Canada</SelectItem>
+                          <SelectItem value="australia">Australia</SelectItem>
+                          <SelectItem value="in">India</SelectItem>
+                          <SelectItem value="np">Nepal</SelectItem>
+                          <SelectItem value="cn">China</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Enhanced API Key Warning */}
+      <AnimatePresence>
+        {missingApiKeyWarning && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border-l-4 border-yellow-400"
+          >
+            <div className="p-3 flex items-center gap-3">
+              <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
+                  API Key Missing
+                </p>
+                <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
+                  You don't have an API key for {aiProvider}. Results may be limited. Configure your API keys in settings.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Chat area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full mx-auto"></div>
-              <p className="mt-4 text-sm text-muted-foreground">Loading conversations...</p>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center space-y-4"
+            >
+              <div className="relative">
+                <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto" />
+                <div className="absolute inset-0 h-8 w-8 border-2 border-primary/20 rounded-full mx-auto animate-pulse" />
+              </div>
+              <p className="text-sm text-muted-foreground">Loading conversations...</p>
+            </motion.div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center">
-            <div className="max-w-md space-y-4">
-              <div className="p-4 rounded-full bg-primary/10 mx-auto w-16 h-16 flex items-center justify-center">
-                <Bot className="h-8 w-8 text-primary" />
-              </div>
-              <h1 className="text-2xl font-bold">How can I assist you today?</h1>
-              <p className="text-muted-foreground">
-                Ask me any legal question across multiple jurisdictions and I'll do my best to help.
-              </p>
-              <div className="p-3 bg-muted rounded-lg text-left">
-                <p className="text-sm font-medium">Example questions:</p>
-                <ul className="mt-2 text-sm space-y-2">
-                  <li className="p-2 hover:bg-muted-foreground/10 rounded cursor-pointer">
-                    "What are the requirements for starting a business in California?"
-                  </li>
-                  <li className="p-2 hover:bg-muted-foreground/10 rounded cursor-pointer">
-                    "Explain copyright law in the EU for digital content creators."
-                  </li>
-                  <li className="p-2 hover:bg-muted-foreground/10 rounded cursor-pointer">
-                    "What are my rights as a tenant in New York City?"
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <WelcomeScreen
+            onExampleClick={(question) => setMessageInput(question)}
+            aiProvider={aiProvider}
+            legalMode={legalMode}
+            jurisdiction={jurisdiction}
+          />
         ) : (
-          <div className="max-w-3xl mx-auto space-y-6">
-            {messages.map((message, index) => (
-              <motion.div
-                key={message.id || `msg-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className={cn(
-                  "flex items-start gap-3",
-                  message.is_user_message ? "justify-end" : ""
-                )}
-              >
-                {!message.is_user_message && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                
-                <div className={cn(
-                  "relative rounded-lg px-3 py-2 max-w-[85%] text-sm",
-                  message.is_user_message 
-                    ? "bg-primary text-primary-foreground ml-12" 
-                    : "bg-muted/40"
-                )}>
-                  {/* AI provider badge */}
-                  {!message.is_user_message && message.ai_name && (
-                    <div className="text-xs font-medium text-muted-foreground mb-1">
-                      {message.ai_name.charAt(0).toUpperCase() + message.ai_name.slice(1)}
-                    </div>
-                  )}
-                  
-                  <div className="whitespace-pre-line break-words">
-                    {message.content || (isTyping && !message.is_user_message && index === messages.length - 1 && (
-                      <span className="inline-block animate-pulse">...</span>
-                    ))}
-                  </div>
-                  
-                  {/* Legal sources */}
-                  {!message.is_user_message && showSources && message.id && (() => {
-                    const sources = message.id ? legalSourcesMap[message.id] : undefined;
-                    const caseLaw = sources?.case_law || [];
-                    const statutes = sources?.statutes || [];
-                    
-                    if (!sources || (caseLaw.length === 0 && statutes.length === 0)) {
-                      return null;
-                    }
-                    
-                    return (
-                      <div className="mt-3 pt-2 border-t border-muted text-xs">
-                        <div className="font-medium mb-1">Legal sources:</div>
-                        
-                        {caseLaw.length > 0 && (
-                          <div className="mb-2">
-                            <div className="text-xs font-medium">Case Law:</div>
-                            <ul className="list-disc pl-4 space-y-1">
-                              {caseLaw.slice(0, 3).map((caseItem, i) => (
-                                <li key={`case-${i}`} className="text-xs">
-                                  <span className="font-medium">{caseItem.name}</span>
-                                  {caseItem.citation && ` (${caseItem.citation})`}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        
-                        {statutes.length > 0 && (
-                          <div>
-                            <div className="text-xs font-medium">Statutes:</div>
-                            <ul className="list-disc pl-4 space-y-1">
-                              {statutes.slice(0, 3).map((statute, i) => (
-                                <li key={`statute-${i}`} className="text-xs">
-                                  <span className="font-medium">{statute.title}</span>
-                                  {statute.section && `, §${statute.section}`}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  
-                  {/* Message actions */}
-                  {!message.is_user_message && message.content && (
-                    <div className="absolute -bottom-8 right-0 flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-6 w-6 rounded-md bg-background/80 backdrop-blur-sm"
-                              onClick={() => handleCopyMessage(message.content, message.id)}
-                            >
-                              <Copy className={cn(
-                                "h-3 w-3", 
-                                copiedMessageId === message.id ? "text-green-500" : ""
-                              )} />
-                              <span className="sr-only">Copy</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            <p className="text-xs">Copy message</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className={cn(
-                                "h-6 w-6 rounded-md bg-background/80 backdrop-blur-sm",
-                                messageReactions[message.id || ''] === 'like' ? "text-green-500" : ""
-                              )}
-                              onClick={() => message.id && handleMessageReaction(message.id, 'like')}
-                            >
-                              <ThumbsUp className="h-3 w-3" />
-                              <span className="sr-only">Like</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            <p className="text-xs">Helpful response</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className={cn(
-                                "h-6 w-6 rounded-md bg-background/80 backdrop-blur-sm",
-                                messageReactions[message.id || ''] === 'dislike' ? "text-red-500" : ""
-                              )}
-                              onClick={() => message.id && handleMessageReaction(message.id, 'dislike')}
-                            >
-                              <ThumbsDown className="h-3 w-3" />
-                              <span className="sr-only">Dislike</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            <p className="text-xs">Unhelpful response</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  )}
-                </div>
-                
-                {message.is_user_message && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-muted">
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </motion.div>
-            ))}
-            <div ref={messagesEndRef} />
+          <div className="py-4 space-y-1">
+            <AnimatePresence mode="popLayout">
+              {messages.map((message, index) => (
+                <MessageBubble
+                  key={message.id || `msg-${index}`}
+                  message={message}
+                  isTyping={isTyping && !message.is_user_message && index === messages.length - 1}
+                  isRegenerating={regeneratingMessageId === message.id}
+                  onCopy={handleCopyMessage}
+                  onReaction={handleMessageReaction}
+                  onRegenerate={handleRegenerateMessage}
+                  copiedMessageId={copiedMessageId}
+                  messageReactions={messageReactions}
+                  showSources={showSources}
+                  legalSources={message.id ? legalSourcesMap[message.id] : undefined}
+                />
+              ))}
+            </AnimatePresence>
+            <div ref={messagesEndRef} className="h-4" />
           </div>
         )}
       </div>
-      
-      {/* Input area */}
-      <div className="sticky bottom-0 bg-background border-t p-4">
-        <form 
-          ref={formRef} 
-          onSubmit={handleSendMessage}
-          className="relative max-w-3xl mx-auto"
-        >
-          <Textarea
-            ref={textareaRef}
-            value={messageInput}
-            onChange={handleTextareaChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Message Juris AI..."
-            className="resize-none pr-12 py-3 max-h-[200px] min-h-[56px]"
-            disabled={processing}
-          />
-          <Button 
-            type="submit" 
-            size="icon" 
-            className="absolute right-2 bottom-2"
-            disabled={!messageInput.trim() || processing}
-          >
-            <Send className="h-4 w-4" />
-            <span className="sr-only">Send message</span>
-          </Button>
-        </form>
 
-      </div>
+      {/* Enhanced Input Area */}
+      <EnhancedChatInput
+        value={messageInput}
+        onChange={setMessageInput}
+        onSubmit={handleSendMessage}
+        disabled={processing}
+        loading={processing}
+        placeholder={legalMode
+          ? "Ask your legal question..."
+          : "Message Juris AI..."}
+        maxLength={4000}
+        showCharacterCount={true}
+      />
     </div>
   );
 }
