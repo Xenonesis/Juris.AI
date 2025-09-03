@@ -3,19 +3,19 @@ import { searchCasetextParallel, searchLexisNexis, searchWestlaw, LegalCase, Sta
 import { getApiKey } from './api-key-service';
 import { apiCache, createCacheKey, withCache } from './api-cache';
 
-// Default fallback API keys from environment variables
-const defaultGeminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCYZrSd57RHna4ujKA5Q_rCRJ18oLe7z2o';
-const defaultMistralApiKey = process.env.NEXT_PUBLIC_MISTRAL_API_KEY || 'lM5RfAcTeqAq2IYtMQjrgfdtlly9VeUE';
-const defaultOpenAIApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY || '';
-const defaultAnthropicApiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || '';
+// Server-side API keys (never expose to client)
+const defaultGeminiApiKey = process.env.GEMINI_API_KEY || '';
+const defaultMistralApiKey = process.env.MISTRAL_API_KEY || '';
+const defaultOpenAIApiKey = process.env.OPENAI_API_KEY || '';
+const defaultAnthropicApiKey = process.env.ANTHROPIC_API_KEY || '';
 
 // API URLs
 const mistralApiUrl = 'https://api.mistral.ai/v1';
 const openaiApiUrl = 'https://api.openai.com/v1';
 const anthropicApiUrl = 'https://api.anthropic.com/v1';
 
-// Legal APIs
-const CASELAW_API_KEY = process.env.NEXT_PUBLIC_CASELAW_API_KEY || '2b9f1b0d7e3c4a5b8e9d0c1a2f3e4d5b';
+// Legal APIs (server-side only)
+const CASELAW_API_KEY = process.env.CASELAW_API_KEY || '';
 const CASELAW_API_URL = 'https://api.case.law/v1';
 
 // Legal disclaimer to append to all legal advice

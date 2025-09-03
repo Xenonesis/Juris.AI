@@ -1,10 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 
-// Hardcoded fallback values from src/lib/supabase.ts
-const fallbackSupabaseUrl = 'https://oybdzbyqormgynyjwyyc.supabase.co';
-const fallbackSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95YmR6Ynlxb3JtZ3lueWp3eXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMDc0ODUsImV4cCI6MjA2Mjc4MzQ4NX0.uz38qT6vRAxxcrkeu31sNqIDa44hyHbLQDJvrVHcLJY';
-
 export async function updateSession(request: NextRequest) {
   // Create a new response with the same headers
   let response = NextResponse.next({
@@ -13,13 +9,13 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Use environment variables if available, otherwise use fallback values
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || fallbackSupabaseUrl;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || fallbackSupabaseKey;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Log which URL and key we're using (truncated for security)
-  console.log(`Using Supabase URL: ${supabaseUrl}`);
-  console.log(`Using Supabase Key: ${supabaseKey.substring(0, 10)}...`);
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase environment variables in middleware');
+    return response;
+  }
 
   // Create a Supabase client for the middleware
   const supabase = createServerClient(

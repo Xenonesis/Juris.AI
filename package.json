@@ -1,12 +1,17 @@
 {
   "name": "juris-ai",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "security:audit": "node scripts/security-audit.js",
+    "security:deps": "npm audit",
+    "security:fix": "npm audit fix",
+    "security:headers": "curl -I http://localhost:3000 | grep -E '(X-|Content-Security|Strict-Transport)'",
+    "security:full": "npm run security:audit && npm run security:deps"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.53.0",
@@ -39,6 +44,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.11.1",
+    "isomorphic-dompurify": "^2.26.0",
     "lucide-react": "^0.513.0",
     "next": "^15.5.2",
     "next-themes": "^0.4.6",
