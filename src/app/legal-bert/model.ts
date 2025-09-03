@@ -1,8 +1,8 @@
-import { pipeline } from "@xenova/transformers";
+import { pipeline, Pipeline } from '@xenova/transformers';
 import { fetchRelevantCaseLaw, fetchRelevantStatutes } from "@/lib/ai-services";
 
 export class LegalBertModel {
-  private model: any;
+  private model: any | null;
   private isInitialized: boolean = false;
 
   constructor() {
@@ -101,4 +101,4 @@ export class LegalBertModel {
     
     return entities;
   }
-} 
+}

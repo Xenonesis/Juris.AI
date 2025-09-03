@@ -1,10 +1,10 @@
-# Juris.AI v2.0 🚀
+# Juris.AI v2.1 🚀
 
 A cutting-edge AI-powered legal assistance platform built with Next.js, providing intelligent legal research, analysis, and conversation management capabilities.
 
 🌐 **Live Demo**: [https://jurisailawyer.netlify.app/](https://jurisailawyer.netlify.app/)
 
-## ✨ What's New in v2.0
+## ✨ What's New in v2.1
 
 ### 🎨 **Enhanced Chat Interface**
 - **Modern Message Bubbles**: Beautiful gradient-styled message bubbles with user/AI avatars

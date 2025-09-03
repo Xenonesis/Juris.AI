@@ -1,11 +1,11 @@
-# 🚀 Juris.AI v2.0 Release Notes
+# 🚀 Juris.AI v2.1 Release Notes
 
 **Release Date**: December 12, 2024  
 **Live Demo**: [https://jurisailawyer.netlify.app/](https://jurisailawyer.netlify.app/)
 
 ## 🎉 Major Release Highlights
 
-Juris.AI v2.0 represents a significant leap forward in user experience and functionality, introducing a completely redesigned chat interface, advanced conversation management, and professional-grade features for legal professionals.
+Juris.AI v2.1 represents a significant leap forward in user experience and functionality, introducing a completely redesigned chat interface, advanced conversation management, and professional-grade features for legal professionals.
 
 ## ✨ New Features
 
@@ -174,18 +174,18 @@ Juris.AI v2.0 represents a significant leap forward in user experience and funct
 - **API Documentation**: Updated API reference with new endpoints
 
 ### 🔄 **Updated Documentation**
-- **README.md**: Completely rewritten for v2.0 with live demo links
+- **README.md**: Completely rewritten for v2.1 with live demo links
 - **Installation Guide**: Updated setup instructions with new dependencies
 - **Deployment Guide**: Enhanced deployment instructions for Netlify
 - **Contributing Guide**: Updated guidelines for contributors
 
 ## 🙏 Acknowledgments
 
-Special thanks to all contributors, testers, and users who provided feedback during the development of v2.0. Your input has been invaluable in creating a better experience for the legal community.
+Special thanks to all contributors, testers, and users who provided feedback during the development of v2.1. Your input has been invaluable in creating a better experience for the legal community.
 
 ## 📞 Support
 
-For questions, issues, or feedback regarding v2.0:
+For questions, issues, or feedback regarding v2.1:
 
 - **Email**: ititsaddy7@gmail.com
 - **GitHub Issues**: Report bugs and request features
@@ -194,4 +194,4 @@ For questions, issues, or feedback regarding v2.0:
 
 ---
 
-**Juris.AI v2.0 - Built with ❤️ for the legal community**
+**Juris.AI v2.1 - Built with ❤️ for the legal community**

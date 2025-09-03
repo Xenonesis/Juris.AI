@@ -1,7 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { LegalBertModel } from "./model";
+import { useState, useEffect, useRef } from "react";
+
+let LegalBertModel: typeof import("./model").LegalBertModel | null = null;
+
+if (typeof window !== "undefined") {
+  import("./model").then((module) => {
+    LegalBertModel = module.LegalBertModel;
+  });
+}
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +32,9 @@ export default function LegalBertPage() {
     setSuccess(false);
     
     try {
+      if (!LegalBertModel) {
+        throw new Error("LegalBertModel is not available");
+      }
       const model = new LegalBertModel();
       await model.initialize();
       const output = await model.analyze(text);

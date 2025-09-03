@@ -13,4 +13,4 @@ export function createClient() {
     supabaseUrl,
     supabaseKey
   )
-} 
+}

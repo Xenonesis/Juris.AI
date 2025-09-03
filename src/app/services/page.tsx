@@ -1,5 +1,6 @@
+'use client';
+
 import React from 'react';
-import { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,11 +24,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { ServiceCard, PricingCard, FeatureHighlight, FAQSection, TestimonialsSection, ServiceComparison } from './components';
-
-export const metadata: Metadata = {
-  title: "Legal Services - Juris.AI",
-  description: "Comprehensive AI-powered legal services including document analysis, case research, legal consultation, and more.",
-};
 
 interface Service {
   icon: React.ReactNode;

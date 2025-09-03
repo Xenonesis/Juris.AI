@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient, User } from "@supabase/supabase-js";
+import { User } from "@supabase/supabase-js";
+import { createClient } from '@/lib/supabase/client';
 
 export default function AuthTestPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -11,15 +12,8 @@ export default function AuthTestPage() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        // Initialize Supabase client
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-        
-        if (!supabaseUrl || !supabaseKey) {
-          throw new Error("Supabase credentials are not configured");
-        }
-        
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        // Initialize Supabase client using our local client
+        const supabase = createClient();
         
         // Get current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -61,7 +55,7 @@ export default function AuthTestPage() {
           </pre>
         </div>
       ) : (
-        <div className="p-4 bg-yellow-100 text-yellow-700 rounded">
+        <div className="p-4 bg-yellow-10 text-yellow-700 rounded">
           <p>Not authenticated. Please sign in.</p>
         </div>
       )}

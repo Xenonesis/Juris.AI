@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/supabase-auth-provider';
-import { createBrowserClient } from '@supabase/ssr';
 import { AuthResponse } from '@supabase/supabase-js';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -31,11 +30,8 @@ export function AuthForm() {
       return createClient();
     } catch (e) {
       console.error("Error using default supabase client, creating a new one:", e);
-      // If that fails, create a new client
-      return createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
+      // If that fails, create a new client using our local function
+      return createClient();
     }
   };
 
@@ -328,4 +324,4 @@ export function AuthForm() {
       </Tabs>
     </div>
   );
-} 
+}
