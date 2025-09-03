@@ -197,6 +197,61 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Landing Page Specific Animations */
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.bg-300% {
+  background-size: 300% 300%;
+}
+
+.professional-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-high-contrast {
+  color: hsl(var(--foreground));
+}
+
+/* Enhanced gradient animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Backdrop blur utilities */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(8px);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

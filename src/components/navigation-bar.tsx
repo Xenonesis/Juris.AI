@@ -78,9 +78,10 @@ export function NavigationBar() {
   };
 
   const menuItems = [
-    { id: 'home', label: "Home", href: "/", icon: <Home className="h-4 w-4" /> },
+    { id: 'home', label: "Home", href: user ? "/" : "/landing", icon: <Home className="h-4 w-4" /> },
+    ...(user ? [{ id: 'landing', label: "Landing", href: "/landing", icon: <Sparkles className="h-4 w-4" /> }] : []),
     { id: 'about', label: "About", href: "/about", icon: <Info className="h-4 w-4" /> },
-    { id: 'services', label: "Services", href: "/services", icon: <Sparkles className="h-4 w-4" /> },
+    { id: 'services', label: "Services", href: "/services", icon: <Scale className="h-4 w-4" /> },
     { id: 'legal-tools', label: "Legal Tools", href: "/legal-bert", icon: <Scale className="h-4 w-4" /> },
     { id: 'contact', label: "Contact", href: "/collaboration", icon: <Phone className="h-4 w-4" /> },
   ];
@@ -95,7 +96,7 @@ export function NavigationBar() {
           <div
             className="flex items-center gap-2"
           >
-            <Link href="/" className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-md group" aria-label="Go to Home">
+            <Link href={user ? "/" : "/landing"} className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-md group" aria-label="Go to Home">
               <div className="relative w-9 h-9 flex items-center justify-center rounded-xl professional-gradient group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                 <Scale className="h-5 w-5 text-white" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />
                 <div className="absolute inset-0 rounded-xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
