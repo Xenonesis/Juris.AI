@@ -42,7 +42,7 @@
 
 | 🏠 **Dashboard** | 💬 **Chat Interface** |
 |:---:|:---:|
-| ![Dashboard](https://placehold.co/400x250/2563eb/white?text=Modern+Dashboard) | ![Chat](https://placehold.co/400x250/059669/white?text=AI+Chat+Interface) |
+| ![Dashboard](public/dashboard.png) | ![Chat](public/1.jpg) |
 
 | 📊 **Analytics** | 🔍 **Legal Research** |
 |:---:|:---:|
