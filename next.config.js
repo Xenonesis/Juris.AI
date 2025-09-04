@@ -73,6 +73,7 @@ const nextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
               "connect-src 'self' https://*.supabase.co https://api.mistral.ai https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com https://*.case.law",
+              "frame-src 'self' https://www.google.com https://google.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

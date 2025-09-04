@@ -149,4 +149,4 @@ export const WARNING_AUTO_HIDE_DELAY = 10000;
 // Type definitions
 export type AIModelName = keyof typeof AI_MODELS;
 export type JurisdictionCode = keyof typeof JURISDICTION_BASE_RANGES;
-export type AIProvider = typeof AI_MODELS[AIModelName]['provider'];
+export type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom';

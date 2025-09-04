@@ -28,7 +28,7 @@ export function useChat() {
   const [processing, setProcessing] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState('');
-  const [aiProvider, setAiProvider] = useState<'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'custom'>('mistral');
+  const [aiProvider, setAiProvider] = useState<'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom'>('mistral');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [legalMode, setLegalMode] = useState(true);
   const [jurisdiction, setJurisdiction] = useState('general');

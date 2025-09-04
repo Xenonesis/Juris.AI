@@ -236,7 +236,7 @@ export async function claudeChat(prompt: string, apiKey?: string): Promise<strin
 export const getAIResponse = withCache(
   async (
     message: string,
-    provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'openrouter' | 'custom' = 'mistral',
+    provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' = 'mistral',
     apiKeyMap: Record<string, string> = {},
     selectedModel?: string
   ): Promise<string> => {
@@ -269,7 +269,32 @@ export const getAIResponse = withCache(
         if (!apiKey) {
           throw new Error('Custom provider API key is required');
         }
-        return await mistralChat(message, apiKey);      default:
+        return await mistralChat(message, apiKey);
+      case 'cohere':
+        // For Cohere, fallback to Mistral if no specific implementation
+        if (!apiKey) {
+          throw new Error('Cohere API key is required');
+        }
+        return await mistralChat(message, apiKey);
+      case 'together':
+        // For Together AI, fallback to Mistral if no specific implementation
+        if (!apiKey) {
+          throw new Error('Together AI API key is required');
+        }
+        return await mistralChat(message, apiKey);
+      case 'huggingface':
+        // For Hugging Face, fallback to Mistral if no specific implementation
+        if (!apiKey) {
+          throw new Error('Hugging Face API key is required');
+        }
+        return await mistralChat(message, apiKey);
+      case 'replicate':
+        // For Replicate, fallback to Mistral if no specific implementation
+        if (!apiKey) {
+          throw new Error('Replicate API key is required');
+        }
+        return await mistralChat(message, apiKey);
+      default:
         return await mistralChat(message, apiKey || undefined);
     }
   } catch (error) {
@@ -286,8 +311,8 @@ export const getAIResponse = withCache(
   }
   },
   // Cache key generator
-  (message: string, provider?: 'openai' | 'anthropic' | 'gemini' | 'mistral', apiKeyMap?: Record<string, string>) =>
-    createCacheKey('ai-response', provider || 'mistral', message.slice(0, 100)),
+  (message: string, provider?: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom', apiKeyMap?: Record<string, string>, selectedModel?: string) =>
+    createCacheKey('ai-response', provider || 'mistral', message.slice(0, 100), selectedModel || 'default'),
   // Cache for 10 minutes
   10 * 60 * 1000
 );
@@ -387,7 +412,7 @@ export async function fetchRelevantStatutes(query: string, jurisdiction: string 
  */
 export async function getLegalAdvice(
   query: string,
-  provider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'custom' = 'mistral',
+  provider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' = 'mistral',
   jurisdiction: string = 'general'
 ): Promise<string> {
   try {

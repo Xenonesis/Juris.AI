@@ -30,6 +30,7 @@ export function ModernChat() {
     isTyping,
     copiedMessageId,
     messageReactions,
+    userApiKeys,
     missingApiKeyWarning,
     showSettings,
     setShowSettings,
