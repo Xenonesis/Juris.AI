@@ -22,10 +22,6 @@ export const LazyCaseStudies = lazy(() =>
 );
 
 // Chat components
-export const LazyChatComponent = lazy(() => 
-  import('./chat/chat-component').then(module => ({ default: module.ChatComponent }))
-);
-
-export const LazyChatUI = lazy(() => 
-  import('./chat/chat-ui').then(module => ({ default: module.ChatUI }))
+export const LazyModernChat = lazy(() => 
+  import('./chat/modern-chat').then(module => ({ default: module.ModernChat }))
 );

@@ -5,10 +5,8 @@ import "./chat.css";
 export default function ChatPage() {
   return (
     <div className="flex h-[100dvh] overflow-hidden bg-gradient-to-br from-background via-background to-muted/5">
-      {/* Dynamic Sidebar with Real Chat History */}
       <ChatSidebar />
 
-      {/* Enhanced Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-hidden bg-gradient-to-br from-background/50 to-background">
         <ChatClientWrapper />
       </div>
