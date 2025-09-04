@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# SSL certificates (development only)
+/certs/
+generate-certs.js
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -4,10 +4,15 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // Fix workspace root warning
+  outputFileTracingRoot: __dirname,
+
+  // External packages for server components
+  serverExternalPackages: ['@supabase/supabase-js'],
+
   // Vercel optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    serverComponentsExternalPackages: ['@supabase/supabase-js'],
   },
 
   // Webpack optimizations
@@ -16,9 +21,17 @@ const nextConfig = {
     config.module.parser.javascript = config.module.parser.javascript || {};
     config.module.parser.javascript.maxSize = 512 * 1024;
 
+    // Optimize cache strategy to reduce serialization of large strings
+    if (config.cache && config.cache.type === 'filesystem') {
+      config.cache.buildDependencies = config.cache.buildDependencies || {};
+      config.cache.buildDependencies.config = [__filename];
+      config.cache.maxMemoryGenerations = 1;
+    }
+
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
       /Critical dependency: the request of a dependency is an expression/,
+      /Serializing big strings/,
     ];
 
     if (!isServer) {

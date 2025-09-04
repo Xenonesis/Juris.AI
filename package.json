@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:https": "next dev --experimental-https --experimental-https-key ./certs/localhost.key --experimental-https-cert ./certs/localhost.crt",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -66,7 +67,9 @@
     "css-loader": "^7.1.2",
     "eslint": "^9",
     "eslint-config-next": "^15.5.2",
+    "https-localhost": "^4.7.1",
     "postcss": "^8.4.35",
+    "selfsigned": "^3.0.1",
     "style-loader": "^4.0.0",
     "typescript": "^5"
   }
