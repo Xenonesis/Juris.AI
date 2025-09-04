@@ -2,19 +2,10 @@
 
 import { useAuth } from "@/components/auth/supabase-auth-provider";
 import { LegalAdvisor } from "@/components/legal-advisor";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { OptimizedLandingPage } from "@/components/landing";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to landing page if user is not authenticated
-    if (!isLoading && !user) {
-      router.replace('/landing');
-    }
-  }, [user, isLoading, router]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -34,10 +25,6 @@ export default function Home() {
     );
   }
 
-  // This will briefly show while redirecting to landing
-  return (
-    <main className="flex-1 w-full flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </main>
-  );
+  // If user is not authenticated, show the landing page
+  return <OptimizedLandingPage />;
 }
