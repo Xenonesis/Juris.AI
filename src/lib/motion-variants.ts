@@ -19,7 +19,7 @@ export const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: "easeOut" }
+    transition: { duration: 0.6, ease: "easeOut" as any }
   }
 };
 
@@ -29,7 +29,7 @@ export const floatingVariants = {
     transition: {
       duration: 6,
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: "easeInOut" as any
     }
   }
 };
@@ -59,7 +59,7 @@ export const rotateAnimation = {
   transition: { 
     duration: 8, 
     repeat: Infinity, 
-    ease: "linear" 
+    ease: "linear" as any
   }
 };
 
@@ -68,6 +68,6 @@ export const fadeInUp = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" as any }
   }
 };

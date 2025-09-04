@@ -37,7 +37,7 @@ export function ScrollToTop() {
       y: 0, 
       scale: 1,
       transition: {
-        type: "spring",
+        type: "spring" as any,
         stiffness: 400,
         damping: 25
       }
@@ -54,7 +54,7 @@ export function ScrollToTop() {
       scale: 1.1,
       boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
       transition: {
-        type: "spring",
+        type: "spring" as any,
         stiffness: 400,
         damping: 10
       }
@@ -71,7 +71,7 @@ export function ScrollToTop() {
         y: {
           repeat: Infinity,
           duration: 1,
-          ease: "easeInOut"
+          ease: "easeInOut" as any
         }
       }
     }

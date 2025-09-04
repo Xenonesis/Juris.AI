@@ -12,6 +12,7 @@ import { ChevronRight } from 'lucide-react';
 import { itemVariants } from '@/lib/motion-variants';
 import { workflowSteps } from '@/lib/landing-data';
 import { AnimatedSection, SectionHeader } from './ui-components';
+import DatabaseWithRestApi from '@/components/ui/database-with-rest-api';
 
 const HowItWorks: React.FC = memo(() => {
   return (
@@ -54,6 +55,29 @@ const HowItWorks: React.FC = memo(() => {
             </motion.div>
           ))}
         </div>
+        
+        {/* AI-Powered Processing Animation */}
+        <motion.div 
+          variants={itemVariants} 
+          className="mt-16 flex justify-center"
+        >
+          <DatabaseWithRestApi 
+            title="AI-Powered Legal Document Processing"
+            circleText="AI"
+            badgeTexts={{
+              first: "ANALYZE",
+              second: "EXTRACT", 
+              third: "VALIDATE",
+              fourth: "PROCESS"
+            }}
+            buttonTexts={{
+              first: "Juris.AI",
+              second: "LegalTech"
+            }}
+            lightColor="#3B82F6"
+            className="mx-auto"
+          />
+        </motion.div>
       </div>
     </AnimatedSection>
   );
