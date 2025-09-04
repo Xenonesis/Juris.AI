@@ -72,9 +72,21 @@ const PrivacyPolicyPage = () => {
     },
     {
       icon: <Cookie className="h-6 w-6 text-primary" />,
-      title: "Cookies",
+      title: "Cookies and Tracking Technologies",
       content: [
-        "Our Service may use \"cookies\" to enhance user experience. Your web browser places cookies on your hard drive for record-keeping purposes and sometimes to track information about you. You may choose to set your web browser to refuse cookies, or to alert you when cookies are being sent. If you do so, note that some parts of the Service may not function properly.",
+        "We use cookies and similar tracking technologies to enhance your experience, analyze site usage, and assist in our marketing efforts. This section explains what cookies we use, why we use them, and how you can control them.",
+        {
+          type: "list",
+          items: [
+            "<strong>Strictly Necessary Cookies:</strong> Essential for website functionality, including session management, authentication, and security features. These cannot be disabled.",
+            "<strong>Analytics Cookies:</strong> Help us understand how visitors interact with our website by collecting anonymous information about page views, user behavior, and site performance.",
+            "<strong>Marketing Cookies:</strong> Used to deliver relevant advertisements and track the effectiveness of our marketing campaigns across different platforms.",
+            "<strong>Preference Cookies:</strong> Remember your settings and preferences to provide a more personalized experience, such as theme selection and language preferences.",
+          ],
+        },
+        "We implement industry-standard security measures for all cookies, including HttpOnly and Secure flags where appropriate, and SameSite attributes to prevent cross-site request forgery attacks.",
+        "You can manage your cookie preferences at any time using our cookie settings panel, accessible via the cookie icon in the bottom-left corner of the website. You can also control cookies through your browser settings, though this may affect website functionality.",
+        "For more detailed information about specific cookies we use, their purposes, and retention periods, please refer to our Cookie Policy available through the cookie preferences panel.",
       ],
     },
     {

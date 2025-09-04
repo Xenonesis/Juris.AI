@@ -7,6 +7,9 @@ import { PageTransition } from "@/components/page-transition";
 import { Footer } from "@/components/footer";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { Toaster } from "@/components/ui/toaster";
+import { CookieBanner } from "@/components/cookie-consent/cookie-banner";
+import { CookiePreferencesButton } from "@/components/cookie-consent/cookie-preferences-button";
+import { ConsentAwareAnalytics } from "@/components/analytics/consent-aware-analytics";
 
 export const metadata: Metadata = {
   title: "Juris.Ai",
@@ -97,6 +100,9 @@ export default function RootLayout({
               <Footer />
               <ScrollToTop />
               <Toaster />
+              <CookieBanner />
+              <CookiePreferencesButton />
+              <ConsentAwareAnalytics />
             </div>
           </SupabaseAuthProvider>
         </ThemeProvider>
