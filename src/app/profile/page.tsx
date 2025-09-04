@@ -201,34 +201,33 @@ function ProfileContent() {
               </TabsTrigger>
             </TabsList>
             
-            <AnimatePresence mode="wait">
-              <TabsContent value="profile" key="profile">
-                <motion.div
-                  variants={tabContent}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                >
-                  <Card className="shadow-xl border-muted/50 bg-card/80 backdrop-blur-sm overflow-hidden">
-                    <CardHeader className="border-b border-muted/30 bg-gradient-to-r from-muted/20 to-transparent">
-                      <CardTitle className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center shadow-lg">
-                          <User className="h-5 w-5 text-primary-foreground" />
-                        </div>
-                        <div>
-                          <div className="text-xl font-semibold">Profile Information</div>
-                          <CardDescription className="text-sm">
-                            Update your personal information and how it appears across services
-                          </CardDescription>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                      <ProfileForm />
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </TabsContent>
+            <TabsContent value="profile" key="profile">
+              <motion.div
+                variants={tabContent}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <Card className="shadow-xl border-muted/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+                  <CardHeader className="border-b border-muted/30 bg-gradient-to-r from-muted/20 to-transparent">
+                    <CardTitle className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center shadow-lg">
+                        <User className="h-5 w-5 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <div className="text-xl font-semibold">Profile Information</div>
+                        <CardDescription className="text-sm">
+                          Update your personal information and how it appears across services
+                        </CardDescription>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-8">
+                    <ProfileForm />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </TabsContent>
               
               <TabsContent value="security" key="security">
                 <motion.div
@@ -405,7 +404,6 @@ function ProfileContent() {
                   </Card>
                 </motion.div>
               </TabsContent>
-            </AnimatePresence>
           </Tabs>
         </motion.div>
         

@@ -28,7 +28,8 @@ export function useChat() {
   const [processing, setProcessing] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState('');
-  const [aiProvider, setAiProvider] = useState<'gemini' | 'mistral'>('mistral');
+  const [aiProvider, setAiProvider] = useState<'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'custom'>('mistral');
+  const [selectedModel, setSelectedModel] = useState<string>('');
   const [legalMode, setLegalMode] = useState(true);
   const [jurisdiction, setJurisdiction] = useState('general');
   const [showSources, setShowSources] = useState(false);
@@ -229,7 +230,7 @@ export function useChat() {
       if (legalMode) {
         aiResponse = await getLegalAdvice(currentInput, aiProvider, jurisdiction);
       } else {
-        aiResponse = await getAIResponse(currentInput, aiProvider, userApiKeys);
+        aiResponse = await getAIResponse(currentInput, aiProvider, userApiKeys, selectedModel);
       }
       
       const aiMessage: ChatMessage = {
@@ -330,7 +331,7 @@ export function useChat() {
       if (legalMode) {
         aiResponse = await getLegalAdvice(userMessage.content, aiProvider, jurisdiction);
       } else {
-        aiResponse = await getAIResponse(userMessage.content, aiProvider, userApiKeys);
+        aiResponse = await getAIResponse(userMessage.content, aiProvider, userApiKeys, selectedModel);
       }
 
       const newAiMessage: ChatMessage = {
@@ -386,6 +387,8 @@ export function useChat() {
     setMessageInput,
     aiProvider,
     setAiProvider,
+    selectedModel,
+    setSelectedModel,
     legalMode,
     setLegalMode,
     jurisdiction,

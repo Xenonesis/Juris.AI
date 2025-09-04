@@ -18,6 +18,8 @@ export function ModernChat() {
     setMessageInput,
     aiProvider,
     setAiProvider,
+    selectedModel,
+    setSelectedModel,
     legalMode,
     setLegalMode,
     jurisdiction,
@@ -66,12 +68,15 @@ export function ModernChat() {
         showSettings={showSettings}
         aiProvider={aiProvider}
         setAiProvider={setAiProvider}
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
         legalMode={legalMode}
         setLegalMode={setLegalMode}
         showSources={showSources}
         setShowSources={setShowSources}
         jurisdiction={jurisdiction}
         setJurisdiction={setJurisdiction}
+        userApiKeys={userApiKeys}
       />
 
       <ApiKeyWarning

@@ -1,6 +1,6 @@
 {
   "name": "juris-ai",
-  "version": "3.20.0",
+  "version": "3.30.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -10,8 +10,8 @@ import {
 import Link from 'next/link'; // Import Link for the map link
 
 export default function CollaborationPage() {
-  const address = "Gurugram, Haryana"; // Updated address
-  const googleMapsSearchUrl = `https://www.google.com/maps/search/Juris.Ai+${encodeURIComponent(address)}`; // Search link using updated address
+  const address = "DLF Cybercity, Gurugram, Haryana"; // Updated address
+  const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`; // Search link using updated address
   const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`; // Directions link using updated address
 
   return (
@@ -130,15 +130,16 @@ export default function CollaborationPage() {
       <div className="mt-16">
         <h2 className="text-2xl font-semibold text-center mb-8">Find Us</h2>
         <div className="w-full h-96 rounded-lg overflow-hidden shadow-lg">
-          {/* Google Maps embed for Gurugram */}
+          {/* Google Maps embed for DLF Cybercity, Gurugram */}
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d224391.0406010351!2d76.83028184453125!3d28.423203500000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d19d582e38859%3A0x2f27b0aa5395998d!2sGurugram%2C%20Haryana!5e0!3m2!1sen!2sin!4v1716056710000!5m2!1sen!2sin"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.929784095144!2d77.09229497541565!3d28.53897197576065!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d194500000001%3A0x530d1747acba4605!2sDLF%20Cybercity!5e0!3m2!1sen!2sin"
             width="100%"
             height="100%"
             className="border-0"
             allowFullScreen={true}
+            loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            aria-label="Map of Gurugram"
+            aria-label="Map of DLF Cybercity, Gurugram"
           ></iframe>
         </div>
         <p className="text-center text-muted-foreground mt-4">
@@ -199,4 +200,3 @@ export default function CollaborationPage() {
     </div>
   );
 };
-

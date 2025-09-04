@@ -24,6 +24,82 @@ export const AI_MODELS = {
     baseAccuracy: 85,
     provider: 'mistral' as const,
   },
+  COHERE: {
+    name: 'cohere',
+    displayName: 'Cohere',
+    baseAccuracy: 83,
+    provider: 'cohere' as const,
+  },
+  TOGETHER: {
+    name: 'together',
+    displayName: 'Together AI',
+    baseAccuracy: 81,
+    provider: 'together' as const,
+  },
+} as const;
+
+// AI Provider Configuration
+export const AI_PROVIDERS = {
+  openai: {
+    name: 'OpenAI',
+    description: 'GPT models from OpenAI',
+    apiKeyRequired: true,
+    liveFetching: true,
+  },
+  anthropic: {
+    name: 'Anthropic',
+    description: 'Claude models from Anthropic',
+    apiKeyRequired: true,
+    liveFetching: false, // API validation only
+  },
+  gemini: {
+    name: 'Google Gemini',
+    description: 'Gemini models from Google',
+    apiKeyRequired: true,
+    liveFetching: true,
+  },
+  mistral: {
+    name: 'Mistral AI',
+    description: 'Mistral models',
+    apiKeyRequired: true,
+    liveFetching: true,
+  },
+  cohere: {
+    name: 'Cohere',
+    description: 'Command models from Cohere',
+    apiKeyRequired: true,
+    liveFetching: true,
+  },
+  together: {
+    name: 'Together AI',
+    description: 'Open source models via Together AI',
+    apiKeyRequired: true,
+    liveFetching: true,
+  },
+  openrouter: {
+    name: 'OpenRouter',
+    description: 'Multiple models via OpenRouter',
+    apiKeyRequired: true,
+    liveFetching: true,
+  },
+  huggingface: {
+    name: 'Hugging Face',
+    description: 'Open source models from Hugging Face',
+    apiKeyRequired: true,
+    liveFetching: false, // Curated list
+  },
+  replicate: {
+    name: 'Replicate',
+    description: 'Models via Replicate platform',
+    apiKeyRequired: true,
+    liveFetching: false, // Curated list
+  },
+  custom: {
+    name: 'Custom',
+    description: 'Your custom model endpoints',
+    apiKeyRequired: false,
+    liveFetching: false,
+  },
 } as const;
 
 // Jurisdiction Configuration

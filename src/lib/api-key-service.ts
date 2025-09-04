@@ -5,8 +5,16 @@ interface ApiKey {
   user_id: string;
   model_type: string;
   api_key: string;
+  base_url?: string;
+  model_id?: string;
   created_at: string;
   updated_at: string;
+}
+
+interface CustomProviderConfig {
+  api_key: string;
+  base_url?: string;
+  model_id?: string;
 }
 
 /**
@@ -74,4 +82,32 @@ export function getApiKey(
   }
   
   return null;
+}
+
+/**
+ * Gets custom provider configuration including base URL and model ID
+ */
+export async function getCustomProviderConfig(userId: string): Promise<CustomProviderConfig | null> {
+  if (!userId) return null;
+  
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('api_keys')
+      .select('api_key, base_url, model_id')
+      .eq('user_id', userId)
+      .eq('model_type', 'custom')
+      .single();
+    
+    if (error || !data) return null;
+    
+    return {
+      api_key: data.api_key,
+      base_url: data.base_url,
+      model_id: data.model_id
+    };
+  } catch (error) {
+    console.error('Error loading custom provider config:', error);
+    return null;
+  }
 } 

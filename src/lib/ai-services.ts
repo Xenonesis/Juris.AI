@@ -236,8 +236,9 @@ export async function claudeChat(prompt: string, apiKey?: string): Promise<strin
 export const getAIResponse = withCache(
   async (
     message: string,
-    provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' = 'mistral',
-    apiKeyMap: Record<string, string> = {}
+    provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'openrouter' | 'custom' = 'mistral',
+    apiKeyMap: Record<string, string> = {},
+    selectedModel?: string
   ): Promise<string> => {
   try {
     // Get the appropriate API key for the selected provider
@@ -257,7 +258,18 @@ export const getAIResponse = withCache(
         return await openaiChat(message, apiKey || undefined);
       case 'anthropic':
         return await claudeChat(message, apiKey || undefined);
-      default:
+      case 'openrouter':
+        // For OpenRouter, use their API with the user's API key
+        if (!apiKey) {
+          throw new Error('OpenRouter API key is required');
+        }
+        return await openaiChat(message, apiKey); // OpenRouter uses OpenAI-compatible API
+      case 'custom':
+        // For custom providers, fallback to Mistral if no specific implementation
+        if (!apiKey) {
+          throw new Error('Custom provider API key is required');
+        }
+        return await mistralChat(message, apiKey);      default:
         return await mistralChat(message, apiKey || undefined);
     }
   } catch (error) {
@@ -375,7 +387,7 @@ export async function fetchRelevantStatutes(query: string, jurisdiction: string 
  */
 export async function getLegalAdvice(
   query: string,
-  provider: 'gemini' | 'mistral' = 'mistral',
+  provider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'custom' = 'mistral',
   jurisdiction: string = 'general'
 ): Promise<string> {
   try {

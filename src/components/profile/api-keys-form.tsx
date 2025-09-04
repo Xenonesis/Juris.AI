@@ -12,12 +12,16 @@ import { Eye, EyeOff, Info, Key, Plus, Save, Trash, Copy, Check } from 'lucide-r
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge'; // Added Badge
+import { ModelsDropdown } from '@/components/ui/models-dropdown';
 
 interface ApiKey {
   id?: string;
   user_id: string;
   model_type: string;
+  selected_model?: string;
   api_key: string;
+  base_url?: string;
+  model_id?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -33,8 +37,63 @@ export function ApiKeysForm() {
   const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null); // State for copy feedback
   const [newKey, setNewKey] = useState<Partial<ApiKey>>({
     model_type: '',
+    selected_model: '',
     api_key: '',
+    base_url: '',
+    model_id: '',
   });
+  
+  const [validationErrors, setValidationErrors] = useState<{
+    base_url?: string;
+    model_id?: string;
+    api_key?: string;
+  }>({});
+
+  // Validation functions
+  const validateUrl = (url: string): string | null => {
+    if (!url) return 'Base URL is required for custom providers';
+    
+    try {
+      const urlObj = new URL(url);
+      if (!['http:', 'https:'].includes(urlObj.protocol)) {
+        return 'URL must use HTTP or HTTPS protocol';
+      }
+      if (!urlObj.hostname) {
+        return 'URL must have a valid hostname';
+      }
+      // Check for common API endpoint patterns
+      if (!url.includes('/v1') && !url.includes('/api')) {
+        return 'URL should typically include /api or /v1 path (e.g., https://api.example.com/v1)';
+      }
+      return null;
+    } catch {
+      return 'Please enter a valid URL (e.g., https://api.example.com/v1)';
+    }
+  };
+
+  const validateModelId = (modelId: string): string | null => {
+    if (!modelId) return 'Model ID is required for custom providers';
+    if (modelId.length < 2) return 'Model ID must be at least 2 characters long';
+    if (!/^[a-zA-Z0-9\-_/.]+$/.test(modelId)) {
+      return 'Model ID can only contain letters, numbers, hyphens, underscores, dots, and slashes';
+    }
+    return null;
+  };
+
+  const validateCustomProvider = (): boolean => {
+    if (newKey.model_type !== 'custom') return true;
+    
+    const errors: typeof validationErrors = {};
+    
+    const urlError = validateUrl(newKey.base_url || '');
+    if (urlError) errors.base_url = urlError;
+    
+    const modelError = validateModelId(newKey.model_id || '');
+    if (modelError) errors.model_id = modelError;
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const fetchApiKeys = useCallback(async () => { // Wrapped in useCallback
     if (!user) return;
@@ -80,6 +139,15 @@ export function ApiKeysForm() {
       });
       return;
     }
+
+    // Validate custom provider fields
+    if (!validateCustomProvider()) {
+      setMessage({
+        type: 'error',
+        text: 'Please fix the validation errors before saving'
+      });
+      return;
+    }
     
     setLoading(true);
     try {
@@ -88,12 +156,16 @@ export function ApiKeysForm() {
       
       if (existingKeyIndex >= 0) {
         // Update existing key
+        const updateData = {
+          api_key: newKey.api_key,
+          updated_at: new Date().toISOString(),
+          ...(newKey.base_url && { base_url: newKey.base_url }),
+          ...(newKey.model_id && { model_id: newKey.model_id })
+        };
+        
         const { data, error } = await supabase
           .from('api_keys')
-          .update({
-            api_key: newKey.api_key,
-            updated_at: new Date().toISOString()
-          })
+          .update(updateData)
           .eq('id', apiKeys[existingKeyIndex].id)
           .select();
         
@@ -105,15 +177,19 @@ export function ApiKeysForm() {
         setApiKeys(updatedKeys);
       } else {
         // Insert new key
+        const insertData = {
+          user_id: user.id,
+          model_type: newKey.model_type,
+          api_key: newKey.api_key,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          ...(newKey.base_url && { base_url: newKey.base_url }),
+          ...(newKey.model_id && { model_id: newKey.model_id })
+        };
+        
         const { data, error } = await supabase
           .from('api_keys')
-          .insert({
-            user_id: user.id,
-            model_type: newKey.model_type,
-            api_key: newKey.api_key,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
+          .insert(insertData)
           .select();
         
         if (error) throw error;
@@ -129,7 +205,10 @@ export function ApiKeysForm() {
       // Reset form
       setNewKey({
         model_type: '',
+        selected_model: '',
         api_key: '',
+        base_url: '',
+        model_id: '',
       });
       
       setMessage({
@@ -249,7 +328,12 @@ export function ApiKeysForm() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Key className="h-5 w-5 text-primary" /> {/* Made icon larger */}
-                        <span className="font-semibold text-lg text-foreground">{key.model_type}</span> {/* Increased font size and weight */}
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-lg text-foreground">{key.model_type}</span> {/* Increased font size and weight */}
+                          {key.selected_model && (
+                            <span className="text-sm text-muted-foreground">{key.selected_model}</span>
+                          )}
+                        </div>
                       </div>
                       <Badge variant={showApiKeys[key.id as string] ? "secondary" : "outline"} className="text-xs">
                         {showApiKeys[key.id as string] ? "Visible" : "Hidden"}
@@ -354,21 +438,119 @@ export function ApiKeysForm() {
             <Select
               value={newKey.model_type || ''}
               onValueChange={(value) => {
-                setNewKey({...newKey, model_type: value });
+                setNewKey({...newKey, model_type: value, selected_model: '', base_url: '', model_id: '' });
                 setMessage(null); // Clear message on model change
+                setValidationErrors({}); // Clear validation errors
               }}
             >
               <SelectTrigger className="mt-1 bg-input border-border/50 focus:border-primary focus:ring-primary/50"> {/* Styled trigger */}
                 <SelectValue placeholder="Select AI model provider" />
               </SelectTrigger>
               <SelectContent className="bg-popover text-popover-foreground border-border/50"> {/* Styled content */}
-                <SelectItem value="gemini">Google Gemini</SelectItem>
-                <SelectItem value="mistral">Mistral AI</SelectItem>
                 <SelectItem value="openai">OpenAI (GPT Models)</SelectItem>
                 <SelectItem value="anthropic">Anthropic Claude</SelectItem>
+                <SelectItem value="gemini">Google Gemini</SelectItem>
+                <SelectItem value="mistral">Mistral AI</SelectItem>
+                <SelectItem value="cohere">Cohere</SelectItem>
+                <SelectItem value="together">Together AI</SelectItem>
+                <SelectItem value="openrouter">OpenRouter</SelectItem>
+                <SelectItem value="huggingface">Hugging Face</SelectItem>
+                <SelectItem value="replicate">Replicate</SelectItem>
+                <SelectItem value="custom">Custom Provider</SelectItem>
               </SelectContent>
             </Select>
           </div>
+          
+          {newKey.model_type && newKey.model_type !== 'custom' && (
+            <div>
+              <Label htmlFor="selected_model" className="font-semibold text-foreground">AI Model</Label>
+              <div className="mt-1">
+                <ModelsDropdown
+                  provider={newKey.model_type}
+                  apiKey={newKey.api_key || undefined}
+                  value={newKey.selected_model || ''}
+                  onValueChange={(value) => {
+                    setNewKey({...newKey, selected_model: value});
+                    setMessage(null);
+                  }}
+                  placeholder="Select model"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Choose a specific model from the provider. Some models may require an API key to fetch live options.
+                {!newKey.selected_model && (
+                  <span className="text-amber-600 dark:text-amber-500"> Note: Model selection is optional if database column is not yet configured.</span>
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* Custom Provider Fields */}
+          {newKey.model_type === 'custom' && (
+            <>
+              <div>
+                <Label htmlFor="base_url" className="font-semibold text-foreground">Base URL</Label>
+                <div className="mt-1">
+                  <Input
+                    id="base_url"
+                    type="url"
+                    placeholder="https://api.example.com/v1"
+                    value={newKey.base_url || ''}
+                    onChange={(e) => {
+                      setNewKey({...newKey, base_url: e.target.value});
+                      setMessage(null);
+                      // Clear validation error for this field
+                      if (validationErrors.base_url) {
+                        setValidationErrors({...validationErrors, base_url: undefined});
+                      }
+                    }}
+                    className={`bg-input border-border/50 focus:border-primary focus:ring-primary/50 ${
+                      validationErrors.base_url ? 'border-destructive focus:border-destructive' : ''
+                    }`}
+                  />
+                </div>
+                {validationErrors.base_url && (
+                  <p className="text-xs text-destructive mt-1">
+                    {validationErrors.base_url}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  The base URL for your custom AI model API endpoint (e.g., https://api.example.com/v1)
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="model_id" className="font-semibold text-foreground">Model ID</Label>
+                <div className="mt-1">
+                  <Input
+                    id="model_id"
+                    type="text"
+                    placeholder="my-custom-model-v1"
+                    value={newKey.model_id || ''}
+                    onChange={(e) => {
+                      setNewKey({...newKey, model_id: e.target.value});
+                      setMessage(null);
+                      // Clear validation error for this field
+                      if (validationErrors.model_id) {
+                        setValidationErrors({...validationErrors, model_id: undefined});
+                      }
+                    }}
+                    className={`bg-input border-border/50 focus:border-primary focus:ring-primary/50 ${
+                      validationErrors.model_id ? 'border-destructive focus:border-destructive' : ''
+                    }`}
+                  />
+                </div>
+                {validationErrors.model_id && (
+                  <p className="text-xs text-destructive mt-1">
+                    {validationErrors.model_id}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  The specific model identifier to use with your custom API (e.g., my-custom-model-v1)
+                </p>
+              </div>
+            </>
+          )}
           
           <div>
             <Label htmlFor="api_key" className="font-semibold text-foreground">API Key</Label> {/* Styled label */}
