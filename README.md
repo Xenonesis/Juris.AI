@@ -1,10 +1,14 @@
-# Juris.AI v2.95 🚀
+# Juris.AI v3.00 🚀
 
 A cutting-edge AI-powered legal assistance platform built with Next.js, providing intelligent legal research, analysis, and conversation management capabilities.
 
-🌐 **Live Demo**: [https://jurisailawyer.netlify.app/](https://jurisailawyer.netlify.app/)
+🌐 **Live Demo**: [https://juris-ai.vercel.app/](https://juris-ai.vercel.app/)
 
-## ✨ What's New in v2.95
+## 🚀 Quick Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/juris-ai)
+
+## ✨ What's New in v3.00
 
 ### 🎨 **Enhanced Chat Interface**
 - **Modern Message Bubbles**: Beautiful gradient-styled message bubbles with user/AI avatars
@@ -63,7 +67,7 @@ A cutting-edge AI-powered legal assistance platform built with Next.js, providin
 - **Backend**: Supabase (Database, Authentication, Real-time)
 - **AI Integration**: Google Gemini Pro, Mistral AI
 - **UI Components**: Radix UI primitives with custom styling
-- **Deployment**: Netlify with automatic deployments
+- **Deployment**: Vercel with automatic deployments
 
 ## 🚀 Getting Started
 
@@ -159,9 +163,9 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ## 🚀 Deployment
 
 ### 🌐 **Live Deployment**
-The application is deployed on Netlify with automatic deployments from the main branch.
+The application is deployed on Vercel with automatic deployments from the main branch.
 
-**Live URL**: [https://jurisailawyer.netlify.app/](https://jurisailawyer.netlify.app/)
+**Live URL**: [https://juris-ai.vercel.app/](https://juris-ai.vercel.app/)
 
 ### 📦 **Build Process**
 ```bash
@@ -213,7 +217,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact & Support
 
 - **Email**: ititsaddy7@gmail.com
-- **Website**: [https://jurisailawyer.netlify.app/](https://jurisailawyer.netlify.app/)
+- **Website**: [https://juris-ai.vercel.app/](https://juris-ai.vercel.app/)
 - **GitHub**: [https://github.com/yourusername/juris-ai](https://github.com/yourusername/juris-ai)
 - **Issues**: Report bugs and request features via GitHub Issues
 

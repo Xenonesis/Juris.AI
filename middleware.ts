@@ -1,24 +1,26 @@
-import { NextRequest } from 'next/server'
-import { updateSession } from './src/lib/supabase/middleware'
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  // Handle auth session updates
-  const response = await updateSession(request)
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next()
   
-  return response
+  // Create Supabase client
+  const supabase = createMiddlewareClient({ req, res })
+  
+  // Refresh session if expired
+  await supabase.auth.getSession()
+
+  // Security headers for Vercel
+  res.headers.set('X-Frame-Options', 'DENY')
+  res.headers.set('X-Content-Type-Options', 'nosniff')
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+
+  return res
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public (public files)
-     * - api (API routes)
-     * - .*\\.(?:svg|png|jpg|jpeg|gif|webp)$ (image files)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|favicon.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
