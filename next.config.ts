@@ -12,7 +12,7 @@ const nextConfig = {
   // Disable font optimization that can cause MIME type issues
   optimizeFonts: false,
   // Configure webpack to handle CSS properly
-  webpack: (config, { buildId, dev, isServer }) => {
+  webpack: (config: any, { buildId, dev, isServer }: { buildId: string; dev: boolean; isServer: boolean }) => {
     // Fix CSS loading issues in development
     if (dev) {
       config.module.rules.push({

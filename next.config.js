@@ -14,8 +14,7 @@ const nextConfig = {
   // Force server-side rendering to avoid SSG issues with CSS variables
   output: 'standalone',
   
-  // Disable static optimization to prevent CSS variable issues during build
-  unstable_runtimeJS: false,
+  // Static optimization is handled automatically by Next.js 15
 
   // Webpack optimizations to reduce cache serialization warnings
   webpack: (config, { isServer }) => {

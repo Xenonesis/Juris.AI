@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,13 +15,22 @@ export function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/';
-  const { refreshSession } = useAuth();
+  const { refreshSession, user, isLoading: authLoading } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  
+  // Watch for authentication changes and redirect immediately
+  useEffect(() => {
+    if (!authLoading && user && success) {
+      console.log('User authenticated via useEffect, redirecting immediately to:', redirectTo);
+      // Force immediate redirect using window.location for reliable navigation
+      window.location.href = redirectTo;
+    }
+  }, [user, authLoading, success, redirectTo]);
 
   // Get a new, browser-side supabase client as a fallback in case the main one has issues
   const getSupabaseClient = () => {
@@ -145,16 +154,31 @@ export function AuthForm() {
       if (data?.user) {
         console.log('Login successful, user:', data.user.email);
         setSuccess('Login successful! Redirecting...');
+        setLoading(false); // Reset loading state immediately
         
-        // Refresh the session in our auth context
-        await refreshSession();
-        
-        // Add a small delay to allow cookies to be set before redirect
-        setTimeout(() => {
+        try {
+          // Refresh the session in our auth context
+          await refreshSession();
+          
+          // Immediate redirect with fallback
           console.log('Redirecting to:', redirectTo);
-          router.push(redirectTo);
+          
+          // Try router first
+          router.replace(redirectTo);
           router.refresh();
-        }, 500);
+          
+          // Fallback using window.location after a short delay if router doesn't work
+          setTimeout(() => {
+            if (window.location.pathname !== redirectTo) {
+              console.log('Router redirect failed, using window.location fallback');
+              window.location.href = redirectTo;
+            }
+          }, 500);
+        } catch (error) {
+          console.error('Error during redirect process:', error);
+          // Force redirect using window.location as last resort
+          window.location.href = redirectTo;
+        }
       } else {
         setError('Login failed. Please check your credentials.');
         setLoading(false);

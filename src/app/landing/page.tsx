@@ -49,13 +49,16 @@ const LandingPage = () => {
     // Track with multiple analytics providers
     try {
       // Google Analytics 4
-      if (typeof window !== 'undefined' && (window as { gtag?: (...args: unknown[]) => void }).gtag) {
-        (window as { gtag: (...args: unknown[]) => void }).gtag('event', eventName, {
-          event_category: 'Landing Page',
-          event_label: (properties?.label as string) || '',
-          value: (properties?.value as number) || 0,
-          ...properties
-        });
+      if (typeof window !== 'undefined') {
+        const windowWithGtag = window as unknown as { gtag?: (...args: unknown[]) => void };
+        if (windowWithGtag.gtag) {
+          windowWithGtag.gtag('event', eventName, {
+            event_category: 'Landing Page',
+            event_label: (properties?.label as string) || '',
+            value: (properties?.value as number) || 0,
+            ...properties
+          });
+        }
       }
 
       // Console logging for development

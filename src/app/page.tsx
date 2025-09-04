@@ -10,9 +10,9 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // If user is not authenticated, redirect to landing page
+    // Redirect to landing page if user is not authenticated
     if (!isLoading && !user) {
-      router.push('/landing');
+      router.replace('/landing');
     }
   }, [user, isLoading, router]);
 

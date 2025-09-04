@@ -81,8 +81,8 @@ export function NavigationBar() {
   const menuItems = user
     ? [
         { id: 'home', label: "Home", href: "/", icon: <Home className="h-4 w-4" /> },
+        { id: 'chat', label: "Chat", href: "/chat", icon: <MessageSquare className="h-4 w-4" /> },
         { id: 'about', label: "About", href: "/about", icon: <Info className="h-4 w-4" /> },
-        { id: 'services', label: "Services", href: "/services", icon: <Scale className="h-4 w-4" /> },
         { id: 'contact', label: "Contact", href: "/collaboration", icon: <Phone className="h-4 w-4" /> },
       ]
     : [
@@ -144,25 +144,6 @@ export function NavigationBar() {
                   </li>
                 );
               })}
-              {user && (
-                <li
-                  className="relative"
-                >
-                  <Link
-                    href="/chat"
-                    className={`text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 px-2 py-1.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary/60 group
-                      ${pathname === "/chat" ? "text-primary font-medium" : ""}`}
-                    aria-current={pathname === "/chat" ? "page" : undefined}
-                    tabIndex={0}
-                  >
-                    <span className={`transition-transform group-hover:scale-110 ${pathname === "/chat" ? "text-primary" : "text-muted-foreground"}`}>
-                      <MessageSquare className="h-4 w-4" />
-                    </span>
-                    Chat
-                    <Badge variant="outline" className="ml-1 py-0 h-4 text-[10px] font-normal">AI</Badge>
-                  </Link>
-                </li>
-              )}
             </ul>
             <div className="flex items-center gap-3">
               {/* Search Button */}
@@ -340,34 +321,6 @@ export function NavigationBar() {
                         </motion.div>
                       );
                     })}
-                    {user && (
-                      <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: menuItems.length * 0.1, duration: 0.3 }}
-                        className={`border-b border-border/30 ${pathname === "/chat" ? "bg-primary/5" : ""}`}
-                      >
-                        <Link
-                          href="/chat"
-                          className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200 flex items-center gap-3 px-4 py-3 group"
-                          onClick={() => setIsOpen(false)}
-                          aria-current={pathname === "/chat" ? "page" : undefined}
-                        >
-                          <MessageSquare className={`h-4 w-4 transition-all duration-200 group-hover:scale-110 ${pathname === "/chat" ? "text-primary" : "text-muted-foreground"}`} />
-                          <span className={`font-medium ${pathname === "/chat" ? "text-primary" : ""}`}>
-                            Chat
-                          </span>
-                          <Badge variant="outline" className="ml-auto py-0 h-4 text-[10px] font-normal">AI</Badge>
-                          {pathname === "/chat" && (
-                            <motion.div
-                              layoutId="mobile-active-indicator"
-                              className="w-2 h-2 rounded-full bg-primary"
-                              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            />
-                          )}
-                        </Link>
-                      </motion.div>
-                    )}
 
                     {/* User Actions Section */}
                     <div className="border-t border-border/30 bg-muted/20">
@@ -487,15 +440,6 @@ export function NavigationBar() {
                       {user && (
                         <>
                           <div className="text-xs font-medium text-muted-foreground px-2 py-1 mb-2 mt-4">User Actions</div>
-                          <Link
-                            href="/chat"
-                            onClick={() => setSearchOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group"
-                          >
-                            <MessageSquare className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <span className="font-medium">Chat with AI</span>
-                            <Badge variant="outline" className="ml-auto py-0 h-4 text-[10px] font-normal">AI</Badge>
-                          </Link>
                           <Link
                             href="/profile"
                             onClick={() => setSearchOpen(false)}

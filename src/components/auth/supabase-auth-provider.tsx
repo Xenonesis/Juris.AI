@@ -135,6 +135,8 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       const client = getSupabaseClient();
       const { data: { subscription } } = client.auth.onAuthStateChange(async (event, newSession) => {
         console.log('Auth state changed:', event);
+        
+        // Set session and user first
         setSession(newSession);
         setUser(newSession?.user || null);
         
@@ -144,23 +146,23 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_IN') {
           console.log('Auth state change - SIGNED_IN event detected');
+          // Set loading to false immediately for sign-in
           setIsLoading(false);
           router.refresh();
-        }
-        
-        if (event === 'SIGNED_OUT') {
+        } else if (event === 'SIGNED_OUT') {
           console.log('Auth state change - SIGNED_OUT event detected');
           setIsLoading(false);
           router.refresh();
           router.push('/');
-        }
-
-        if (event === 'TOKEN_REFRESHED') {
+        } else if (event === 'TOKEN_REFRESHED') {
           console.log('Auth state change - TOKEN_REFRESHED event detected');
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 100);
+        } else {
+          // For other events, set loading to false immediately
           setIsLoading(false);
         }
-
-        setIsLoading(false);
       });
       
       return () => {

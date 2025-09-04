@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,8 @@ import {
   BarChart3
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth/supabase-auth-provider';
 import { ServiceCard, PricingCard, FeatureHighlight, FAQSection, TestimonialsSection, ServiceComparison } from './components';
 
 interface Service {
@@ -119,6 +121,25 @@ const services: Service[] = [
 ];
 
 const ServicesPage = () => {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push('/');
+    }
+  }, [user, isLoading, router]);
+
+  // Show nothing while checking auth status
+  if (isLoading) {
+    return null;
+  }
+
+  // If user is logged in, they will be redirected, so we don't need to render anything
+  if (user) {
+    return null;
+  }
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-20 bg-gradient-to-br from-background via-slate-50/50 to-primary/5 dark:from-background dark:via-slate-900/50 dark:to-slate-900">
       {/* Hero Section */}
