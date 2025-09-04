@@ -1,0 +1,192 @@
+/* Enhanced Profile Page Styles */
+
+/* Smooth gradient animations */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Glass morphism effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Status indicator animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 20px currentColor;
+    opacity: 0.8;
+  }
+}
+
+.status-indicator {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Tab enhancement */
+.enhanced-tab {
+  position: relative;
+  overflow: hidden;
+}
+
+.enhanced-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.enhanced-tab:hover::before {
+  left: 100%;
+}
+
+/* Text gradient effect */
+.text-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--chart-2)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced button styles */
+.btn-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--chart-2)));
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-gradient:hover::before {
+  left: 100%;
+}
+
+/* Loading spinner enhancement */
+.spinner-gradient {
+  border: 3px solid transparent;
+  border-top: 3px solid hsl(var(--primary));
+  border-right: 3px solid hsl(var(--chart-2));
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Enhanced focus states */
+.focus-ring:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Subtle animations for form elements */
+.form-field {
+  transition: all 0.2s ease;
+}
+
+.form-field:focus-within {
+  transform: scale(1.02);
+}
+
+/* Badge enhancements */
+.badge-glow {
+  box-shadow: 0 0 10px hsla(var(--primary), 0.3);
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+  .card-hover:hover {
+    transform: none;
+  }
+  
+  .enhanced-tab::before {
+    display: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .glass-card {
+    background: hsl(var(--background));
+    border: 2px solid hsl(var(--border));
+  }
+  
+  .text-gradient {
+    -webkit-text-fill-color: unset;
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .gradient-animate {
+    animation: none;
+  }
+  
+  .status-indicator {
+    animation: none;
+  }
+}

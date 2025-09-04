@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏛️ Juris.AI v3.10
+# 🏛️ Juris.AI v3.20
 ### *Revolutionary AI-Powered Legal Assistant Platform*
 
 <p align="center">
