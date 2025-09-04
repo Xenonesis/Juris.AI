@@ -70,7 +70,7 @@ CREATE POLICY "Users can update their own API keys"
 CREATE POLICY "Users can delete their own API keys"
   ON public.api_keys
   FOR DELETE
-  USING (auth.uid() = user_id);
+ USING (auth.uid() = user_id);
 
 -- Add comment to the table
 COMMENT ON TABLE public.api_keys IS 'Stores API keys for different AI models used by users';
