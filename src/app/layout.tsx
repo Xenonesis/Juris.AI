@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SupabaseAuthProvider } from "@/components/auth/supabase-auth-provider";
@@ -8,20 +7,6 @@ import { PageTransition } from "@/components/page-transition";
 import { Footer } from "@/components/footer";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { Toaster } from "@/components/ui/toaster";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-  adjustFontFallback: false,
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-  adjustFontFallback: false,
-});
 
 export const metadata: Metadata = {
   title: "Juris.Ai",
@@ -58,18 +43,42 @@ export default function RootLayout({
                   e.filename.includes('universal-blocker.js') ||
                   e.filename.includes('feedback-manager.js') ||
                   e.filename.includes('content-blocker.js') ||
-                  e.filename.includes('content.js')
+                  e.filename.includes('content.js') ||
+                  e.message.includes('MIME type') ||
+                  e.message.includes('text/css') ||
+                  e.filename.includes('target_css')
                 )) {
                   e.preventDefault();
                   return false;
                 }
               });
+              
+              // Fix CSS MIME type loading issues
+              if (typeof document !== 'undefined') {
+                const observer = new MutationObserver(function(mutations) {
+                  mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                      if (node.tagName === 'SCRIPT' && node.src && node.src.includes('.css')) {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.href = node.src;
+                        document.head.appendChild(link);
+                        node.remove();
+                      }
+                    });
+                  });
+                });
+                observer.observe(document.head, { childList: true, subtree: true });
+              }
             `,
           }}
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className="antialiased min-h-screen flex flex-col font-sans"
+        style={{
+          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+        }}
       >
         <ThemeProvider
           attribute="class"

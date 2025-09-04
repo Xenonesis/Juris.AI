@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X, User, LogOut, MessageSquare, Home, Info, Phone, Sparkles, Scale, BookOpen, Search, Command } from "lucide-react";
+import { Menu, X, User, LogOut, MessageSquare, Home, Info, Phone, Sparkles, Scale, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -77,14 +77,19 @@ export function NavigationBar() {
     setIsOpen(false);
   };
 
-  const menuItems = [
-    { id: 'home', label: "Home", href: user ? "/" : "/landing", icon: <Home className="h-4 w-4" /> },
-    ...(user ? [{ id: 'landing', label: "Landing", href: "/landing", icon: <Sparkles className="h-4 w-4" /> }] : []),
-    { id: 'about', label: "About", href: "/about", icon: <Info className="h-4 w-4" /> },
-    { id: 'services', label: "Services", href: "/services", icon: <Scale className="h-4 w-4" /> },
-    { id: 'legal-tools', label: "Legal Tools", href: "/legal-bert", icon: <Scale className="h-4 w-4" /> },
-    { id: 'contact', label: "Contact", href: "/collaboration", icon: <Phone className="h-4 w-4" /> },
-  ];
+  // Build menu based on auth state
+  const menuItems = user
+    ? [
+        { id: 'home', label: "Home", href: "/", icon: <Home className="h-4 w-4" /> },
+        { id: 'about', label: "About", href: "/about", icon: <Info className="h-4 w-4" /> },
+        { id: 'services', label: "Services", href: "/services", icon: <Scale className="h-4 w-4" /> },
+        { id: 'contact', label: "Contact", href: "/collaboration", icon: <Phone className="h-4 w-4" /> },
+      ]
+    : [
+        { id: 'landing', label: "Landing", href: "/landing", icon: <Sparkles className="h-4 w-4" /> },
+        { id: 'services', label: "Services", href: "/services", icon: <Scale className="h-4 w-4" /> },
+        { id: 'about-contact', label: "About & Contact", href: "/about", icon: <Info className="h-4 w-4" /> },
+      ];
 
   return (
     <header
