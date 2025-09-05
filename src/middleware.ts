@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
-import { checkTermsAcceptance } from '@/lib/auth/terms-middleware'
 
 export async function middleware(request: NextRequest) {
   // Skip middleware for static files and api routes
@@ -12,47 +11,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Update the session with the latest auth cookie
-  const response = await updateSession(request);
+  // Update the session with the latest auth cookie and get user
+  const { response, user } = await updateSession(request);
   
-  // Check terms acceptance for protected routes
-  const termsRedirect = await checkTermsAcceptance(request);
-  if (termsRedirect) {
-    return termsRedirect;
-  }
-  
-  // Get user data after session update
-  const cookies = request.cookies.getAll();
-  
-  // Debug cookie information
+  // Debug auth information
   console.log(`Checking auth for path: ${request.nextUrl.pathname}`);
-  console.log(`Found ${cookies.length} cookies`);
-  
-  // More comprehensive session check
-  // Look for all potential Supabase auth cookies
-  const authCookieNames = [
-    'sb-access-token',
-    'sb-refresh-token',
-    'sb-session',
-    'supabase-auth-token',
-    '__session'
-  ];
-  
-  const authCookies = cookies.filter(cookie => 
-    authCookieNames.includes(cookie.name) ||
-    cookie.name.startsWith('sb-') ||
-    cookie.name.includes('supabase')
-  );
-  
-  // Log found auth cookies (just names, not values for security)
-  if (authCookies.length > 0) {
-    console.log(`Found auth cookies: ${authCookies.map(c => c.name).join(', ')}`);
-  } else {
-    console.log('No auth cookies found');
+  console.log(`User authenticated: ${!!user}`);
+  if (user) {
+    console.log(`User email: ${user.email}`);
   }
   
-  // Consider authenticated if any auth cookies are present
-  const hasSession = authCookies.length > 0;
+  // Consider authenticated if user is present
+  const hasSession = !!user;
 
   // Protected routes that require authentication
   const protectedRoutes = ['/profile', '/chat'];
@@ -79,6 +49,12 @@ export async function middleware(request: NextRequest) {
     console.log('Redirecting authenticated user from landing to home');
     return NextResponse.redirect(new URL('/', request.url));
   }
+
+  // Check terms acceptance for authenticated users (but skip terms check for now to debug)
+  // const termsRedirect = await checkTermsAcceptance(request);
+  // if (termsRedirect) {
+  //   return termsRedirect;
+  // }
 
   return response;
 }

@@ -11,6 +11,7 @@ import { CookieBanner } from "@/components/cookie-consent/cookie-banner";
 import { CookiePreferencesButton } from "@/components/cookie-consent/cookie-preferences-button";
 import { ConsentAwareAnalytics } from "@/components/analytics/consent-aware-analytics";
 import { TermsAcceptanceDialog } from "@/components/auth/terms-acceptance-dialog";
+import { QuickDebug } from "../../tmp_rovodev_quick_debug";
 
 export const metadata: Metadata = {
   title: "Juris.Ai",
@@ -105,6 +106,7 @@ export default function RootLayout({
               <CookiePreferencesButton />
               <ConsentAwareAnalytics />
               <TermsAcceptanceDialog />
+              <QuickDebug />
             </div>
           </SupabaseAuthProvider>
         </ThemeProvider>

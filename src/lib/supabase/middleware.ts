@@ -14,7 +14,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!supabaseUrl || !supabaseKey) {
     console.error('Missing Supabase environment variables in middleware');
-    return response;
+    return { response, user: null };
   }
 
   // Create a Supabase client for the middleware
@@ -73,9 +73,11 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  let user = null;
   try {
     // This will refresh the auth session if expired
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
     
     if (user) {
       console.log(`User authenticated in middleware: ${user.email}`);
@@ -86,5 +88,5 @@ export async function updateSession(request: NextRequest) {
     console.error('Error refreshing auth in middleware:', error);
   }
 
-  return response;
+  return { response, user };
 } 

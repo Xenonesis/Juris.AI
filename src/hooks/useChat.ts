@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getAIResponse, getLegalAdvice } from '@/lib/ai-services';
 import { getUserApiKeys } from '@/lib/api-key-service';
+import { useAuth } from '@/components/auth/supabase-auth-provider';
 
 interface ChatMessage {
   id?: string;
@@ -23,7 +24,7 @@ interface LegalSources {
 
 export function useChat() {
   const searchParams = useSearchParams();
-  const [user, setUser] = useState<{ id: string } | null>(null);
+  const { user: authUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -46,24 +47,16 @@ export function useChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-
-      if (user) {
-        const sessionDate = searchParams.get('session');
-        if (sessionDate) {
-          loadSpecificSession(user.id, sessionDate);
-        } else {
-          loadChatHistory(user.id);
-        }
-        loadUserApiKeys(user.id);
+    if (authUser) {
+      const sessionDate = searchParams.get('session');
+      if (sessionDate) {
+        loadSpecificSession(authUser.id, sessionDate);
+      } else {
+        loadChatHistory(authUser.id);
       }
-    };
-
-    fetchUser();
-  }, [searchParams]);
+      loadUserApiKeys(authUser.id);
+    }
+  }, [authUser, searchParams]);
 
   const loadUserApiKeys = async (userId: string) => {
     if (!userId) return;
@@ -198,13 +191,13 @@ export function useChat() {
     }, 100);
     
     try {
-      if (!user) {
+      if (!authUser) {
         throw new Error('You must be logged in to send messages');
       }
       
       const userMessage: ChatMessage = {
         id: `temp-${Date.now()}`,
-        user_id: user.id,
+        user_id: authUser.id,
         content: currentInput,
         is_user_message: true,
         created_at: new Date().toISOString(),
@@ -216,7 +209,7 @@ export function useChat() {
       
       const tempAiMessage: ChatMessage = {
         id: tempAiMessageId,
-        user_id: user.id,
+        user_id: authUser.id,
         content: '',
         is_user_message: false,
         created_at: new Date().toISOString(),
@@ -235,7 +228,7 @@ export function useChat() {
       
       const aiMessage: ChatMessage = {
         id: tempAiMessageId,
-        user_id: user.id,
+        user_id: authUser.id,
         content: aiResponse,
         is_user_message: false,
         created_at: new Date().toISOString(),
@@ -261,7 +254,7 @@ export function useChat() {
       
       const errorMessage: ChatMessage = {
         id: `error-${Date.now()}`,
-        user_id: user?.id || 'anonymous',
+        user_id: authUser?.id || 'anonymous',
         content: 'Sorry, there was an error processing your message. Please try again.',
         is_user_message: false,
         created_at: new Date().toISOString(),
@@ -305,7 +298,7 @@ export function useChat() {
   };
 
   const handleRegenerateMessage = async (messageId: string) => {
-    if (!user || processing || regeneratingMessageId) return;
+    if (!authUser || processing || regeneratingMessageId) return;
 
     const messageIndex = messages.findIndex(msg => msg.id === messageId);
     if (messageIndex === -1) return;
@@ -336,7 +329,7 @@ export function useChat() {
 
       const newAiMessage: ChatMessage = {
         id: messageId,
-        user_id: user.id,
+        user_id: authUser.id,
         content: aiResponse,
         is_user_message: false,
         created_at: new Date().toISOString(),
@@ -354,7 +347,7 @@ export function useChat() {
 
       const errorMessage: ChatMessage = {
         id: `error-${Date.now()}`,
-        user_id: user.id,
+        user_id: authUser.id,
         content: 'Sorry, there was an error regenerating the response. Please try again.',
         is_user_message: false,
         created_at: new Date().toISOString(),
@@ -379,7 +372,7 @@ export function useChat() {
   };
 
   return {
-    user,
+    user: authUser,
     loading,
     processing,
     messages,

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏛️ Juris.AI v3.35.0
+# 🏛️ Juris.AI v3.50.0
 ### *Revolutionary AI-Powered Legal Assistant Platform*
 
 <p align="center">
@@ -56,7 +56,7 @@
 
 | 🏠 **Dashboard** | 💬 **Chat Interface** |
 |:---:|:---:|
-| ![Dashboard](public/dashboard.png) | ![Chat](public/chat.jpg) |
+| ![Dashboard](public/dashboard.png) | ![Chat](public/chat.png) |
 
 | 📊 **Analytics** | 🔍 **Legal Research** |
 |:---:|:---:|
@@ -883,7 +883,7 @@ npm ci
 ```typescript
 // GDPR-compliant terms acceptance
 <TermsAcceptanceDialog
-  version="3.35.0"
+  version="3.50.0"
   required={true}
   onAccept={handleTermsAcceptance}
   showChanges={true}
