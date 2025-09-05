@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
+import { checkTermsAcceptance } from '@/lib/auth/terms-middleware'
 
 export async function middleware(request: NextRequest) {
   // Skip middleware for static files and api routes
@@ -13,6 +14,12 @@ export async function middleware(request: NextRequest) {
 
   // Update the session with the latest auth cookie
   const response = await updateSession(request);
+  
+  // Check terms acceptance for protected routes
+  const termsRedirect = await checkTermsAcceptance(request);
+  if (termsRedirect) {
+    return termsRedirect;
+  }
   
   // Get user data after session update
   const cookies = request.cookies.getAll();

@@ -75,7 +75,7 @@ export function Footer() {
       links: [
         { label: "Privacy Policy", href: "/privacy-policy", icon: Shield },
         { label: "Terms of Service", href: "/terms-of-service", icon: FileTerminal },
-        { label: "Cookie Policy", href: "#", icon: Cookie },
+        { label: "Cookie Policy", href: "/cookie-policy", icon: Cookie },
         { label: "Disclaimer", href: "#", icon: AlertCircle },
         { label: "Accessibility", href: "#", icon: Accessibility },
       ],

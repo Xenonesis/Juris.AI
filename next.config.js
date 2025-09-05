@@ -60,7 +60,48 @@ const nextConfig = {
   },
 
   async headers() {
-    return [
+    const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+    
+    const devHeaders = [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "img-src 'self' data: https: blob:",
+              "connect-src 'self' https://*.supabase.co https://api.mistral.ai https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com https://*.case.law",
+              "frame-src 'self' https://www.google.com https://google.com",
+              "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "form-action 'self'"
+            ].join('; ')
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+
+    const prodHeaders = [
       {
         source: '/(.*)',
         headers: [
@@ -102,6 +143,10 @@ const nextConfig = {
           },
         ],
       },
+    ];
+
+    return [
+      ...(isDev ? devHeaders : prodHeaders),
       {
         source: '/api/(.*)',
         headers: [

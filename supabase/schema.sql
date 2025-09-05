@@ -10,6 +10,18 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   address TEXT,
   bio TEXT,
   avatar_url TEXT,
+  -- Terms acceptance fields
+  accepted_terms BOOLEAN DEFAULT FALSE,
+  accepted_privacy BOOLEAN DEFAULT FALSE,
+  terms_accepted_at TIMESTAMPTZ,
+  privacy_accepted_at TIMESTAMPTZ,
+  terms_accepted BOOLEAN DEFAULT FALSE,
+  privacy_accepted BOOLEAN DEFAULT FALSE,
+  terms_version TEXT DEFAULT '1.0',
+  privacy_version TEXT DEFAULT '1.0',
+  account_status TEXT DEFAULT 'pending_terms',
+  cookie_consent_given BOOLEAN DEFAULT FALSE,
+  cookie_consent_at TIMESTAMPTZ,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -40,6 +52,8 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_user_id ON public.chat_messages(use
 CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON public.chat_messages(created_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_created_at ON public.profiles(created_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_updated_at ON public.profiles(updated_at);
+CREATE INDEX IF NOT EXISTS idx_profiles_terms_status ON public.profiles(terms_accepted, privacy_accepted, account_status);
+CREATE INDEX IF NOT EXISTS idx_profiles_account_status ON public.profiles(account_status);
 CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON public.api_keys(user_id);
 CREATE INDEX IF NOT EXISTS idx_api_keys_model_type ON public.api_keys(model_type);
 
@@ -357,4 +371,44 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Add comments to tables
-COMMENT ON TABLE public.api_keys IS 'Stores API keys for different AI models used by users'; 
+COMMENT ON TABLE public.api_keys IS 'Stores API keys for different AI models used by users';
+
+-- Drop existing function if it exists to avoid parameter naming conflicts
+DROP FUNCTION IF EXISTS update_terms_acceptance(UUID, BOOLEAN, BOOLEAN, TEXT, TEXT);
+
+-- Create a function for updating terms acceptance (used by the API)
+CREATE OR REPLACE FUNCTION update_terms_acceptance(
+    user_id UUID,
+    accept_terms BOOLEAN,
+    accept_privacy BOOLEAN,
+    terms_ver TEXT DEFAULT '1.0',
+    privacy_ver TEXT DEFAULT '1.0'
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+    rows_affected INTEGER;
+BEGIN
+    UPDATE profiles 
+    SET 
+        terms_accepted = accept_terms,
+        privacy_accepted = accept_privacy,
+        accepted_terms = accept_terms,
+        accepted_privacy = accept_privacy,
+        terms_accepted_at = CASE WHEN accept_terms THEN NOW() ELSE terms_accepted_at END,
+        privacy_accepted_at = CASE WHEN accept_privacy THEN NOW() ELSE privacy_accepted_at END,
+        terms_version = CASE WHEN accept_terms THEN terms_ver ELSE terms_version END,
+        privacy_version = CASE WHEN accept_privacy THEN privacy_ver ELSE privacy_version END,
+        account_status = CASE 
+            WHEN accept_terms AND accept_privacy THEN 'active'
+            ELSE 'pending_terms'
+        END,
+        updated_at = NOW()
+    WHERE id = user_id;
+    
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    RETURN rows_affected > 0;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION update_terms_acceptance(UUID, BOOLEAN, BOOLEAN, TEXT, TEXT) TO authenticated; 

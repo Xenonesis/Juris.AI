@@ -1,12 +1,13 @@
 {
   "name": "juris-ai",
-  "version": "3.35.0",
+  "version": "3.40.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "dev:https": "next dev --experimental-https --experimental-https-key ./certs/localhost.key --experimental-https-cert ./certs/localhost.crt",
     "build": "next build",
     "start": "next start",
+    "preview": "npm run build && npm run start",
     "lint": "next lint",
     "security:audit": "node scripts/security-audit.js",
     "security:deps": "npm audit",

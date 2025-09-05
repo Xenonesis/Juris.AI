@@ -10,6 +10,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { CookieBanner } from "@/components/cookie-consent/cookie-banner";
 import { CookiePreferencesButton } from "@/components/cookie-consent/cookie-preferences-button";
 import { ConsentAwareAnalytics } from "@/components/analytics/consent-aware-analytics";
+import { TermsAcceptanceDialog } from "@/components/auth/terms-acceptance-dialog";
 
 export const metadata: Metadata = {
   title: "Juris.Ai",
@@ -103,6 +104,7 @@ export default function RootLayout({
               <CookieBanner />
               <CookiePreferencesButton />
               <ConsentAwareAnalytics />
+              <TermsAcceptanceDialog />
             </div>
           </SupabaseAuthProvider>
         </ThemeProvider>

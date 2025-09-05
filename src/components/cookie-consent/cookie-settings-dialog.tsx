@@ -200,8 +200,28 @@ export function CookieSettingsDialog({ open, onOpenChange, onSave }: CookieSetti
             <Database className="h-5 w-5" />
             Cookie Settings
           </DialogTitle>
-          <DialogDescription>
-            Manage your cookie preferences. You can enable or disable different types of cookies below.
+          <DialogDescription className="space-y-2">
+            <span>
+              Manage your cookie preferences. You can enable or disable different types of cookies below.
+            </span>
+            <div className="flex items-center gap-4 text-xs">
+              <a 
+                href="/cookie-policy" 
+                className="text-primary hover:underline font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View detailed Cookie Policy
+              </a>
+              <a 
+                href="/privacy-policy" 
+                className="text-primary hover:underline font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+            </div>
           </DialogDescription>
         </DialogHeader>
 

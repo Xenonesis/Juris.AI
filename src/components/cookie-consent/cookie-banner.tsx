@@ -13,6 +13,11 @@ import {
   isConsentRequired,
   CookieConsentSettings 
 } from '@/lib/cookies';
+import { 
+  validateConsent, 
+  recordConsent, 
+  requiresCookieConsent 
+} from '@/lib/cookie-consent-validator';
 import { CookieSettingsDialog } from './cookie-settings-dialog';
 
 export function CookieBanner() {
@@ -25,8 +30,9 @@ export function CookieBanner() {
     const checkConsent = () => {
       const hasConsent = getConsentSettings();
       const needsRenewal = needsConsentRenewal();
-      const requiresConsent = isConsentRequired();
+      const requiresConsent = requiresCookieConsent();
 
+      // Show banner if consent is required and either no consent exists or renewal is needed
       setShowBanner(requiresConsent && (!hasConsent || needsRenewal));
     };
 
@@ -45,9 +51,29 @@ export function CookieBanner() {
       preferences: true,
     };
 
+    // Validate consent before saving
+    const validation = validateConsent(settings);
+    if (!validation.isValid) {
+      console.error('Consent validation failed:', validation.errors);
+      setIsLoading(false);
+      return;
+    }
+
+    // Record consent for audit trail
+    recordConsent(settings, 'banner');
+    
+    // Save consent settings
     saveConsentSettings(settings);
     setShowBanner(false);
     setIsLoading(false);
+
+    // Track consent acceptance for analytics (if enabled)
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'cookie_consent', {
+        event_category: 'engagement',
+        event_label: 'accept_all',
+      });
+    }
   };
 
   const handleAcceptNecessary = async () => {
@@ -60,9 +86,24 @@ export function CookieBanner() {
       preferences: false,
     };
 
+    // Validate consent before saving
+    const validation = validateConsent(settings);
+    if (!validation.isValid) {
+      console.error('Consent validation failed:', validation.errors);
+      setIsLoading(false);
+      return;
+    }
+
+    // Record consent for audit trail
+    recordConsent(settings, 'banner');
+    
+    // Save consent settings
     saveConsentSettings(settings);
     setShowBanner(false);
     setIsLoading(false);
+
+    // Track consent rejection (using essential cookies only)
+    console.log('User accepted essential cookies only');
   };
 
   const handleCustomize = () => {
@@ -70,9 +111,33 @@ export function CookieBanner() {
   };
 
   const handleSettingsSave = (settings: CookieConsentSettings) => {
+    // Validate consent before saving
+    const validation = validateConsent(settings);
+    if (!validation.isValid) {
+      console.error('Consent validation failed:', validation.errors);
+      return;
+    }
+
+    // Record consent for audit trail
+    recordConsent(settings, 'settings');
+    
+    // Save consent settings
     saveConsentSettings(settings);
     setShowBanner(false);
     setShowSettings(false);
+
+    // Track custom consent settings
+    if (typeof window !== 'undefined' && window.gtag && settings.analytics) {
+      window.gtag('event', 'cookie_consent', {
+        event_category: 'engagement',
+        event_label: 'custom_settings',
+        custom_parameters: {
+          analytics: settings.analytics,
+          marketing: settings.marketing,
+          preferences: settings.preferences,
+        },
+      });
+    }
   };
 
   if (!showBanner) return null;
@@ -106,28 +171,36 @@ export function CookieBanner() {
                 {/* Content */}
                 <div className="flex-1 space-y-3">
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    We use cookies to enhance your experience, analyze site usage, and assist in our marketing efforts. 
-                    You can customize your preferences or accept all cookies to continue.
+                    <strong className="text-foreground">We value your privacy.</strong> This website uses cookies to provide essential functionality, 
+                    analyze usage patterns, and enhance your experience. Some cookies require your consent, while others are essential for the site to work.
                   </p>
                   
                   {/* Cookie Categories Preview */}
-                  <div className="flex flex-wrap gap-2">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Shield className="h-3 w-3" />
-                      <span>Essential</span>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="flex items-center gap-1 text-xs bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
+                      <Shield className="h-3 w-3 text-green-600" />
+                      <span className="font-medium">Essential</span>
+                      <span className="text-green-600">Always On</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Eye className="h-3 w-3" />
-                      <span>Analytics</span>
+                    <div className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+                      <Eye className="h-3 w-3 text-blue-600" />
+                      <span className="font-medium">Analytics</span>
+                      <span className="text-blue-600">Optional</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Target className="h-3 w-3" />
-                      <span>Marketing</span>
+                    <div className="flex items-center gap-1 text-xs bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded">
+                      <Target className="h-3 w-3 text-purple-600" />
+                      <span className="font-medium">Marketing</span>
+                      <span className="text-purple-600">Optional</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Sliders className="h-3 w-3" />
-                      <span>Preferences</span>
+                    <div className="flex items-center gap-1 text-xs bg-orange-50 dark:bg-orange-900/20 px-2 py-1 rounded">
+                      <Sliders className="h-3 w-3 text-orange-600" />
+                      <span className="font-medium">Preferences</span>
+                      <span className="text-orange-600">Optional</span>
                     </div>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Essential cookies</strong> are automatically enabled and cannot be disabled as they're required for basic website functionality.
                   </div>
                 </div>
 
@@ -162,28 +235,35 @@ export function CookieBanner() {
                 </div>
               </div>
 
-              {/* Privacy Policy Link */}
-              <div className="mt-4 pt-4 border-t">
+              {/* Legal Links and Information */}
+              <div className="mt-4 pt-4 border-t space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  By continuing to use our site, you agree to our{' '}
+                  We use cookies to provide essential website functionality, analyze usage patterns, and enhance your experience. 
+                  Essential cookies are always active, while optional cookies require your consent.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-xs">
                   <a 
                     href="/privacy-policy" 
-                    className="text-primary hover:underline font-medium"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Privacy Policy
                   </a>
-                  {' '}and{' '}
                   <a 
                     href="/terms-of-service" 
-                    className="text-primary hover:underline font-medium"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Terms of Service
                   </a>
-                  . You can change your preferences at any time.
+                  <span className="text-muted-foreground">
+                    Last updated: {new Date().toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  By clicking "Accept All", you consent to our use of cookies. You can manage your preferences anytime.
                 </p>
               </div>
             </CardContent>

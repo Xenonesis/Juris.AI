@@ -55,7 +55,7 @@ export function setSecureCookie(
   const cookieStore = cookies();
   const finalOptions = { ...SECURE_COOKIE_DEFAULTS, ...options };
 
-  cookieStore.set(name, value, finalOptions);
+  (cookieStore as any).set(name, value, finalOptions);
 }
 
 /**
@@ -63,7 +63,7 @@ export function setSecureCookie(
  */
 export function getSecureCookie(name: string): string | undefined {
   const cookieStore = cookies();
-  return cookieStore.get(name)?.value;
+  return (cookieStore as any).get(name)?.value;
 }
 
 /**
@@ -71,7 +71,7 @@ export function getSecureCookie(name: string): string | undefined {
  */
 export function deleteSecureCookie(name: string, path = '/'): void {
   const cookieStore = cookies();
-  cookieStore.delete({ name, path });
+  (cookieStore as any).delete({ name, path });
 }
 
 /**
