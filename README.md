@@ -56,7 +56,7 @@
 
 | 🏠 **Dashboard** | 💬 **Chat Interface** |
 |:---:|:---:|
-| ![Dashboard](public/dashboard.png) | ![Chat](public/1.jpg) |
+| ![Dashboard](public/dashboard.png) | ![Chat](public/chat.jpg) |
 
 | 📊 **Analytics** | 🔍 **Legal Research** |
 |:---:|:---:|
