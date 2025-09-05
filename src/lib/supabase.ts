@@ -24,7 +24,6 @@ function checkExistingTokens(): { key: string; value: string } | null {
     try {
       const value = localStorage.getItem(key);
       if (value) {
-        console.log(`Found existing auth token with key: ${key}`);
         return { key, value };
       }
     } catch (e) {
@@ -40,7 +39,6 @@ try {
   if (typeof window !== 'undefined') {
     // Check for existing tokens
     const existingToken = checkExistingTokens();
-    console.log("Existing token found:", !!existingToken);
 
     supabase = createClient(supabaseUrl, supabaseAnonKey, {
       db: {
@@ -57,19 +55,16 @@ try {
             try {
               const itemStr = localStorage.getItem(key);
               if (!itemStr) {
-                console.log(`No auth item found for key: ${key}`);
                 
                 // If not found with the primary key, check other possible keys
                 const existingToken = checkExistingTokens();
                 if (existingToken) {
-                  console.log(`Using alternative token from: ${existingToken.key}`);
                   return existingToken.value;
                 }
                 
                 return null;
               }
               
-              console.log(`Retrieved auth item for key: ${key}`);
               return itemStr;
             } catch (error) {
               console.error(`Error getting item from storage for key ${key}:`, error);
@@ -78,7 +73,6 @@ try {
           },
           setItem: (key: string, value: string): void => {
             try {
-              console.log(`Setting auth item for key: ${key}`);
               localStorage.setItem(key, value);
               
               // Also set under sb-session for compatibility
@@ -91,7 +85,6 @@ try {
           },
           removeItem: (key: string): void => {
             try {
-              console.log(`Removing auth item for key: ${key}`);
               localStorage.removeItem(key);
               
               // Also remove under sb-session for compatibility
@@ -120,22 +113,18 @@ try {
       if (error) {
         console.error('Error getting session on init:', error);
       } else if (data.session) {
-        console.log('Valid session found on init:', data.session.user.email);
         
         // Force refresh the session to update cookies
         supabase.auth.refreshSession().then(({ data: refreshData, error: refreshError }) => {
           if (refreshError) {
             console.error('Error refreshing session on init:', refreshError);
           } else if (refreshData && refreshData.session) {
-            console.log('Session refreshed successfully on init');
           }
         });
       } else {
-        console.log('No session found on init');
       }
     });
     
-    console.log('Supabase client created successfully');
   } else {
     // For SSR, create a client without browser-specific features
     supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -144,7 +133,6 @@ try {
         autoRefreshToken: false,
       },
     });
-    console.log('Supabase SSR client created');
   }
 } catch (error) {
   console.error('Error initializing Supabase client:', error);

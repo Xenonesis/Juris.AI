@@ -203,22 +203,19 @@ export function ProfileForm() {
         setProfile(prev => ({ ...prev, email: user.email || '' }));
         
         // Get profile data if it exists - Using a different query approach
-        console.log('Fetching profile for user:', user.id);
         
         const supabase = createClient();
         // Try with filter() approach instead of eq()
-        const { data: profileData, error: profileError }: { data: any; error: any } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .filter('id', 'eq', user.id)
           .maybeSingle(); // Use maybeSingle() instead of single() to avoid PGRST116
         
-        console.log('Profile fetch response:', { profileData, profileError });
         
         if (profileError) {
           // Record not found - normal if this is first login
           if (profileError.code === 'PGRST116') {
-            console.log('No profile found for user - will be created when form is submitted');
             // Set default values
             setProfile(prev => ({
               ...prev,
@@ -227,13 +224,12 @@ export function ProfileForm() {
               email: user.email || '',
               // Keep other fields' default empty values
             }));
-          } else if (profileError.code === '401' || profileError.code === '403' || profileError.status === 406) {
+          } else if (profileError.code === '401' || profileError.code === '403') {
             // Auth errors - try refreshing session
-            console.log('Auth error detected, refreshing session...');
             await refreshSession();
             
             // Try again with fresh session
-            const { data: retryData, error: retryError }: { data: any; error: any } = await supabase
+            const { data: retryData, error: retryError } = await supabase
               .from('profiles')
               .select('*')
               .filter('id', 'eq', user.id)
@@ -241,7 +237,6 @@ export function ProfileForm() {
             
             if (retryError) {
               if (retryError.code === 'PGRST116') {
-                console.log('No profile found after refresh - will be created when form is submitted');
               } else {
                 console.error('Error fetching profile after refresh:', retryError);
                 setMessage({ type: 'error', text: 'Failed to load profile data' });
@@ -347,7 +342,6 @@ export function ProfileForm() {
         updated_at: new Date().toISOString()
       };
 
-      console.log('Saving profile data:', profileData);
 
       const supabase = createClient();
       // Try upsert with simplified approach
@@ -364,9 +358,11 @@ export function ProfileForm() {
       
       // Refresh session/user data
       await refreshSession();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
       console.error('Error updating profile:', error);
       setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
+      }
     } finally {
       setLoading(false);
     }

@@ -21,11 +21,13 @@ import {
   FileTerminal,
   Cookie,
   AlertCircle,
-  Accessibility
+  Accessibility,
+  Scale
 } from "lucide-react";
 import { fadeIn } from "@/lib/motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { JurisLogo } from "./juris-logo";
 import { useState } from "react";
 import {
   Tooltip,
@@ -42,7 +44,6 @@ export function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, you would send this to your API
-    console.log("Subscribing email:", email);
     setSubscribed(true);
     setTimeout(() => setSubscribed(false), 3000);
     setEmail("");
@@ -100,11 +101,9 @@ export function Footer() {
             viewport={{ once: true }}
             className="lg:col-span-4 space-y-4 md:space-y-6"
           >
-            <div>
-              <h3 className="text-xl md:text-3xl font-bold gradient-text-vibrant">
-                Juris.Ai
-              </h3>
-              <p className="text-xs md:text-sm text-muted-foreground max-w-xs mt-2 md:mt-3 font-medium">
+            <div className="flex flex-col gap-4">
+              <JurisLogo />
+              <p className="text-xs md:text-sm text-muted-foreground max-w-xs font-medium">
                 AI-powered legal assistance platform helping users navigate complex legal questions with multi-model analysis.
               </p>
             </div>

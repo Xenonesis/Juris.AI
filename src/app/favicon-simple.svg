@@ -1,26 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Solid background for better ICO compatibility -->
-  <rect x="4" y="4" width="56" height="56" rx="14" ry="14" fill="#2563EB" />
-  
-  <!-- Scale icon -->
-  <g fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Central pillar -->
-    <line x1="32" y1="20" x2="32" y2="44" />
-    <!-- Top of scale -->
-    <line x1="28" y1="20" x2="36" y2="20" />
-    <!-- Left scale arm -->
-    <line x1="20" y1="28" x2="32" y2="24" />
-    <!-- Right scale arm -->
-    <line x1="32" y1="24" x2="44" y2="28" />
-    <!-- Left scale pan -->
-    <path d="M16 32 Q20 30 24 32 Q20 34 16 32 Z" />
-    <!-- Right scale pan -->
-    <path d="M40 36 Q44 34 48 36 Q44 38 40 36 Z" />
-    <!-- Left chain -->
-    <line x1="20" y1="28" x2="20" y2="32" />
-    <!-- Right chain -->
-    <line x1="44" y1="28" x2="44" y2="36" />
-    <!-- Base -->
-    <line x1="26" y1="44" x2="38" y2="44" />
-  </g>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="professional-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#4F8EF7"/>
+<stop offset="100%" stop-color="#8626DB"/>
+</linearGradient>
+</defs>
+<rect width="64" height="64" rx="12" fill="url(#professional-gradient)"/>
+<path d="M49 20H15C14.4477 20 14 20.4477 14 21V22C14 22.5523 14.4477 23 15 23H49C49.5523 23 50 22.5523 50 22V21C50 20.4477 49.5523 20 49 20Z" fill="white"/>
+<path d="M32 23V46C32 46.5523 31.5523 47 31 47H33C33.5523 47 34 46.5523 34 46V23H32Z" fill="white"/>
+<path d="M22 41C18.6863 41 16 38.3137 16 35C16 31.6863 18.6863 29 22 29C25.3137 29 28 31.6863 28 35C28 38.3137 25.3137 41 22 41ZM22 31C19.7909 31 18 32.7909 18 35C18 37.2091 19.7909 39 22 39C24.2091 39 26 37.2091 26 35C26 32.7909 24.2091 31 22 31Z" fill="white"/>
+<path d="M42 41C38.6863 41 36 38.3137 36 35C36 31.6863 38.6863 29 42 29C45.3137 29 48 31.6863 48 35C48 38.3137 45.3137 41 42 41ZM42 31C39.7909 31 38 32.7909 38 35C38 37.2091 39.7909 39 42 39C44.2091 39 46 37.2091 46 35C46 32.7909 44.2091 31 42 31Z" fill="white"/>
+<path d="M22 29V23H20V29C18.8954 29 18 29.8954 18 31H26C26 29.8954 25.1046 29 24 29H22Z" fill="white"/>
+<path d="M42 29V23H40V29C38.8954 29 38 29.8954 38 31H46C46 29.8954 45.1046 29 44 29H42Z" fill="white"/>
 </svg>

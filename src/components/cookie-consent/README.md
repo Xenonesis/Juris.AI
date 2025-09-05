@@ -240,7 +240,6 @@ import { validateConsent, generateComplianceReport } from '@/lib/cookie-consent-
 
 // Validate current consent
 const validation = validateConsent(currentSettings);
-console.log('Compliance Score:', validation.complianceScore);
 
 // Generate full report
 const report = generateComplianceReport();

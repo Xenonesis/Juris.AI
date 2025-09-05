@@ -1,8 +1,8 @@
-import { pipeline, Pipeline } from '@xenova/transformers';
+import { pipeline, FeatureExtractionPipeline } from '@xenova/transformers';
 import { fetchRelevantCaseLaw, fetchRelevantStatutes } from "@/lib/ai-services";
 
 export class LegalBertModel {
-  private model: any | null;
+  private model: FeatureExtractionPipeline | null;
   private isInitialized: boolean = false;
 
   constructor() {
@@ -17,9 +17,7 @@ export class LegalBertModel {
       const pipe = await pipeline("feature-extraction", "law-ai/InLegalBERT");
       this.model = pipe;
       this.isInitialized = true;
-      console.log("InLegalBERT model initialized successfully");
     } catch (error) {
-      console.error("Error initializing InLegalBERT model:", error);
       throw new Error("Failed to initialize the InLegalBERT model");
     }
   }
@@ -31,6 +29,9 @@ export class LegalBertModel {
 
     try {
       // Get embeddings from the model
+      if (!this.model) {
+        throw new Error("Model not initialized");
+      }
       const result = await this.model(text, {
         pooling: "mean",
         normalize: true,
@@ -44,7 +45,7 @@ export class LegalBertModel {
       
       // Calculate legal relevance score based on similarity to legal corpus
       // This is a simplified example - in production this would use embedding similarity
-      const legalRelevanceScore = this.calculateLegalRelevanceScore(result.data);
+      const legalRelevanceScore = this.calculateLegalRelevanceScore(result.data as Float32Array);
       
       return {
         embeddings: Array.from(result.data),
@@ -57,7 +58,6 @@ export class LegalBertModel {
         }
       };
     } catch (error) {
-      console.error("Error analyzing text with InLegalBERT:", error);
       throw new Error("Failed to analyze text with InLegalBERT");
     }
   }

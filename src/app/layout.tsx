@@ -11,13 +11,15 @@ import { CookieBanner } from "@/components/cookie-consent/cookie-banner";
 import { CookiePreferencesButton } from "@/components/cookie-consent/cookie-preferences-button";
 import { ConsentAwareAnalytics } from "@/components/analytics/consent-aware-analytics";
 import { TermsAcceptanceDialog } from "@/components/auth/terms-acceptance-dialog";
-import { QuickDebug } from "../../tmp_rovodev_quick_debug";
-
 export const metadata: Metadata = {
   title: "Juris.Ai",
   description: "Juris.Ai – AI-powered legal assistance. Fast, smart law answers from powerful AI with jurisdictional insight.",
   icons: [
-    { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }
+    { rel: "icon", url: "/favicon.ico?v=2", type: "image/x-icon" },
+    { rel: "icon", type: "image/png", sizes: "32x32", url: "/favicon-32x32.png?v=2" },
+    { rel: "icon", type: "image/png", sizes: "16x16", url: "/favicon-16x16.png?v=2" },
+    { rel: "apple-touch-icon", sizes: "180x180", url: "/apple-touch-icon.png?v=2" },
+    { rel: "manifest", url: "/site.webmanifest?v=2" },
   ],
 };
 
@@ -106,7 +108,6 @@ export default function RootLayout({
               <CookiePreferencesButton />
               <ConsentAwareAnalytics />
               <TermsAcceptanceDialog />
-              <QuickDebug />
             </div>
           </SupabaseAuthProvider>
         </ThemeProvider>

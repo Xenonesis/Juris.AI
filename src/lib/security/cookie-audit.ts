@@ -21,6 +21,8 @@ export interface CookieAuditResult {
   complianceIssues: string[];
 }
 
+type CookieCategory = 'necessary' | 'analytics' | 'marketing' | 'preferences' | 'unknown';
+
 export interface CookieAuditSummary {
   totalCookies: number;
   categoryCounts: Record<string, number>;
@@ -97,7 +99,7 @@ export function auditSingleCookie(name: string, value: string): CookieAuditResul
     httpOnly: false, // Can't detect from client-side
     sameSite: 'lax', // Default assumption
     size: name.length + value.length,
-    category: category as any,
+    category: category as 'necessary' | 'analytics' | 'marketing' | 'preferences' | 'unknown',
     purpose,
     isFirstParty,
     hasConsent,
@@ -305,7 +307,6 @@ export function schedulePeriodicAudit(intervalMinutes = 60): () => void {
     const results = auditCookies();
     const summary = generateAuditSummary(results);
     
-    console.log('Cookie Audit Summary:', summary);
     
     // Store audit results in localStorage for review
     localStorage.setItem('cookie_audit_results', exportAuditResults(results));

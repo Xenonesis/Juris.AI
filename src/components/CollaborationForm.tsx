@@ -45,7 +45,6 @@ const CollaborationForm = () => {
       
       if (response.ok) {
         setSubmitStatus('success');
-        console.log('Form submitted successfully:', result);
         
         // Reset form on successful submission
         setFormData({

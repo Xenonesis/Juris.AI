@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/supabase-auth-provider';
 import { AuthResponse } from '@supabase/supabase-js';
-import { CheckCircle, AlertCircle, Loader2, FileText, Shield, Lock, Mail } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, FileText, Shield, Lock, Mail, Eye, EyeOff, User } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -22,6 +22,7 @@ export function AuthForm() {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -31,7 +32,6 @@ export function AuthForm() {
   // Watch for authentication changes and redirect immediately
   useEffect(() => {
     if (!authLoading && user && success) {
-      console.log('User authenticated via useEffect, redirecting immediately to:', redirectTo);
       window.location.href = redirectTo;
     }
   }, [user, authLoading, success, redirectTo]);
@@ -99,7 +99,6 @@ export function AuthForm() {
     }
 
     try {
-      console.log('Attempting signup with email:', email);
       
       const client = getSupabaseClient();
       
@@ -130,10 +129,8 @@ export function AuthForm() {
         return;
       }
       
-      console.log('Signup response:', data);
       
       if (data?.user) {
-        console.log('Signup successful, user:', data.user);
         
         // Record terms acceptance
         await recordTermsAcceptance(data.user.id);
@@ -178,7 +175,6 @@ export function AuthForm() {
     }
 
     try {
-      console.log('Attempting login with email:', email, 'Redirect to:', redirectTo);
       
       const client = getSupabaseClient();
       const { data, error }: AuthResponse = await client.auth.signInWithPassword({
@@ -198,20 +194,17 @@ export function AuthForm() {
       }
       
       if (data?.user) {
-        console.log('Login successful, user:', data.user.email);
         setSuccess('Login successful! Redirecting...');
         setLoading(false);
         
         try {
           await refreshSession();
           
-          console.log('Redirecting to:', redirectTo);
           router.replace(redirectTo);
           router.refresh();
           
           setTimeout(() => {
             if (window.location.pathname !== redirectTo) {
-              console.log('Router redirect failed, using window.location fallback');
               window.location.href = redirectTo;
             }
           }, 500);
@@ -234,250 +227,316 @@ export function AuthForm() {
   return (
     <div className="w-full max-w-md mx-auto">
       <Tabs defaultValue="login" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50">
-          <TabsTrigger value="login" className="data-[state=active]:bg-background">Login</TabsTrigger>
-          <TabsTrigger value="signup" className="data-[state=active]:bg-background">Sign Up</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 rounded-xl">
+          <TabsTrigger 
+            value="login" 
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg py-2.5"
+          >
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              Login
+            </div>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="signup" 
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg py-2.5"
+          >
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Sign Up
+            </div>
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="login">
-          <Card className="backdrop-blur-sm border border-muted/60 shadow-xl bg-background/80">
-            <CardHeader className="text-center pb-4">
-              <div className="mx-auto w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
-                <Lock className="h-6 w-6 text-blue-600" />
-              </div>
-              <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-              <CardDescription>Sign in to your Juris.AI account</CardDescription>
-            </CardHeader>
-            <form onSubmit={handleSignIn}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email Address
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-11"
-                  />
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="backdrop-blur-xl border border-muted/60 shadow-2xl bg-background/90 rounded-2xl overflow-hidden">
+              <CardHeader className="text-center pb-4 pt-6">
+                <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 shadow-lg">
+                  <Lock className="h-7 w-7 text-white" />
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    Password
-                  </label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="h-11"
-                  />
-                </div>
-                
-                {/* Terms and Privacy Acceptance */}
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-start space-x-3">
-                    <Checkbox
-                      id="terms-login"
-                      checked={acceptedTerms}
-                      onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                      className="mt-1"
-                    />
-                    <label htmlFor="terms-login" className="text-sm leading-5">
-                      I agree to the{" "}
-                      <Link href="/terms-of-service" className="text-blue-600 hover:underline font-medium" target="_blank">
-                        Terms of Service
-                      </Link>
+                <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+                <CardDescription>Sign in to your Juris.AI account</CardDescription>
+              </CardHeader>
+              <form onSubmit={handleSignIn}>
+                <CardContent className="space-y-5 px-6">
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="text-sm font-medium flex items-center gap-2 text-foreground">
+                      <Mail className="h-4 w-4 text-blue-500" />
+                      Email Address
                     </label>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Checkbox
-                      id="privacy-login"
-                      checked={acceptedPrivacy}
-                      onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
-                      className="mt-1"
-                    />
-                    <label htmlFor="privacy-login" className="text-sm leading-5">
-                      I agree to the{" "}
-                      <Link href="/privacy-policy" className="text-blue-600 hover:underline font-medium" target="_blank">
-                        Privacy Policy
-                      </Link>
-                    </label>
-                  </div>
-                </div>
-                
-                {error && (
-                  <motion.div 
-                    className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 flex items-center gap-2 text-sm"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                    <p>{error}</p>
-                  </motion.div>
-                )}
-                
-                {success && (
-                  <motion.div 
-                    className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 flex items-center gap-2 text-sm"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                    <p>{success}</p>
-                  </motion.div>
-                )}
-              </CardContent>
-              <CardFooter className="flex flex-col space-y-3">
-                <Button 
-                  type="submit" 
-                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  disabled={loading || !acceptedTerms || !acceptedPrivacy}
-                >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Signing in...</span>
+                    <div className="relative">
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-12 pl-12 rounded-xl border-muted-foreground/20 focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+                      />
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                        <Mail className="h-5 w-5" />
+                      </div>
                     </div>
-                  ) : (
-                    <span>Sign In</span>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="password" className="text-sm font-medium flex items-center gap-2 text-foreground">
+                      <Lock className="h-4 w-4 text-blue-500" />
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-12 pl-12 pr-12 rounded-xl border-muted-foreground/20 focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+                      />
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                        <Lock className="h-5 w-5" />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Terms and Privacy Acceptance */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="terms-login"
+                        checked={acceptedTerms}
+                        onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                        className="mt-0.5 rounded-md"
+                      />
+                      <label htmlFor="terms-login" className="text-sm leading-5 text-foreground">
+                        I agree to the{" "}
+                        <Link href="/terms-of-service" className="text-blue-600 hover:underline font-medium" target="_blank">
+                          Terms of Service
+                        </Link>
+                      </label>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="privacy-login"
+                        checked={acceptedPrivacy}
+                        onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
+                        className="mt-0.5 rounded-md"
+                      />
+                      <label htmlFor="privacy-login" className="text-sm leading-5 text-foreground">
+                        I agree to the{" "}
+                        <Link href="/privacy-policy" className="text-blue-600 hover:underline font-medium" target="_blank">
+                          Privacy Policy
+                        </Link>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {error && (
+                    <motion.div 
+                      className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 flex items-start gap-3 text-sm border-red-200 dark:border-red-800/50"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <p>{error}</p>
+                    </motion.div>
                   )}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="link" 
-                  onClick={() => router.push('/auth/forgot-password')} 
-                  className="text-sm"
-                >
-                  Forgot your password?
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+                  
+                  {success && (
+                    <motion.div 
+                      className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 flex items-start gap-3 text-sm border border-green-200 dark:border-green-800/50"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <p>{success}</p>
+                    </motion.div>
+                  )}
+                </CardContent>
+                <CardFooter className="flex flex-col space-y-4 px-6 pb-6">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                    disabled={loading || !acceptedTerms || !acceptedPrivacy}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Signing in...</span>
+                      </div>
+                    ) : (
+                      <span>Sign In</span>
+                    )}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    onClick={() => router.push('/auth/forgot-password')} 
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    Forgot your password?
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </motion.div>
         </TabsContent>
         
         <TabsContent value="signup">
-          <Card className="backdrop-blur-sm border border-muted/60 shadow-xl bg-background/80">
-            <CardHeader className="text-center pb-4">
-              <div className="mx-auto w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-3">
-                <FileText className="h-6 w-6 text-purple-600" />
-              </div>
-              <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-              <CardDescription>Join Juris.AI to get started</CardDescription>
-            </CardHeader>
-            <form onSubmit={handleSignUp}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="signup-email" className="text-sm font-medium flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email Address
-                  </label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-11"
-                  />
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="backdrop-blur-xl border border-muted/60 shadow-2xl bg-background/90 rounded-2xl overflow-hidden">
+              <CardHeader className="text-center pb-4 pt-6">
+                <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4 shadow-lg">
+                  <User className="h-7 w-7 text-white" />
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="signup-password" className="text-sm font-medium flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    Password
-                  </label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="Create a secure password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="h-11"
-                  />
-                  <p className="text-xs text-muted-foreground">Must be at least 6 characters</p>
-                </div>
-                
-                {/* Terms and Privacy Acceptance */}
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-start space-x-3">
-                    <Checkbox
-                      id="terms-signup"
-                      checked={acceptedTerms}
-                      onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                      className="mt-1"
-                    />
-                    <label htmlFor="terms-signup" className="text-sm leading-5">
-                      I agree to the{" "}
-                      <Link href="/terms-of-service" className="text-blue-600 hover:underline font-medium" target="_blank">
-                        Terms of Service
-                      </Link>
+                <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+                <CardDescription>Join Juris.AI to get started</CardDescription>
+              </CardHeader>
+              <form onSubmit={handleSignUp}>
+                <CardContent className="space-y-5 px-6">
+                  <div className="space-y-2">
+                    <label htmlFor="signup-email" className="text-sm font-medium flex items-center gap-2 text-foreground">
+                      <Mail className="h-4 w-4 text-purple-500" />
+                      Email Address
                     </label>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Checkbox
-                      id="privacy-signup"
-                      checked={acceptedPrivacy}
-                      onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
-                      className="mt-1"
-                    />
-                    <label htmlFor="privacy-signup" className="text-sm leading-5">
-                      I agree to the{" "}
-                      <Link href="/privacy-policy" className="text-blue-600 hover:underline font-medium" target="_blank">
-                        Privacy Policy
-                      </Link>
-                    </label>
-                  </div>
-                </div>
-                
-                {error && (
-                  <motion.div 
-                    className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 flex items-center gap-2 text-sm"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                    <p>{error}</p>
-                  </motion.div>
-                )}
-                
-                {success && (
-                  <motion.div 
-                    className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 flex items-center gap-2 text-sm"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                    <p>{success}</p>
-                  </motion.div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  type="submit" 
-                  className="w-full h-11 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                  disabled={loading || !acceptedTerms || !acceptedPrivacy}
-                >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Creating account...</span>
+                    <div className="relative">
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-12 pl-12 rounded-xl border-muted-foreground/20 focus:border-purple-500 focus:ring-purple-500/20 transition-all"
+                      />
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                        <Mail className="h-5 w-5" />
+                      </div>
                     </div>
-                  ) : (
-                    <span>Create Account</span>
+                  <div className="space-y-2">
+                    <label htmlFor="signup-password" className="text-sm font-medium flex items-center gap-2 text-foreground">
+                      <Lock className="h-4 w-4 text-purple-500" />
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create a secure password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-12 pl-12 pr-12 rounded-xl border-muted-foreground/20 focus:border-purple-500 focus:ring-purple-500/20 transition-all"
+                      />
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+                        <Lock className="h-5 w-5" />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Must be at least 6 characters</p>
+                  </div>
+                  </div>
+                  
+                  {/* Terms and Privacy Acceptance */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="terms-signup"
+                        checked={acceptedTerms}
+                        onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                        className="mt-0.5 rounded-md"
+                      />
+                      <label htmlFor="terms-signup" className="text-sm leading-5 text-foreground">
+                        I agree to the{" "}
+                        <Link href="/terms-of-service" className="text-purple-600 hover:underline font-medium" target="_blank">
+                          Terms of Service
+                        </Link>
+                      </label>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="privacy-signup"
+                        checked={acceptedPrivacy}
+                        onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
+                        className="mt-0.5 rounded-md"
+                      />
+                      <label htmlFor="privacy-signup" className="text-sm leading-5 text-foreground">
+                        I agree to the{" "}
+                        <Link href="/privacy-policy" className="text-purple-600 hover:underline font-medium" target="_blank">
+                          Privacy Policy
+                        </Link>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {error && (
+                    <motion.div 
+                      className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 flex items-start gap-3 text-sm border border-red-200 dark:border-red-800/50"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <p>{error}</p>
+                    </motion.div>
                   )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+                  
+                  {success && (
+                    <motion.div 
+                      className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 flex items-start gap-3 text-sm border border-green-200 dark:border-green-800/50"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <p>{success}</p>
+                    </motion.div>
+                  )}
+                </CardContent>
+                <CardFooter className="px-6 pb-6">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                    disabled={loading || !acceptedTerms || !acceptedPrivacy}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Creating account...</span>
+                      </div>
+                    ) : (
+                      <span>Create Account</span>
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </motion.div>
         </TabsContent>
       </Tabs>
     </div>

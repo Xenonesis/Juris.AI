@@ -23,6 +23,7 @@ import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/supabase-auth-provider';
 import Link from 'next/link';
+import { JurisLogo } from '@/components/juris-logo';
 
 export default function TermsAcceptancePageContent() {
   const router = useRouter();
@@ -119,9 +120,7 @@ export default function TermsAcceptancePageContent() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-              <Scale className="h-8 w-8 text-white" />
-            </div>
+            <JurisLogo />
           </div>
           <h1 className="text-3xl font-bold mb-2">Legal Agreement Required</h1>
           <p className="text-muted-foreground">

@@ -103,7 +103,6 @@ export function CookieBanner() {
     setIsLoading(false);
 
     // Track consent rejection (using essential cookies only)
-    console.log('User accepted essential cookies only');
   };
 
   const handleCustomize = () => {
@@ -200,7 +199,7 @@ export function CookieBanner() {
                   </div>
                   
                   <div className="text-xs text-muted-foreground">
-                    <strong>Essential cookies</strong> are automatically enabled and cannot be disabled as they're required for basic website functionality.
+                    <strong>Essential cookies</strong> are automatically enabled and cannot be disabled as they&apos;re required for basic website functionality.
                   </div>
                 </div>
 
@@ -263,7 +262,7 @@ export function CookieBanner() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  By clicking "Accept All", you consent to our use of cookies. You can manage your preferences anytime.
+                  By clicking &quot;Accept All&quot;, you consent to our use of cookies. You can manage your preferences anytime.
                 </p>
               </div>
             </CardContent>

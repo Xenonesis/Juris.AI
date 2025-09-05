@@ -14,41 +14,31 @@ import { containerVariants, itemVariants, rotateAnimation } from '@/lib/motion-v
 import { trackButtonClick } from '@/lib/analytics';
 import { trustIndicators } from '@/lib/landing-data';
 import { FloatingBackgrounds, TrustIndicators, GradientBadge } from './ui-components';
-
-const HeroSection: React.FC = memo(() => {
-  return (
-    <motion.section 
-      id="main-content"
-      className="relative py-20 lg:py-32 overflow-hidden"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      data-section="hero"
-      tabIndex={-1}
-      aria-label="Hero section - Introduction to Juris.AI"
-    >
-      <FloatingBackgrounds />
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center max-w-6xl mx-auto">
-          {/* Logo and Badge */}
-          <motion.div variants={itemVariants} className="flex items-center justify-center mb-8">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-2xl">
-                <Scale className="h-12 w-12 text-white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
-              </div>
-              <motion.div 
-                className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center"
-                animate={rotateAnimation.animate}
-                transition={rotateAnimation.transition}
-              >
-                <Sparkles className="h-4 w-4 text-white" />
-              </motion.div>
-            </div>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="mb-6">
-            <GradientBadge>
+import { JurisLogo } from '../juris-logo';
+ 
+ const HeroSection: React.FC = memo(() => {
+   return (
+     <motion.section
+       id="main-content"
+       className="relative py-20 lg:py-32 overflow-hidden"
+       initial="hidden"
+       animate="visible"
+       variants={containerVariants}
+       data-section="hero"
+       tabIndex={-1}
+       aria-label="Hero section - Introduction to Juris.AI"
+     >
+       <FloatingBackgrounds />
+ 
+       <div className="container mx-auto px-4 relative z-10">
+         <div className="text-center max-w-6xl mx-auto">
+           {/* Logo and Badge */}
+           <motion.div variants={itemVariants} className="flex items-center justify-center mb-8">
+             <JurisLogo />
+           </motion.div>
+ 
+           <motion.div variants={itemVariants} className="mb-6">
+             <GradientBadge>
               <Star className="w-4 h-4 mr-2 text-yellow-500" />
               Trusted by 50,000+ Legal Professionals Worldwide
             </GradientBadge>

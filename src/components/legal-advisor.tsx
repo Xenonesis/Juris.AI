@@ -170,7 +170,6 @@ Provide a detailed analysis based strictly on ${jurisdictionLabel} legal framewo
             <JurisdictionSelect
               value={jurisdiction}
               onChange={(value) => {
-                console.log("LegalAdvisor setJurisdiction:", value);
                 setJurisdiction(value);
               }}
             />

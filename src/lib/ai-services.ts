@@ -46,17 +46,19 @@ export async function geminiChat(prompt: string, apiKey?: string): Promise<strin
     const response = await result.response;
     const text = response.text();
     return text;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error with Gemini AI:', error);
     
     // Check for rate limit errors
-    if (error.message && error.message.includes('429') && error.message.includes('quota')) {
-      return 'The Gemini AI service has reached its rate limit. Please try again later or switch to another AI model.';
-    }
+    if (error instanceof Error) {
+      if (error.message && error.message.includes('429') && error.message.includes('quota')) {
+        return 'The Gemini AI service has reached its rate limit. Please try again later or switch to another AI model.';
+      }
 
-    // Check for API key errors
-    if (error.message && (error.message.includes('invalid API key') || error.message.includes('API key not valid'))) {
-      return 'The Gemini API key is invalid. Please check your API key in the settings.';
+      // Check for API key errors
+      if (error.message && (error.message.includes('invalid API key') || error.message.includes('API key not valid'))) {
+        return 'The Gemini API key is invalid. Please check your API key in the settings.';
+      }
     }
     
     return 'Sorry, there was an error processing your request with Gemini.';
@@ -97,16 +99,18 @@ export async function mistralChat(prompt: string, apiKey?: string): Promise<stri
 
     const data = await response.json();
     return data.choices[0].message.content;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error with Mistral AI:', error);
     
     // Check for API key errors
-    if (error.message && (
-      error.message.includes('invalid API key') || 
-      error.message.includes('API key not valid') ||
-      error.message.includes('401')
-    )) {
-      return 'The Mistral API key is invalid. Please check your API key in the settings.';
+    if (error instanceof Error) {
+      if (error.message && (
+        error.message.includes('invalid API key') ||
+        error.message.includes('API key not valid') ||
+        error.message.includes('401')
+      )) {
+        return 'The Mistral API key is invalid. Please check your API key in the settings.';
+      }
     }
     
     return 'Sorry, there was an error processing your request with Mistral.';
@@ -154,21 +158,23 @@ export async function openaiChat(prompt: string, apiKey?: string): Promise<strin
 
     const data = await response.json();
     return data.choices[0].message.content;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error with OpenAI:', error);
     
     // Check for API key errors
-    if (error.message && (
-      error.message.includes('invalid API key') || 
-      error.message.includes('API key not valid') ||
-      error.message.includes('401')
-    )) {
-      return 'The OpenAI API key is invalid. Please check your API key in the settings.';
-    }
-    
-    // Check for rate limit errors
-    if (error.message && error.message.includes('429')) {
-      return 'The OpenAI service has reached its rate limit. Please try again later or switch to another AI model.';
+    if (error instanceof Error) {
+      if (error.message && (
+        error.message.includes('invalid API key') ||
+        error.message.includes('API key not valid') ||
+        error.message.includes('401')
+      )) {
+        return 'The OpenAI API key is invalid. Please check your API key in the settings.';
+      }
+      
+      // Check for rate limit errors
+      if (error.message && error.message.includes('429')) {
+        return 'The OpenAI service has reached its rate limit. Please try again later or switch to another AI model.';
+      }
     }
     
     return 'Sorry, there was an error processing your request with OpenAI.';
@@ -214,16 +220,18 @@ export async function claudeChat(prompt: string, apiKey?: string): Promise<strin
 
     const data = await response.json();
     return data.content[0].text;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error with Claude AI:', error);
     
     // Check for API key errors
-    if (error.message && (
-      error.message.includes('invalid API key') || 
-      error.message.includes('API key not valid') ||
-      error.message.includes('401')
-    )) {
-      return 'The Anthropic/Claude API key is invalid. Please check your API key in the settings.';
+    if (error instanceof Error) {
+      if (error.message && (
+        error.message.includes('invalid API key') ||
+        error.message.includes('API key not valid') ||
+        error.message.includes('401')
+      )) {
+        return 'The Anthropic/Claude API key is invalid. Please check your API key in the settings.';
+      }
     }
     
     return 'Sorry, there was an error processing your request with Claude.';
@@ -302,7 +310,6 @@ export const getAIResponse = withCache(
     
     // If primary provider fails, try fallback to Mistral
     if (provider !== 'mistral') {
-      console.log('Falling back to Mistral AI');
       const fallbackApiKey = getApiKey(apiKeyMap, 'mistral', defaultMistralApiKey);
       return await mistralChat(message, fallbackApiKey || undefined);
     }

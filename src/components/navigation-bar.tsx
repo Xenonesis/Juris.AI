@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Menu, X, User, LogOut, MessageSquare, Home, Info, Phone, Sparkles, Scale, Search } from "lucide-react";
+import { JurisLogo } from "./juris-logo";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -58,10 +59,10 @@ export function NavigationBar() {
   }, []);
 
   // Avatar helper - get initials from name or email
-  function getInitials(u: NavUser | null): string {
+  function getInitials(u: any | null): string {
     if (!u) return "U";
-    if (u.full_name) {
-      return u.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+    if (u.user_metadata?.full_name) {
+      return u.user_metadata.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
     }
     if (u.email) {
       return u.email.slice(0, 2).toUpperCase();
@@ -98,19 +99,7 @@ export function NavigationBar() {
     >
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <div
-            className="flex items-center gap-2"
-          >
-            <Link href={user ? "/" : "/landing"} className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-md group" aria-label="Go to Home">
-              <div className="relative w-9 h-9 flex items-center justify-center rounded-xl professional-gradient group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                <Scale className="h-5 w-5 text-white" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />
-                <div className="absolute inset-0 rounded-xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </div>
-              <span className="text-xl md:text-2xl font-bold text-high-contrast group-hover:scale-105 transition-transform duration-300">
-                Juris.AI
-              </span>
-            </Link>
-          </div>
+          <JurisLogo href={user ? "/" : "/landing"} />
 
           {/* Desktop Navigation */}
           <nav 
@@ -178,8 +167,8 @@ export function NavigationBar() {
                       <TooltipTrigger asChild>
                         <Link href="/profile" className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-md">
                           <Avatar className="h-8 w-8 border border-primary/30 shadow-sm transition-transform group-hover:scale-105">
-                            {user.avatar_url ? (
-                              <AvatarImage src={user.avatar_url} alt={user.full_name || "Profile"} />
+                            {user.user_metadata?.avatar_url ? (
+                              <AvatarImage src={user.user_metadata.avatar_url} alt={user.user_metadata?.full_name || "Profile"} />
                             ) : (
                               <AvatarFallback className="font-semibold bg-primary/10 text-primary">{getInitials(user)}</AvatarFallback>
                             )}
@@ -232,8 +221,8 @@ export function NavigationBar() {
                   <TooltipTrigger asChild>
                     <Link href="/profile">
                       <Avatar className="h-8 w-8 border border-primary/30 shadow-sm">
-                        {user.avatar_url ? (
-                          <AvatarImage src={user.avatar_url} alt={user.full_name || "Profile"} />
+                        {user.user_metadata?.avatar_url ? (
+                          <AvatarImage src={user.user_metadata.avatar_url} alt={user.user_metadata?.full_name || "Profile"} />
                         ) : (
                           <AvatarFallback className="font-semibold bg-primary/10 text-primary">{getInitials(user)}</AvatarFallback>
                         )}

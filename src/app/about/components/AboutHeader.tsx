@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Scale, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { JurisLogo } from '@/components/juris-logo';
 
 const AboutHeader = () => {
   return (
@@ -18,14 +19,7 @@ const AboutHeader = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="flex items-center justify-center mb-8"
       >
-        <div className="relative">
-          <div className="w-20 h-20 rounded-3xl professional-gradient flex items-center justify-center shadow-2xl">
-            <Scale className="h-10 w-10 text-white dark:text-white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
-          </div>
-          <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center animate-bounce-gentle">
-            <Sparkles className="h-3 w-3 text-white" />
-          </div>
-        </div>
+        <JurisLogo />
       </motion.div>
 
       <motion.h1

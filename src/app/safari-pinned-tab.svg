@@ -1,39 +1,9 @@
-<!--
-  Juris.AI Safari Pinned Tab Icon
-  Monochrome version for Safari pinned tabs - matches brand logo
--->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Monochrome background -->
-  <rect x="2" y="2" width="60" height="60" rx="12" ry="12" fill="black" />
-  
-  <!-- Scale of Justice icon in white - matching brand logo -->
-  <g fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Central pillar/pole -->
-    <line x1="32" y1="18" x2="32" y2="46" stroke-width="2.5" />
-    
-    <!-- Top crossbar -->
-    <line x1="26" y1="18" x2="38" y2="18" stroke-width="2" />
-    
-    <!-- Scale beam -->
-    <line x1="18" y1="26" x2="46" y2="26" stroke-width="2" />
-    
-    <!-- Left scale pan -->
-    <circle cx="18" cy="32" r="6" fill="none" stroke="white" stroke-width="1.5" />
-    <line x1="12" y1="32" x2="24" y2="32" stroke-width="1.5" />
-    
-    <!-- Right scale pan -->
-    <circle cx="46" cy="32" r="6" fill="none" stroke="white" stroke-width="1.5" />
-    <line x1="40" y1="32" x2="52" y2="32" stroke-width="1.5" />
-    
-    <!-- Left chain -->
-    <line x1="18" y1="26" x2="18" y2="26" stroke-width="1.5" />
-    <line x1="18" y1="28" x2="18" y2="30" stroke-width="1.5" />
-    
-    <!-- Right chain -->
-    <line x1="46" y1="26" x2="46" y2="26" stroke-width="1.5" />
-    <line x1="46" y1="28" x2="46" y2="30" stroke-width="1.5" />
-    
-    <!-- Base -->
-    <rect x="26" y="44" width="12" height="3" rx="1.5" fill="white" />
-  </g>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="64" height="64" rx="12" fill="black"/>
+<path d="M49 20H15C14.4477 20 14 20.4477 14 21V22C14 22.5523 14.4477 23 15 23H49C49.5523 23 50 22.5523 50 22V21C50 20.4477 49.5523 20 49 20Z" fill="white"/>
+<path d="M32 23V46C32 46.5523 31.5523 47 31 47H33C33.5523 47 34 46.5523 34 46V23H32Z" fill="white"/>
+<path d="M22 41C18.6863 41 16 38.3137 16 35C16 31.6863 18.6863 29 22 29C25.3137 29 28 31.6863 28 35C28 38.3137 25.3137 41 22 41ZM22 31C19.7909 31 18 32.7909 18 35C18 37.2091 19.7909 39 22 39C24.2091 39 26 37.2091 26 35C26 32.7909 24.2091 31 22 31Z" fill="white"/>
+<path d="M42 41C38.6863 41 36 38.3137 36 35C36 31.6863 38.6863 29 42 29C45.3137 29 48 31.6863 48 35C48 38.3137 45.3137 41 42 41ZM42 31C39.7909 31 38 32.7909 38 35C38 37.2091 39.7909 39 42 39C44.2091 39 46 37.2091 46 35C46 32.7909 44.2091 31 42 31Z" fill="white"/>
+<path d="M22 29V23H20V29C18.8954 29 18 29.8954 18 31H26C26 29.8954 25.1046 29 24 29H22Z" fill="white"/>
+<path d="M42 29V23H40V29C38.8954 29 38 29.8954 38 31H46C46 29.8954 45.1046 29 44 29H42Z" fill="white"/>
 </svg>

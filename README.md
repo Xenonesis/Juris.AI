@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏛️ Juris.AI v3.50.0
+# 🏛️ Juris.AI v3.70.0
 ### *Revolutionary AI-Powered Legal Assistant Platform*
 
 <p align="center">
@@ -883,7 +883,7 @@ npm ci
 ```typescript
 // GDPR-compliant terms acceptance
 <TermsAcceptanceDialog
-  version="3.50.0"
+  version="3.70.0"
   required={true}
   onAccept={handleTermsAcceptance}
   showChanges={true}

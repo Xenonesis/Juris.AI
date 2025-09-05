@@ -26,13 +26,11 @@ export async function updateSession(request: NextRequest) {
         get(name) {
           const cookie = request.cookies.get(name);
           if (cookie) {
-            console.log(`Found cookie: ${name}`);
             return cookie.value;
           }
           return null;
         },
         set(name, value, options) {
-          console.log(`Setting cookie: ${name}`);
           // Update request cookies
           request.cookies.set({
             name,
@@ -55,7 +53,6 @@ export async function updateSession(request: NextRequest) {
           });
         },
         remove(name) {
-          console.log(`Removing cookie: ${name}`);
           // Remove from request
           request.cookies.delete(name);
           
@@ -80,9 +77,7 @@ export async function updateSession(request: NextRequest) {
     user = authUser;
     
     if (user) {
-      console.log(`User authenticated in middleware: ${user.email}`);
     } else {
-      console.log('No authenticated user found in middleware');
     }
   } catch (error) {
     console.error('Error refreshing auth in middleware:', error);

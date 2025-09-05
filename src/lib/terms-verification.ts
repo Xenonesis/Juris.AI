@@ -258,7 +258,7 @@ export async function getTermsAcceptanceStatus(userId: string, useServerClient =
 /**
  * Validate terms acceptance data
  */
-export function validateTermsAcceptanceData(data: any): { isValid: boolean; errors: string[] } {
+export function validateTermsAcceptanceData(data: TermsAcceptanceData): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   if (typeof data.acceptTerms !== 'boolean') {
@@ -293,19 +293,13 @@ export function validateTermsAcceptanceData(data: any): { isValid: boolean; erro
 export async function createTermsAuditLog(
   userId: string,
   action: 'accepted' | 'declined' | 'updated',
-  details: any,
+  details: unknown,
   useServerClient = false
 ) {
   try {
     const supabase = useServerClient ? await createServerClient() : createClient();
     
     // This would require a separate audit table - for now just log to console
-    console.log('Terms Audit Log:', {
-      userId,
-      action,
-      details,
-      timestamp: new Date().toISOString(),
-    });
 
     // TODO: Implement actual audit table if needed
     // const { error } = await supabase
@@ -318,6 +312,5 @@ export async function createTermsAuditLog(
     //   });
 
   } catch (error) {
-    console.error('Error creating audit log:', error);
   }
 }
