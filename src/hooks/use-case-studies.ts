@@ -1,20 +1,25 @@
 import { useState, useCallback } from 'react';
-import { fetchRelevantCaseLaw } from '@/lib/ai-services';
+import { generateRealCaseStudies } from '@/lib/real-case-studies';
 import { localJurisdictions } from '@/components/jurisdiction-select';
 
 export interface CaseStudy {
-  id: number;
+  id: string;
   title: string;
   summary: string;
   jurisdiction?: string;
   outcome?: string;
+  winProbability?: number;
+  relevanceScore?: number;
+  keyFactors?: string[];
+  legalPrinciples?: string[];
+  lessons?: string[];
 }
 
 export function useCaseStudies() {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchCaseStudies = useCallback(async (query: string, jurisdiction: string) => {
+  const fetchCaseStudies = useCallback(async (query: string, jurisdiction: string, userApiKeys: Record<string, string>) => {
     setIsLoading(true);
     
     try {
@@ -22,34 +27,41 @@ export function useCaseStudies() {
         (j: { value: string; label: string }) => j.value === jurisdiction
       )?.label || jurisdiction;
 
-      const cases = await fetchRelevantCaseLaw(query, jurisdiction);
+      // Generate real case studies using AI analysis
+      const realCaseStudies = await generateRealCaseStudies(query, jurisdiction, userApiKeys);
       
-      // Transform cases into case studies
-      const formattedCases = cases.map((caseItem, index) => ({
-        id: index + 1,
-        title: `${caseItem.name} (${caseItem.decision_date})`,
-        summary: caseItem.summary || 
-          `A legal case from ${caseItem.court} in ${jurisdictionLabel} that established precedent relevant to your query.`,
+      // Transform to our interface format
+      const formattedCases: CaseStudy[] = realCaseStudies.map((realCase) => ({
+        id: realCase.id,
+        title: realCase.title,
+        summary: realCase.summary,
         jurisdiction: jurisdictionLabel,
-        outcome: Math.random() > 0.5 ? "Favorable" : "Unfavorable"
+        outcome: realCase.outcome,
+        winProbability: realCase.winProbability,
+        relevanceScore: realCase.relevanceScore,
+        keyFactors: realCase.keyFactors,
+        legalPrinciples: realCase.legalPrinciples,
+        lessons: realCase.lessons
       }));
       
       setCaseStudies(formattedCases);
     } catch (error) {
-      console.error('Error fetching case law:', error);
+      console.error('Error generating case studies:', error);
       
-      // Generate fallback case studies
+      // Generate minimal fallback
       const jurisdictionLabel = localJurisdictions.find(
         (j: { value: string; label: string }) => j.value === jurisdiction
       )?.label || jurisdiction;
 
       setCaseStudies([
         { 
-          id: 1, 
-          title: `${jurisdictionLabel} Case Study (${new Date().getFullYear() - Math.floor(Math.random() * 5)})`, 
-          summary: `We couldn't retrieve specific ${jurisdictionLabel} case studies due to an error, but there are likely similar cases in ${jurisdictionLabel} jurisdiction that could provide precedent for your query.`,
+          id: `fallback_${Date.now()}`, 
+          title: `${jurisdictionLabel} Legal Analysis`, 
+          summary: `Case study analysis temporarily unavailable. Your legal question requires research into ${jurisdictionLabel} jurisdiction precedents and applicable statutes.`,
           jurisdiction: jurisdictionLabel,
-          outcome: "Inconclusive"
+          outcome: "Analysis Required",
+          winProbability: 50,
+          relevanceScore: 0.7
         }
       ]);
     } finally {

@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { getAIResponse } from '@/lib/ai-services';
-import { AI_MODELS, PERFORMANCE_METRICS } from '@/lib/constants';
+import { calculateRealPerformanceMetrics, calculateActualResponseTime } from '@/lib/real-performance-analyzer';
 import type { AIProvider } from '@/lib/constants';
 
 export interface ModelPerformance {
@@ -50,42 +50,21 @@ export function useAIModels(userApiKeys: Record<string, string>) {
     };
   }, [userApiKeys]);
 
-  // Calculate response time with model-specific variations
-  const calculateResponseTime = useCallback((startTime: number, modelType: string): number => {
-    const baseTime = Date.now() - startTime;
-    const variations = {
-      gpt: Math.floor(Math.random() * 100),
-      claude: Math.floor(Math.random() * 150),
-      gemini: Math.floor(Math.random() * 50),
-      mistral: Math.floor(Math.random() * 30),
-      chutes: Math.floor(Math.random() * 80),
-    };
-    return baseTime + (variations[modelType as keyof typeof variations] || 0);
+  // Calculate actual response time without artificial variations
+  const calculateResponseTime = useCallback((startTime: number): number => {
+    return calculateActualResponseTime(startTime);
   }, []);
 
-  // Calculate performance metrics
-  const calculateMetrics = useCallback((response: string, modelType: string): ModelPerformance => {
-    const randomFactor = (Math.random() * PERFORMANCE_METRICS.RANDOM_FACTOR_RANGE * 2) - PERFORMANCE_METRICS.RANDOM_FACTOR_RANGE;
-    
-    const modelConfig = Object.values(AI_MODELS).find(model => model.name === modelType);
-    const baseAccuracy = modelConfig?.baseAccuracy || 85;
-    
-    const relevance = Math.min(PERFORMANCE_METRICS.MAX_SCORE, Math.max(PERFORMANCE_METRICS.MIN_SCORE, baseAccuracy - 5 + randomFactor));
-    const reasoning = Math.min(PERFORMANCE_METRICS.MAX_SCORE, Math.max(PERFORMANCE_METRICS.MIN_SCORE, baseAccuracy + 2 + randomFactor));
-    const accuracy = Math.min(PERFORMANCE_METRICS.MAX_SCORE, Math.max(PERFORMANCE_METRICS.MIN_SCORE, baseAccuracy + randomFactor));
-    
-    const overall = Math.round(
-      (accuracy * PERFORMANCE_METRICS.ACCURACY_WEIGHT) + 
-      (relevance * PERFORMANCE_METRICS.RELEVANCE_WEIGHT) + 
-      (reasoning * PERFORMANCE_METRICS.REASONING_WEIGHT)
-    );
+  // Calculate real performance metrics based on actual response content
+  const calculateMetrics = useCallback((response: string, modelType: string, responseTime: number): ModelPerformance => {
+    const realMetrics = calculateRealPerformanceMetrics(response, responseTime, modelType);
     
     return {
-      accuracy: Math.round(accuracy),
-      relevance: Math.round(relevance),
-      reasoning: Math.round(reasoning),
-      overall: Math.round(overall),
-      responseTime: 0, // Will be set by caller
+      accuracy: realMetrics.accuracy,
+      responseTime: realMetrics.responseTime,
+      relevance: realMetrics.relevance,
+      reasoning: realMetrics.reasoning,
+      overall: realMetrics.overall
     };
   }, []);
 
@@ -98,8 +77,8 @@ export function useAIModels(userApiKeys: Record<string, string>) {
   ) => {
     try {
       const response = await getAIResponse(prompt, provider, userApiKeys);
-      const responseTime = calculateResponseTime(startTime, modelName);
-      const metrics = { ...calculateMetrics(response, modelName), responseTime };
+      const responseTime = calculateResponseTime(startTime);
+      const metrics = calculateMetrics(response, modelName, responseTime);
       
       setResults(prev => ({ ...prev, [modelName]: response }));
       setModelPerformances(prev => ({ ...prev, [modelName]: metrics }));
@@ -122,8 +101,8 @@ export function useAIModels(userApiKeys: Record<string, string>) {
           try {
             console.log(`Gemini quota exceeded, falling back to ${fallbackProvider}`);
             const fallbackResponse = await getAIResponse(prompt, fallbackProvider, userApiKeys);
-            const responseTime = calculateResponseTime(startTime, modelName);
-            const metrics = { ...calculateMetrics(fallbackResponse, modelName), responseTime };
+            const responseTime = calculateResponseTime(startTime);
+            const metrics = calculateMetrics(fallbackResponse, modelName, responseTime);
             
             const fallbackMessage = `🔄 **Auto-switched from Gemini to ${fallbackProvider.charAt(0).toUpperCase() + fallbackProvider.slice(1)}**
 

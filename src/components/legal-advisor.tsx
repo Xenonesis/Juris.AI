@@ -28,6 +28,7 @@ import {
   LazyCaseStudies
 } from "./lazy-components";
 import { LoadingFallback, TabLoadingFallback } from "./loading-fallback";
+import { ModelPerformanceDashboard } from "./real-performance-dashboard";
 
 export function LegalAdvisor() {
   const [query, setQuery] = useState("");
@@ -114,17 +115,17 @@ Provide a detailed analysis based strictly on ${jurisdictionLabel} legal framewo
       // Query all AI models in parallel
       await queryModels(legalPrompt);
 
-      // Fetch case studies
-      await fetchCaseStudies(query, jurisdiction);
+      // Fetch case studies with real AI analysis
+      await fetchCaseStudies(query, jurisdiction, userApiKeys);
 
-      // Calculate win percentage
-      const winEstimate = calculateWinEstimate(query, jurisdiction);
+      // Calculate win percentage using real AI analysis
+      const winEstimate = await calculateWinEstimate(query, jurisdiction, userApiKeys, caseStudies);
       setWinPercentage(winEstimate);
 
     } catch (error) {
       console.error('Error processing legal query:', error);
     }
-  }, [query, jurisdiction, hasSufficientKeys, resetResults, resetCaseStudies, queryModels, fetchCaseStudies, calculateWinEstimate]);
+  }, [query, jurisdiction, hasSufficientKeys, resetResults, resetCaseStudies, queryModels, fetchCaseStudies, calculateWinEstimate, userApiKeys, caseStudies]);
 
   return (
     <motion.div
@@ -264,10 +265,16 @@ Provide a detailed analysis based strictly on ${jurisdictionLabel} legal framewo
 
                     <TabsContent value="performance" className="mt-4">
                       <Suspense fallback={<LoadingFallback />}>
-                        <LazyModelResults
-                          performances={modelPerformances}
-                          jurisdiction={jurisdiction}
-                        />
+                        <div className="space-y-6">
+                          <ModelPerformanceDashboard 
+                            performances={modelPerformances} 
+                            modelResults={results} 
+                          />
+                          <LazyModelResults
+                            performances={modelPerformances}
+                            jurisdiction={jurisdiction}
+                          />
+                        </div>
                       </Suspense>
                     </TabsContent>
                   </Tabs>
