@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X, User, LogOut, MessageSquare, Home, Info, Phone, Sparkles, Scale, Search, FileText, MessageCircle, Settings } from "lucide-react";
+import { Menu, X, User, LogOut, MessageSquare, Home, Info, Phone, Sparkles, Scale, Search } from "lucide-react";
 import { JurisLogo } from "./juris-logo";
-import { useState, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
@@ -12,7 +12,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { useAuth } from "@/components/auth/supabase-auth-provider";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { createClient } from '@/lib/supabase/client';
 
 type NavUser = {
   full_name?: string | null;
@@ -20,26 +19,11 @@ type NavUser = {
   avatar_url?: string | null;
 };
 
-// Define search result types
-interface SearchResult {
-  id: string;
-  title: string;
-  description: string;
-  href: string;
-  icon: React.ReactNode;
-  type: 'page' | 'chat' | 'setting' | 'feature';
-}
-
 export function NavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading, signOut } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
 
   // Track scroll position for navbar styling and keyboard shortcuts
@@ -74,15 +58,6 @@ export function NavigationBar() {
     };
   }, []);
 
-  // Focus search input when modal opens
-  useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 100);
-    }
-  }, [searchOpen]);
-
   // Avatar helper - get initials from name or email
   function getInitials(u: any | null): string {
     if (!u) return "U";
@@ -101,14 +76,13 @@ export function NavigationBar() {
   const handleSignOut = async () => {
     await signOut();
     setIsOpen(false);
-  }
+  };
 
   // Build menu based on auth state
   const menuItems = user
     ? [
         { id: 'home', label: "Home", href: "/", icon: <Home className="h-4 w-4" /> },
         { id: 'chat', label: "Chat", href: "/chat", icon: <MessageSquare className="h-4 w-4" /> },
-        { id: 'chat-history', label: "Chat History", href: "/chat/history", icon: <MessageCircle className="h-4 w-4" /> },
         { id: 'about', label: "About", href: "/about", icon: <Info className="h-4 w-4" /> },
         { id: 'contact', label: "Contact", href: "/collaboration", icon: <Phone className="h-4 w-4" /> },
       ]
@@ -117,220 +91,6 @@ export function NavigationBar() {
         { id: 'services', label: "Services", href: "/services", icon: <Scale className="h-4 w-4" /> },
         { id: 'about-contact', label: "About & Contact", href: "/about", icon: <Info className="h-4 w-4" /> },
       ];
-
-  // Static search data for pages and features
-  const staticSearchData: SearchResult[] = [
-    // Pages
-    {
-      id: 'home',
-      title: 'Home',
-      description: 'Main dashboard with legal assistant',
-      href: '/',
-      icon: <Home className="h-4 w-4" />,
-      type: 'page'
-    },
-    {
-      id: 'chat',
-      title: 'Chat',
-      description: 'AI-powered legal conversation interface',
-      href: '/chat',
-      icon: <MessageSquare className="h-4 w-4" />,
-      type: 'page'
-    },
-    {
-      id: 'chat-history',
-      title: 'Chat History',
-      description: 'View and manage your conversation history',
-      href: '/chat/history',
-      icon: <MessageCircle className="h-4 w-4" />,
-      type: 'page'
-    },
-    {
-      id: 'profile',
-      title: 'Profile',
-      description: 'Manage your account settings and preferences',
-      href: '/profile',
-      icon: <User className="h-4 w-4" />,
-      type: 'page'
-    },
-    {
-      id: 'about',
-      title: 'About',
-      description: 'Learn about Juris.AI and our mission',
-      href: '/about',
-      icon: <Info className="h-4 w-4" />,
-      type: 'page'
-    },
-    {
-      id: 'contact',
-      title: 'Contact',
-      description: 'Get in touch with our team',
-      href: '/collaboration',
-      icon: <Phone className="h-4 w-4" />,
-      type: 'page'
-    },
-    {
-      id: 'services',
-      title: 'Services',
-      description: 'Explore our legal AI services',
-      href: '/services',
-      icon: <Scale className="h-4 w-4" />,
-      type: 'page'
-    },
-    {
-      id: 'landing',
-      title: 'Landing',
-      description: 'Welcome page for new visitors',
-      href: '/landing',
-      icon: <Sparkles className="h-4 w-4" />,
-      type: 'page'
-    },
-    
-    // Features
-    {
-      id: 'legal-research',
-      title: 'Legal Research',
-      description: 'AI-powered legal document analysis',
-      href: '/services#legal-research',
-      icon: <FileText className="h-4 w-4" />,
-      type: 'feature'
-    },
-    {
-      id: 'document-analysis',
-      title: 'Document Analysis',
-      description: 'Analyze legal documents with AI',
-      href: '/services#document-analysis',
-      icon: <FileText className="h-4 w-4" />,
-      type: 'feature'
-    },
-    {
-      id: 'case-studies',
-      title: 'Case Studies',
-      description: 'Explore real legal case analyses',
-      href: '/services#case-studies',
-      icon: <FileText className="h-4 w-4" />,
-      type: 'feature'
-    },
-    
-    // Settings (if user is authenticated)
-    ...(user ? [
-      {
-        id: 'api-keys',
-        title: 'API Keys',
-        description: 'Manage your AI service API keys',
-        href: '/profile?tab=api-keys',
-        icon: <Settings className="h-4 w-4" />,
-        type: 'setting' as const
-      },
-      {
-        id: 'preferences',
-        title: 'Preferences',
-        description: 'Customize your experience',
-        href: '/profile?tab=preferences',
-        icon: <Settings className="h-4 w-4" />,
-        type: 'setting' as const
-      }
-    ] as SearchResult[] : [])
-  ];
-
-  // Search function
-  const performSearch = async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults(staticSearchData.slice(0, 8));
-      return;
-    }
-
-    setIsSearching(true);
-    
-    try {
-      // Filter static data based on query
-      const filteredStaticResults = staticSearchData.filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.description.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 6);
-      
-      // If user is authenticated, also search chat history
-      let chatResults: SearchResult[] = [];
-      if (user && query.length > 2) {
-        try {
-          const supabase = createClient();
-          const { data, error } = await supabase
-            .from('chat_messages')
-            .select('*')
-            .eq('user_id', user.id)
-            .ilike('content', `%${query}%`)
-            .order('created_at', { ascending: false })
-            .limit(5);
-
-          if (!error && data) {
-            // Group messages by date and create unique results
-            const uniqueSessions = new Map();
-            data.forEach((message: any) => {
-              const date = new Date(message.created_at).toISOString().split('T')[0];
-              if (!uniqueSessions.has(date)) {
-                uniqueSessions.set(date, {
-                  id: `chat-${date}`,
-                  title: `Chat on ${new Date(date).toLocaleDateString()}`,
-                  description: message.content.substring(0, 100) + (message.content.length > 100 ? '...' : ''),
-                  href: `/chat/history?date=${date}`,
-                  icon: <MessageCircle className="h-4 w-4" />,
-                  type: 'chat'
-                });
-              }
-            });
-            
-            chatResults = Array.from(uniqueSessions.values()).slice(0, 3);
-          }
-        } catch (err) {
-          console.error('Error searching chat history:', err);
-        }
-      }
-      
-      // Combine results
-      const combinedResults = [...filteredStaticResults, ...chatResults];
-      setSearchResults(combinedResults.length > 0 ? combinedResults : [{
-        id: 'no-results',
-        title: 'No results found',
-        description: `No matches found for "${query}". Try different keywords.`,
-        href: '#',
-        icon: <Search className="h-4 w-4" />,
-        type: 'page'
-      }]);
-    } catch (error) {
-      console.error('Search error:', error);
-      setSearchResults([{
-        id: 'error',
-        title: 'Search Error',
-        description: 'An error occurred while searching. Please try again.',
-        href: '#',
-        icon: <Search className="h-4 w-4" />,
-        type: 'page'
-      }]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  // Handle search input change with debounce
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      performSearch(searchQuery);
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
-
-  // Initialize with default results
-  useEffect(() => {
-    if (searchOpen) {
-      setSearchResults(staticSearchData.slice(0, 8));
-    }
-  }, [searchOpen]);
-
-  const handleSearchResultClick = (href: string) => {
-    setSearchOpen(false);
-    router.push(href);
-  };
 
   return (
     <header
@@ -639,12 +399,10 @@ export function NavigationBar() {
                   <div className="flex items-center gap-3 px-4 py-3 border-b border-border/30">
                     <Search className="h-5 w-5 text-muted-foreground" />
                     <input
-                      ref={searchInputRef}
                       type="text"
-                      placeholder="Search pages, features, chat history..."
+                      placeholder="Search pages, features, and more..."
                       className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
                     />
                     <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
                       ESC
@@ -652,40 +410,40 @@ export function NavigationBar() {
                   </div>
 
                   <div className="max-h-96 overflow-y-auto">
-                    {isSearching ? (
-                      <div className="p-4 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                      </div>
-                    ) : (
-                      <div className="p-2">
-                        {searchResults.map((item) => (
-                          <button
-                            key={item.id}
-                            onClick={() => handleSearchResultClick(item.href)}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group text-left"
+                    <div className="p-2">
+                      <div className="text-xs font-medium text-muted-foreground px-2 py-1 mb-2">Quick Actions</div>
+                      {menuItems.map((item) => (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          onClick={() => setSearchOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group"
+                        >
+                          <span className="text-muted-foreground group-hover:text-primary transition-colors">
+                            {item.icon}
+                          </span>
+                          <span className="font-medium">{item.label}</span>
+                        </Link>
+                      ))}
+
+                      {user && (
+                        <>
+                          <div className="text-xs font-medium text-muted-foreground px-2 py-1 mb-2 mt-4">User Actions</div>
+                          <Link
+                            href="/profile"
+                            onClick={() => setSearchOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group"
                           >
-                            <span className="text-muted-foreground group-hover:text-primary transition-colors">
-                              {item.icon}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium truncate">{item.title}</div>
-                              <div className="text-xs text-muted-foreground truncate">{item.description}</div>
-                            </div>
-                            <Badge 
-                              variant="outline" 
-                              className="text-xs capitalize"
-                            >
-                              {item.type}
-                            </Badge>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                            <User className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <span className="font-medium">View Profile</span>
+                          </Link>
+                        </>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="border-t border-border/30 px-4 py-2 text-xs text-muted-foreground flex justify-between items-center">
-                    <span>Use ↑↓ to navigate, ↵ to select, ESC to close</span>
-                    <span>{searchResults.length} results</span>
+                  <div className="border-t border-border/30 px-4 py-2 text-xs text-muted-foreground">
+                    Use ↑↓ to navigate, ↵ to select, ESC to close
                   </div>
                 </div>
               </motion.div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -31,7 +31,10 @@ interface MessageBubbleProps {
   copiedMessageId?: string | null;
   messageReactions?: Record<string, 'like' | 'dislike' | null>;
   showSources?: boolean;
-  legalSources?: unknown;
+  legalSources?: {
+    case_law?: any[];
+    statutes?: any[];
+  };
 }
 
 export function MessageBubble({
