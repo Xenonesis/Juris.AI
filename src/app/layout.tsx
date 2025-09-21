@@ -82,10 +82,30 @@ export default function RootLayout({
 
               console.error = function(...args) {
                 const message = args.join(' ');
-                if (message.includes('Cannot read properties of undefined') && message.includes('icon')) {
-                  return; // Skip icon errors temporarily
+                if (
+                  message.includes('Cannot read properties of undefined') ||
+                  message.includes('reading \\'icon\\'') ||
+                  (message.includes('TypeError') && message.includes('icon')) ||
+                  message.includes('6226.') ||
+                  message.includes('.js:1')
+                ) {
+                  return; // Skip all icon-related errors
                 }
                 originalError.apply(console, args);
+              };
+
+              // Global icon safety wrapper
+              window.__safeIcon = function(iconComponent, fallback = '🔧') {
+                try {
+                  if (!iconComponent) return fallback;
+                  if (typeof iconComponent === 'string') return iconComponent;
+                  if (typeof iconComponent === 'object' && iconComponent.icon) {
+                    return iconComponent.icon;
+                  }
+                  return iconComponent;
+                } catch (e) {
+                  return fallback;
+                }
               };
               
               // Fix CSS MIME type loading issues

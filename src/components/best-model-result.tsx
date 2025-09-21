@@ -278,7 +278,7 @@ export function BestModelResult({ results, performances, jurisdiction }: BestMod
             </div>
             
             <div className="flex items-center gap-2 my-2">
-              <span className="text-xl">{modelInfo[bestModel as keyof typeof modelInfo].icon}</span>
+              <span className="text-xl">{modelInfo[bestModel as keyof typeof modelInfo]?.icon || "🤖"}</span>
               <p className="text-sm text-muted-foreground">
                 {modelInfo[bestModel as keyof typeof modelInfo].description}
               </p>

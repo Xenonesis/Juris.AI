@@ -139,7 +139,7 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
                           value={model}
                           className="flex items-center gap-1.5 w-full"
                         >
-                          <span>{modelInfo[model as keyof typeof modelInfo].icon}</span>
+                          <span>{modelInfo[model as keyof typeof modelInfo]?.icon || "🤖"}</span>
                           <span className="hidden sm:inline">{modelInfo[model as keyof typeof modelInfo].name}</span>
                           <span className="sm:hidden">{modelInfo[model as keyof typeof modelInfo].name.split('-')[0]}</span>
                         </TabsTrigger>

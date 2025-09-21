@@ -35,6 +35,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SafeIcon } from "./ui/safe-icon";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -234,7 +235,10 @@ export function Footer() {
                         href={link.href}
                         className="text-sm text-muted-foreground hover:text-foreground dark:hover:text-primary hover:underline underline-offset-4 transition-all flex items-center gap-2 group"
                       >
-                        <link.icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground dark:group-hover:text-primary transition-colors" />
+                        <SafeIcon 
+                          icon={<link.icon className="h-4 w-4" />} 
+                          className="text-muted-foreground group-hover:text-foreground dark:group-hover:text-primary transition-colors" 
+                        />
                         {link.label}
                       </Link>
                     </motion.li>
@@ -269,7 +273,10 @@ export function Footer() {
                               href={link.href}
                               className="flex flex-col items-center justify-center text-center p-2 rounded-lg mobile-nav-card transition-colors"
                             >
-                              <link.icon className="h-5 w-5 text-foreground/70 dark:text-muted-foreground" />
+                              <SafeIcon 
+                                icon={<link.icon className="h-5 w-5" />} 
+                                className="text-foreground/70 dark:text-muted-foreground" 
+                              />
                               <span className="text-[11px] mt-1 text-foreground/70 dark:text-muted-foreground font-medium">
                                 {link.label.split(' ')[0]}
                               </span>

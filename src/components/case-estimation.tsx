@@ -111,7 +111,7 @@ export function CaseEstimation({ winPercentage, jurisdiction }: CaseEstimationPr
                 initial="initial"
                 animate="animate"
               >
-                {info.icon}
+                {info.icon || "📊"}
               </motion.div>
               <div>
                 <h4 className={`font-semibold ${info.color}`}>{info.text}</h4>
