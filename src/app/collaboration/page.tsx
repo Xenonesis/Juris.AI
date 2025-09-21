@@ -1,13 +1,8 @@
 import CollaborationForm from '@/components/CollaborationForm';
 import React from 'react';
-import { Mail, Phone, MapPin, Handshake, Lightbulb, Code, TrendingUp, Users, BookOpen, HelpCircle } from 'lucide-react';
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+import { Mail, Phone, MapPin, Handshake, Lightbulb, Code, TrendingUp, Users, BookOpen } from 'lucide-react';
 import Link from 'next/link'; // Import Link for the map link
+import { EnhancedFAQSection } from '@/components/collaboration/EnhancedFAQSection';
 
 export default function CollaborationPage() {
   const address = "DLF Cybercity, Gurugram, Haryana"; // Updated address
@@ -166,36 +161,8 @@ export default function CollaborationPage() {
         </div>
       </div>
 
-      {/* FAQ Section */}
-      <div className="mt-16">
-        <h2 className="text-2xl font-semibold text-center mb-8">Frequently Asked Questions</h2>
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1">
-            <AccordionTrigger><HelpCircle className="h-5 w-5 text-primary mr-2" /> What is Juris.Ai?</AccordionTrigger>
-            <AccordionContent>
-              Juris.Ai is an AI-powered legal assistant platform that provides comprehensive legal advice, case studies, and win probability estimations by leveraging multiple AI models.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-2">
-            <AccordionTrigger><HelpCircle className="h-5 w-5 text-primary mr-2" /> What AI models does Juris.Ai use?</AccordionTrigger>
-            <AccordionContent>
-              Juris.Ai compares legal advice from multiple AI models, including GPT-4, Claude, Gemini, and Mistral.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-3">
-            <AccordionTrigger><HelpCircle className="h-5 w-5 text-primary mr-2" /> Is the advice provided by Juris.Ai a substitute for professional legal advice?</AccordionTrigger>
-            <AccordionContent>
-              No, the information provided by Juris.Ai is not a substitute for professional legal advice. Always consult with a qualified attorney for your specific legal needs.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-4">
-            <AccordionTrigger><HelpCircle className="h-5 w-5 text-primary mr-2" /> How can I collaborate with Juris.Ai?</AccordionTrigger>
-            <AccordionContent>
-              We are open to various collaboration opportunities, including joint ventures, research and development projects, and API integrations. Please use the contact form above to submit your proposal.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
+      {/* Enhanced FAQ Section */}
+      <EnhancedFAQSection />
       </div>
     </div>
   );
