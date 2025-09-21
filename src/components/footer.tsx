@@ -77,7 +77,7 @@ export function Footer() {
         { label: "Privacy Policy", href: "/privacy-policy", icon: Shield },
         { label: "Terms of Service", href: "/terms-of-service", icon: FileTerminal },
         { label: "Cookie Policy", href: "/cookie-policy", icon: Cookie },
-        { label: "Disclaimer", href: "#", icon: AlertCircle },
+        { label: "Disclaimer", href: "/disclaimer", icon: AlertCircle },
         { label: "Accessibility", href: "#", icon: Accessibility },
       ],
     },
