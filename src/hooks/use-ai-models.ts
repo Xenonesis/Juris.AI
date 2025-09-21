@@ -16,6 +16,7 @@ export interface ModelResults {
   claude: string | null;
   gemini: string | null;
   mistral: string | null;
+  chutes: string | null;
 }
 
 export interface ModelPerformances {
@@ -23,6 +24,7 @@ export interface ModelPerformances {
   claude?: ModelPerformance;
   gemini?: ModelPerformance;
   mistral?: ModelPerformance;
+  chutes?: ModelPerformance;
 }
 
 export function useAIModels(userApiKeys: Record<string, string>) {
@@ -31,6 +33,7 @@ export function useAIModels(userApiKeys: Record<string, string>) {
     claude: null,
     gemini: null,
     mistral: null,
+    chutes: null,
   });
 
   const [modelPerformances, setModelPerformances] = useState<ModelPerformances>({});
@@ -43,6 +46,7 @@ export function useAIModels(userApiKeys: Record<string, string>) {
       hasAnthropicClaude: !!userApiKeys['anthropic'],
       hasGemini: !!userApiKeys['gemini'],
       hasMistral: !!userApiKeys['mistral'],
+      hasChutes: !!userApiKeys['chutes'],
     };
   }, [userApiKeys]);
 
@@ -54,6 +58,7 @@ export function useAIModels(userApiKeys: Record<string, string>) {
       claude: Math.floor(Math.random() * 150),
       gemini: Math.floor(Math.random() * 50),
       mistral: Math.floor(Math.random() * 30),
+      chutes: Math.floor(Math.random() * 80),
     };
     return baseTime + (variations[modelType as keyof typeof variations] || 0);
   }, []);
@@ -117,6 +122,7 @@ export function useAIModels(userApiKeys: Record<string, string>) {
       claude: Date.now(),
       gemini: Date.now(),
       mistral: Date.now(),
+      chutes: Date.now(),
     };
 
     const modelPromises = [];
@@ -146,6 +152,12 @@ export function useAIModels(userApiKeys: Record<string, string>) {
       setResults(prev => ({ ...prev, mistral: 'API key for Mistral not provided.' }));
     }
 
+    if (availableModels.hasChutes) {
+      modelPromises.push(processModelResponse(prompt, 'chutes', 'chutes', startTimes.chutes));
+    } else {
+      setResults(prev => ({ ...prev, chutes: 'API key for Chutes AI not provided.' }));
+    }
+
     try {
       await Promise.allSettled(modelPromises);
     } catch (error) {
@@ -162,6 +174,7 @@ export function useAIModels(userApiKeys: Record<string, string>) {
       claude: null,
       gemini: null,
       mistral: null,
+      chutes: null,
     });
     setModelPerformances({});
   }, []);

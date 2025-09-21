@@ -298,6 +298,14 @@ async function fetchModels(provider: string, apiKey?: string, forceRefresh = fal
         ];
         break;
         
+      case 'chutes':
+        models = [
+          { id: 'zai-org/GLM-4.5-Air', name: 'GLM-4.5-Air', description: 'Chutes AI GLM model' },
+          { id: 'zai-org/GLM-4-9B-Chat', name: 'GLM-4-9B-Chat', description: 'Smaller GLM model' },
+          { id: 'zai-org/GLM-4-Plus', name: 'GLM-4-Plus', description: 'Enhanced GLM model' }
+        ];
+        break;
+        
       default:
         models = [];
     }

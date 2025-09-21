@@ -13,6 +13,7 @@ const defaultAnthropicApiKey = process.env.ANTHROPIC_API_KEY || '';
 const mistralApiUrl = 'https://api.mistral.ai/v1';
 const openaiApiUrl = 'https://api.openai.com/v1';
 const anthropicApiUrl = 'https://api.anthropic.com/v1';
+const chutesApiUrl = 'https://llm.chutes.ai/v1';
 
 // Legal APIs (server-side only)
 const CASELAW_API_KEY = process.env.CASELAW_API_KEY || '';
@@ -239,12 +240,65 @@ export async function claudeChat(prompt: string, apiKey?: string): Promise<strin
 }
 
 /**
+ * Handles chat with Chutes AI
+ */
+export async function chutesChat(prompt: string, apiKey?: string): Promise<string> {
+  try {
+    if (!apiKey) {
+      throw new Error('Chutes AI API key is required');
+    }
+    
+    const response = await fetch(`${chutesApiUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'zai-org/GLM-4.5-Air',
+        messages: [
+          { 
+            role: 'user', 
+            content: prompt 
+          }
+        ],
+        temperature: 0.4,
+        max_tokens: 1000
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Chutes AI API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error: unknown) {
+    console.error('Error with Chutes AI:', error);
+    
+    // Check for API key errors
+    if (error instanceof Error) {
+      if (error.message && (
+        error.message.includes('invalid API key') ||
+        error.message.includes('API key not valid') ||
+        error.message.includes('401')
+      )) {
+        return 'The Chutes AI API key is invalid. Please check your API key in the settings.';
+      }
+    }
+    
+    return 'Sorry, there was an error processing your request with Chutes AI.';
+  }
+}
+
+/**
  * Gets AI response with user's API key if available (with caching)
  */
 export const getAIResponse = withCache(
   async (
     message: string,
-    provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' = 'mistral',
+    provider: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' | 'chutes' = 'mistral',
     apiKeyMap: Record<string, string> = {},
     selectedModel?: string
   ): Promise<string> => {
@@ -266,6 +320,8 @@ export const getAIResponse = withCache(
         return await openaiChat(message, apiKey || undefined);
       case 'anthropic':
         return await claudeChat(message, apiKey || undefined);
+      case 'chutes':
+        return await chutesChat(message, apiKey || undefined);
       case 'openrouter':
         // For OpenRouter, use their API with the user's API key
         if (!apiKey) {
@@ -318,7 +374,7 @@ export const getAIResponse = withCache(
   }
   },
   // Cache key generator
-  (message: string, provider?: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom', apiKeyMap?: Record<string, string>, selectedModel?: string) =>
+  (message: string, provider?: 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' | 'chutes', apiKeyMap?: Record<string, string>, selectedModel?: string) =>
     createCacheKey('ai-response', provider || 'mistral', message.slice(0, 100), selectedModel || 'default'),
   // Cache for 10 minutes
   10 * 60 * 1000
@@ -419,8 +475,9 @@ export async function fetchRelevantStatutes(query: string, jurisdiction: string 
  */
 export async function getLegalAdvice(
   query: string,
-  provider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' = 'mistral',
-  jurisdiction: string = 'general'
+  provider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' | 'chutes' = 'mistral',
+  jurisdiction: string = 'general',
+  userApiKeys: Record<string, string> = {}
 ): Promise<string> {
   try {
     // 1. Fetch relevant case law and statutes in parallel
@@ -476,10 +533,30 @@ Format your response as a professional legal analysis. Focus on providing substa
 
     // 3. Get AI response using the enhanced prompt
     let response;
-    if (provider === 'mistral') {
-      response = await mistralChat(legalPrompt);
-    } else {
-      response = await geminiChat(legalPrompt);
+    
+    // Get the appropriate API key for the selected provider
+    const apiKey = getApiKey(userApiKeys, provider);
+    
+    switch (provider) {
+      case 'mistral':
+        response = await mistralChat(legalPrompt, apiKey || undefined);
+        break;
+      case 'openai':
+        response = await openaiChat(legalPrompt, apiKey || undefined);
+        break;
+      case 'anthropic':
+        response = await claudeChat(legalPrompt, apiKey || undefined);
+        break;
+      case 'chutes':
+        response = await chutesChat(legalPrompt, apiKey || undefined);
+        break;
+      case 'gemini':
+        response = await geminiChat(legalPrompt, apiKey || undefined);
+        break;
+      default:
+        // For other providers, use getAIResponse which handles all providers
+        response = await getAIResponse(legalPrompt, provider, userApiKeys);
+        break;
     }
 
     // 4. Format the final response with legal references and disclaimer

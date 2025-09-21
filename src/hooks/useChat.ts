@@ -29,8 +29,8 @@ export function useChat() {
   const [processing, setProcessing] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState('');
-  const [aiProvider, setAiProvider] = useState<'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom'>('mistral');
-  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [aiProvider, setAiProvider] = useState<'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom' | 'chutes'>('chutes');
+  const [selectedModel, setSelectedModel] = useState<string>('zai-org/GLM-4.5-Air');
   const [legalMode, setLegalMode] = useState(true);
   const [jurisdiction, setJurisdiction] = useState('general');
   const [showSources, setShowSources] = useState(false);
@@ -39,7 +39,9 @@ export function useChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [messageReactions, setMessageReactions] = useState<Record<string, 'like' | 'dislike' | null>>({});
-  const [userApiKeys, setUserApiKeys] = useState<Record<string, string>>({});
+  const [userApiKeys, setUserApiKeys] = useState<Record<string, string>>({
+    chutes: 'cpk_5872af9cbffc432f96e821da9a402c4c.b387316ab5425cf69f617e4328a3c322.CqR5sx6EoO3i3NLdzTjtLrJgxddXVWTx'
+  });
   const [missingApiKeyWarning, setMissingApiKeyWarning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [regeneratingMessageId, setRegeneratingMessageId] = useState<string | null>(null);
@@ -63,7 +65,13 @@ export function useChat() {
     
     try {
       const apiKeys = await getUserApiKeys(userId);
-      setUserApiKeys(apiKeys);
+      // Merge user's API keys with our default Chutes API key
+      setUserApiKeys(prevKeys => ({
+        ...prevKeys,
+        ...apiKeys,
+        // Ensure Chutes API key is always available
+        chutes: prevKeys.chutes || 'cpk_5872af9cbffc432f96e821da9a402c4c.b387316ab5425cf69f617e4328a3c322.CqR5sx6EoO3i3NLdzTjtLrJgxddXVWTx'
+      }));
     } catch (error) {
       console.error('Error loading user API keys:', error);
     }
@@ -221,7 +229,7 @@ export function useChat() {
       let aiResponse;
       
       if (legalMode) {
-        aiResponse = await getLegalAdvice(currentInput, aiProvider, jurisdiction);
+        aiResponse = await getLegalAdvice(currentInput, aiProvider, jurisdiction, userApiKeys);
       } else {
         aiResponse = await getAIResponse(currentInput, aiProvider, userApiKeys, selectedModel);
       }
@@ -322,7 +330,7 @@ export function useChat() {
     try {
       let aiResponse;
       if (legalMode) {
-        aiResponse = await getLegalAdvice(userMessage.content, aiProvider, jurisdiction);
+        aiResponse = await getLegalAdvice(userMessage.content, aiProvider, jurisdiction, userApiKeys);
       } else {
         aiResponse = await getAIResponse(userMessage.content, aiProvider, userApiKeys, selectedModel);
       }

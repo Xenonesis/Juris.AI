@@ -36,6 +36,12 @@ export const AI_MODELS = {
     baseAccuracy: 81,
     provider: 'together' as const,
   },
+  CHUTES: {
+    name: 'chutes',
+    displayName: 'Chutes AI',
+    baseAccuracy: 88,
+    provider: 'chutes' as const,
+  },
 } as const;
 
 // AI Provider Configuration
@@ -100,6 +106,12 @@ export const AI_PROVIDERS = {
     apiKeyRequired: false,
     liveFetching: false,
   },
+  chutes: {
+    name: 'Chutes AI',
+    description: 'GLM models from Chutes AI',
+    apiKeyRequired: true,
+    liveFetching: true,
+  },
 } as const;
 
 // Jurisdiction Configuration
@@ -149,4 +161,4 @@ export const WARNING_AUTO_HIDE_DELAY = 10000;
 // Type definitions
 export type AIModelName = keyof typeof AI_MODELS;
 export type JurisdictionCode = keyof typeof JURISDICTION_BASE_RANGES;
-export type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom';
+export type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'mistral' | 'cohere' | 'together' | 'openrouter' | 'huggingface' | 'replicate' | 'custom' | 'chutes';

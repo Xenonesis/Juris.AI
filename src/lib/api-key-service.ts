@@ -81,6 +81,10 @@ export function getApiKey(
     return process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || null;
   }
   
+  if (modelType === 'chutes') {
+    return process.env.NEXT_PUBLIC_CHUTES_API_KEY || null;
+  }
+  
   return null;
 }
 

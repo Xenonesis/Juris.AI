@@ -8,8 +8,8 @@ import { ModelsDropdown } from '@/components/ui/models-dropdown';
 
 interface ChatSettingsProps {
   showSettings: boolean;
-  aiProvider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom';
-  setAiProvider: (provider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom') => void;
+  aiProvider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom' | 'chutes';
+  setAiProvider: (provider: 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom' | 'chutes') => void;
   selectedModel?: string;
   setSelectedModel?: (model: string) => void;
   legalMode: boolean;
@@ -56,12 +56,13 @@ export function ChatSettings({
                 <Label htmlFor="ai-provider-select" className="text-sm font-medium">AI Provider</Label>
                 <Select
                   value={aiProvider}
-                  onValueChange={(value) => setAiProvider(value as 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom')}
+                  onValueChange={(value) => setAiProvider(value as 'gemini' | 'mistral' | 'openai' | 'anthropic' | 'openrouter' | 'cohere' | 'together' | 'huggingface' | 'replicate' | 'custom' | 'chutes')}
                 >
                   <SelectTrigger id="ai-provider-select" className="h-9 bg-background/50">
                     <SelectValue placeholder="Select AI provider" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="chutes">Chutes AI</SelectItem>
                     <SelectItem value="openai">OpenAI</SelectItem>
                     <SelectItem value="anthropic">Anthropic</SelectItem>
                     <SelectItem value="gemini">Google Gemini</SelectItem>
