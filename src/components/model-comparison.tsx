@@ -15,6 +15,7 @@ interface ModelComparisonProps {
     claude: string | null;
     gemini: string | null;
     mistral: string | null;
+    chutes: string | null;
   };
   jurisdiction?: string;
 }
@@ -22,7 +23,7 @@ interface ModelComparisonProps {
 import { localJurisdictions } from "./jurisdiction-select";
 
 export function ModelComparison({ results, jurisdiction }: ModelComparisonProps) {
-  const [activeModel, setActiveModel] = useState<"gpt" | "claude" | "gemini" | "mistral">("gpt");
+  const [activeModel, setActiveModel] = useState<"gpt" | "claude" | "gemini" | "mistral" | "chutes">("gpt");
   const [copied, setCopied] = useState(false);
   const [expandedModels, setExpandedModels] = useState<Record<string, boolean>>({});
   const [fullscreenModel, setFullscreenModel] = useState<string | null>(null);
@@ -51,6 +52,12 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
       description: "Efficiency-focused model delivering concise and accurate responses.",
       color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-600/20",
       icon: "🌟",
+    },
+    chutes: {
+      name: "Chutes AI",
+      description: "Advanced AI model with specialized capabilities for legal analysis.",
+      color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-600/20",
+      icon: "⚡",
     },
   };
 
@@ -124,11 +131,12 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
                 </Badge>
               </div>
             )}
-            <Tabs defaultValue={activeModel} onValueChange={(value) => setActiveModel(value as "gpt" | "claude" | "gemini" | "mistral")}>
-              <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1">
+            <Tabs defaultValue={activeModel} onValueChange={(value) => setActiveModel(value as "gpt" | "claude" | "gemini" | "mistral" | "chutes")}>
+              <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full gap-1">
                 {Object.entries(results).map(
-                  ([model, result], index) =>
-                    result && (
+                  ([model, result], index) => {
+                    const modelData = modelInfo[model as keyof typeof modelInfo];
+                    return result && modelData ? (
                       <motion.div
                         key={model}
                         initial={{ opacity: 0, y: -10 }}
@@ -139,19 +147,21 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
                           value={model}
                           className="flex items-center gap-1.5 w-full"
                         >
-                          <span>{modelInfo[model as keyof typeof modelInfo]?.icon || "🤖"}</span>
-                          <span className="hidden sm:inline">{modelInfo[model as keyof typeof modelInfo].name}</span>
-                          <span className="sm:hidden">{modelInfo[model as keyof typeof modelInfo].name.split('-')[0]}</span>
+                          <span>{modelData.icon}</span>
+                          <span className="hidden sm:inline">{modelData.name}</span>
+                          <span className="sm:hidden">{modelData.name.split('-')[0]}</span>
                         </TabsTrigger>
                       </motion.div>
-                    )
+                    ) : null;
+                  }
                 )}
               </TabsList>
 
               <AnimatePresence mode="wait">
                 {Object.entries(results).map(
-                  ([model, result]) =>
-                    result && activeModel === model && (
+                  ([model, result]) => {
+                    const modelData = modelInfo[model as keyof typeof modelInfo];
+                    return result && modelData && activeModel === model ? (
                       <TabsContent key={`tab-content-${model}`} value={model} className="mt-4 space-y-4">
                         <motion.div 
                           initial={{ opacity: 0 }}
@@ -161,9 +171,9 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
                           className="space-y-4"
                         >
                           <div className="flex items-center justify-between flex-wrap gap-2">
-                            <Badge className={`${modelInfo[model as keyof typeof modelInfo].color} flex items-center gap-1.5 py-1 px-3`}>
+                            <Badge className={`${modelData.color} flex items-center gap-1.5 py-1 px-3`}>
                               <Bot className="w-3.5 h-3.5" />
-                              {modelInfo[model as keyof typeof modelInfo].name}
+                              {modelData.name}
                             </Badge>
                             <motion.div
                               whileHover={{ scale: 1.05 }}
@@ -186,7 +196,7 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
                           </div>
                           
                           <p className="text-xs text-muted-foreground">
-                            {modelInfo[model as keyof typeof modelInfo].description}
+                            {modelData.description}
                           </p>
                           
                           <motion.div
@@ -257,7 +267,8 @@ export function ModelComparison({ results, jurisdiction }: ModelComparisonProps)
                           </motion.div>
                         </motion.div>
                       </TabsContent>
-                    )
+                    ) : null;
+                  }
                 )}
               </AnimatePresence>
             </Tabs>

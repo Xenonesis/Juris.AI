@@ -73,9 +73,11 @@ export default function RootLayout({
                 const message = args.join(' ');
                 if (message.includes('preload') && (
                   message.includes('not used within a few seconds') ||
-                  message.includes('was preloaded using link preload')
+                  message.includes('was preloaded using link preload') ||
+                  message.includes('998fb806ce5f963a.css') ||
+                  message.includes('4830416415385555.css')
                 )) {
-                  return; // Skip all preload warnings
+                  return; // Skip specific CSS preload warnings
                 }
                 originalWarn.apply(console, args);
               };
@@ -129,54 +131,86 @@ export default function RootLayout({
           }}
         />
         
-        {/* Resource optimization script */}
+        {/* CSS Preload Management Script */}
         <Script
-          id="resource-optimization"
-          strategy="afterInteractive"
+          id="css-preload-manager"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              // Initialize resource optimization
+              // Intercept and manage CSS preload links
               (function() {
-                function disableUnusedPreloads() {
-                  // Monitor and remove unused preload links
-                  const checkUnusedPreloads = () => {
-                    const preloadLinks = document.querySelectorAll('link[rel="preload"]');
-                    preloadLinks.forEach((link) => {
-                      const href = link.getAttribute('href');
-                      if (href) {
-                        // More aggressive cleanup - remove most preloads immediately after load
-                        setTimeout(() => {
-                          if (link.parentNode) {
-                            const isStillUsed = document.querySelector(\`script[src="\${href}"], link[href="\${href}"]:not([rel="preload"]), style[data-href="\${href}"]\`);
-                            if (!isStillUsed || href.includes('chunk') || href.includes('.js')) {
-                              try {
-                                link.remove();
-                              } catch (e) {
-                                // Ignore removal errors
-                              }
+                const targetCSSFiles = [
+                  '998fb806ce5f963a.css',
+                  '4830416415385555.css'
+                ];
+
+                // Override document.createElement to intercept link creation
+                const originalCreateElement = document.createElement;
+                document.createElement = function(tagName) {
+                  const element = originalCreateElement.call(this, tagName);
+                  
+                  if (tagName.toLowerCase() === 'link') {
+                    const originalSetAttribute = element.setAttribute;
+                    element.setAttribute = function(name, value) {
+                      if (name === 'href' && value && targetCSSFiles.some(css => value.includes(css))) {
+                        // Convert preload to immediate stylesheet load for problematic CSS files
+                        if (element.rel === 'preload' && element.as === 'style') {
+                          element.rel = 'stylesheet';
+                          element.removeAttribute('as');
+                          // Load immediately to avoid preload warning
+                          setTimeout(() => {
+                            if (!document.head.contains(element)) {
+                              document.head.appendChild(element);
                             }
-                          }
-                        }, 2000); // Reduced to 2 seconds
+                          }, 0);
+                        }
+                      }
+                      return originalSetAttribute.call(this, name, value);
+                    };
+                  }
+                  
+                  return element;
+                };
+
+                // Clean up existing problematic preload links
+                function cleanupPreloadLinks() {
+                  const preloadLinks = document.querySelectorAll('link[rel="preload"][as="style"]');
+                  preloadLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && targetCSSFiles.some(css => href.includes(css))) {
+                      // Convert to stylesheet immediately
+                      link.rel = 'stylesheet';
+                      link.removeAttribute('as');
+                    }
+                  });
+                }
+
+                // Run cleanup on DOM ready and periodically
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', cleanupPreloadLinks);
+                } else {
+                  cleanupPreloadLinks();
+                }
+
+                // Monitor for new preload links
+                const observer = new MutationObserver((mutations) => {
+                  mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                      if (node.tagName === 'LINK' && node.rel === 'preload' && node.as === 'style') {
+                        const href = node.getAttribute('href');
+                        if (href && targetCSSFiles.some(css => href.includes(css))) {
+                          node.rel = 'stylesheet';
+                          node.removeAttribute('as');
+                        }
                       }
                     });
-                  };
+                  });
+                });
 
-                  if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', checkUnusedPreloads);
-                  } else {
-                    checkUnusedPreloads();
-                  }
-
-                  // Continuous monitoring
-                  setInterval(checkUnusedPreloads, 10000);
-                }
-
-                // Initialize on page load
-                if (document.readyState === 'loading') {
-                  document.addEventListener('DOMContentLoaded', disableUnusedPreloads);
-                } else {
-                  disableUnusedPreloads();
-                }
+                observer.observe(document.head || document.documentElement, {
+                  childList: true,
+                  subtree: true
+                });
               })();
             `,
           }}

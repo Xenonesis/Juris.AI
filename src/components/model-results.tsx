@@ -21,6 +21,7 @@ interface ModelResultsProps {
     claude?: ModelPerformance;
     gemini?: ModelPerformance;
     mistral?: ModelPerformance;
+    chutes?: ModelPerformance;
   };
   jurisdiction?: string;
 }
@@ -49,6 +50,11 @@ export function ModelResults({ performances, jurisdiction }: ModelResultsProps) 
       name: "Mistral",
       color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-600/20",
       badgeColor: "bg-amber-500 text-white",
+    },
+    chutes: {
+      name: "Chutes AI",
+      color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-600/20",
+      badgeColor: "bg-cyan-500 text-white",
     },
   };
 
@@ -125,7 +131,9 @@ export function ModelResults({ performances, jurisdiction }: ModelResultsProps) 
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {Object.entries(performances).map(([model, metrics], index) => (
+        {Object.entries(performances).map(([model, metrics], index) => {
+          const modelData = modelInfo[model as keyof typeof modelInfo];
+          return metrics && modelData ? (
           <div
             key={model}
             className={`animate-fadeIn transition-transform duration-300 hover:scale-[1.02] ${getAnimationDelayClass(index)}`}
@@ -133,8 +141,8 @@ export function ModelResults({ performances, jurisdiction }: ModelResultsProps) 
             <Card className={`h-full overflow-hidden border-2 transition-all ${bestModel === model ? 'border-primary' : 'border-border'}`}>
               <CardContent className="p-4">
                 <div className={`flex items-center gap-2 mb-3 ${bestModel === model ? 'font-bold' : ''}`}>
-                  <span className={`px-2 py-1 rounded-md ${modelInfo[model as keyof typeof modelInfo].color}`}>
-                    {modelInfo[model as keyof typeof modelInfo].name}
+                  <span className={`px-2 py-1 rounded-md ${modelData.color}`}>
+                    {modelData.name}
                   </span>
                   {bestModel === model && <Trophy className="w-4 h-4 text-yellow-500" />}
                 </div>
@@ -188,7 +196,8 @@ export function ModelResults({ performances, jurisdiction }: ModelResultsProps) 
               </CardContent>
             </Card>
           </div>
-        ))}
+          ) : null;
+        })}
       </div>
     </div>
   );

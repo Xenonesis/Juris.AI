@@ -23,12 +23,14 @@ interface BestModelResultProps {
     claude: string | null;
     gemini: string | null;
     mistral: string | null;
+    chutes: string | null;
   };
   performances: {
     gpt?: ModelPerformance;
     claude?: ModelPerformance;
     gemini?: ModelPerformance;
     mistral?: ModelPerformance;
+    chutes?: ModelPerformance;
   };
   jurisdiction?: string;
 }

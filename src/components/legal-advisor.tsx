@@ -13,6 +13,7 @@ import { getDefaultJurisdiction } from "@/lib/user-preferences";
 import { useAuth } from "@/components/auth/supabase-auth-provider";
 import { getUserApiKeys } from "@/lib/api-key-service";
 import { Alert, AlertDescription } from "./ui/alert";
+import { QuotaStatusDisplay } from "./ui/quota-status";
 import { Key, Scale } from "lucide-react";
 import Link from "next/link";
 import { useAIModels } from "@/hooks/use-ai-models";
@@ -209,7 +210,18 @@ Provide a detailed analysis based strictly on ${jurisdictionLabel} legal framewo
             </motion.div>
           )}
 
-          {(results.gpt || results.claude || results.gemini || results.mistral) && (
+          {userApiKeys.gemini && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="mt-4"
+            >
+              <QuotaStatusDisplay apiKeys={userApiKeys} />
+            </motion.div>
+          )}
+
+          {(results.gpt || results.claude || results.gemini || results.mistral || results.chutes) && (
             <motion.div
               variants={fadeIn("up", ANIMATION_DELAYS.RESULTS)}
               className="mt-10 space-y-6"

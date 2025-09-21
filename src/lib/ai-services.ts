@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { searchCasetextParallel, searchLexisNexis, searchWestlaw, LegalCase, Statute } from './legal-apis';
 import { getApiKey } from './api-key-service';
 import { apiCache, createCacheKey, withCache } from './api-cache';
+import { checkQuota, recordQuotaUsage, detectApiTier } from './quota-manager';
 
 // Server-side API keys (never expose to client)
 const defaultGeminiApiKey = process.env.GEMINI_API_KEY || '';
@@ -30,6 +31,43 @@ export async function geminiChat(prompt: string, apiKey?: string): Promise<strin
   try {
     // Use provided API key or fall back to default
     const geminiApiKey = apiKey || defaultGeminiApiKey;
+    
+    if (!geminiApiKey) {
+      return `🔑 **Gemini API Key Required**
+
+To use Gemini AI, you need to provide an API key.
+
+**To get started:**
+1. Visit [Google AI Studio](https://aistudio.google.com/)
+2. Generate a free API key
+3. Add it to your Profile Settings under API Keys
+
+**Alternative:** Switch to Mistral or another available AI model.`;
+    }
+
+    // Check quota before making the request
+    const tier = detectApiTier(geminiApiKey);
+    const quotaCheck = checkQuota('gemini', geminiApiKey, tier);
+    
+    if (!quotaCheck.allowed && quotaCheck.retryAfter) {
+      const hours = Math.floor(quotaCheck.retryAfter / 3600);
+      const minutes = Math.floor((quotaCheck.retryAfter % 3600) / 60);
+      const timeString = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+      
+      return `⚠️ **Gemini API Quota Exceeded**
+
+You've reached your daily limit of 50 requests on the free tier.
+
+**Reset Time:** ${timeString} remaining
+
+**Immediate Solutions:**
+1. **Switch to another AI model** (Mistral, OpenAI, or Claude)
+2. **Use your own Gemini API key** in Profile Settings
+3. **Upgrade to paid tier** for higher quotas
+
+**Temporary Solution:** Use the model selector to switch to Mistral.`;
+    }
+    
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     
     // Create a chat instance with the correct model name
@@ -47,8 +85,12 @@ export async function geminiChat(prompt: string, apiKey?: string): Promise<strin
       }
     });
     
-    const response = await result.response;
+    const response = result.response;
     const text = response.text();
+    
+    // Record successful usage
+    recordQuotaUsage('gemini', geminiApiKey, tier);
+    
     return text;
   } catch (error: unknown) {
     console.error('Error with Gemini AI:', error);
@@ -56,16 +98,41 @@ export async function geminiChat(prompt: string, apiKey?: string): Promise<strin
     // Check for rate limit errors
     if (error instanceof Error) {
       if (error.message && error.message.includes('429') && error.message.includes('quota')) {
-        return 'The Gemini AI service has reached its rate limit. Please try again later or switch to another AI model.';
+        // Extract retry delay if available
+        const retryRegex = /retry in (\d+(?:\.\d+)?)s/;
+        const retryMatch = retryRegex.exec(error.message);
+        const retryDelay = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 60;
+        
+        return `⚠️ **Gemini API Quota Exceeded**
+
+The free tier of Gemini API allows 50 requests per day, and you've reached this limit.
+
+**Next Steps:**
+1. **Wait ${retryDelay} seconds** before trying Gemini again
+2. **Switch to another AI model** (Mistral, OpenAI, or Claude) for immediate help
+3. **Upgrade your Gemini API plan** at [Google AI Studio](https://aistudio.google.com/) for higher quotas
+4. **Use your own API key** in Profile Settings to avoid shared quotas
+
+**Temporary Solution:** Use the model selector above to switch to Mistral or another available model.`;
       }
 
       // Check for API key errors
       if (error.message && (error.message.includes('invalid API key') || error.message.includes('API key not valid'))) {
-        return 'The Gemini API key is invalid. Please check your API key in the settings.';
+        return `🔑 **Invalid Gemini API Key**
+
+Your Gemini API key appears to be invalid.
+
+**To fix this:**
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Generate a new API key
+3. Add it to your Profile Settings under API Keys
+4. Make sure it starts with 'AI' and is properly formatted
+
+**Alternative:** Switch to another AI model while you fix your API key.`;
       }
     }
     
-    return 'Sorry, there was an error processing your request with Gemini.';
+    return 'Sorry, there was an error processing your request with Gemini. Please try switching to another AI model or check your API key configuration.';
   }
 }
 

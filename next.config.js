@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const CSSPreloadFixPlugin = require('./lib/css-preload-fix.js');
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,9 +16,14 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
     // Disable automatic static optimization for better resource control
     largePageDataBytes: 128 * 1000, // 128KB
+    // Disable CSS preloading for better control
+    optimizeCss: false,
+    // More granular control over chunk loading
+    esmExternals: true,
+    scrollRestoration: true,
   },
 
-  // Disable automatic preloading
+  // Disable automatic preloading and configure CSS handling
   async rewrites() {
     return [];
   },
@@ -76,6 +82,36 @@ const nextConfig = {
       config.optimization.runtimeChunk = {
         name: 'runtime',
       };
+
+      // Configure CSS chunk loading to prevent preload warnings
+      if (config.plugins) {
+        config.plugins.forEach(plugin => {
+          if (plugin.constructor.name === 'MiniCssExtractPlugin') {
+            plugin.options.linkType = false; // Disable preload links for CSS
+          }
+        });
+      }
+
+      // Disable automatic CSS preloading
+      const originalEntry = config.entry;
+      config.entry = async () => {
+        const entries = await originalEntry();
+        
+        // Add custom CSS loading logic
+        for (const key in entries) {
+          if (Array.isArray(entries[key])) {
+            entries[key] = entries[key].filter(entry => 
+              !entry.includes('_next/static/css/') || 
+              entry.includes('globals.css')
+            );
+          }
+        }
+        
+        return entries;
+      };
+
+      // Add CSS preload fix plugin
+      config.plugins.push(new CSSPreloadFixPlugin());
     }
 
     return config;

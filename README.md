@@ -702,6 +702,42 @@ curl -H "Authorization: Bearer $OPENAI_API_KEY" \
      https://api.openai.com/v1/models
 ```
 
+#### **📊 Quota Management & Rate Limits**
+
+**Understanding API Quotas:**
+- **Gemini Free Tier**: 50 requests/day
+- **OpenAI**: Varies by plan (check dashboard)
+- **Anthropic**: Varies by plan
+- **Mistral**: Varies by plan
+
+**Environment Variables for Quota Management:**
+```bash
+# Set in .env.local or environment
+GEMINI_API_KEY=your_gemini_api_key          # Server-side key (shared)
+NEXT_PUBLIC_GEMINI_API_KEY=your_key         # Client-side fallback
+
+# Rate limiting configuration
+RATE_LIMIT_MAX_REQUESTS=100                 # Max requests per window
+RATE_LIMIT_WINDOW_MS=900000                 # Window size (15 minutes)
+```
+
+**Quota Exceeded Solutions:**
+1. **Immediate Fix**: Switch to another AI model using the dropdown
+2. **Add Personal API Key**: Go to Profile > API Keys and add your own key
+3. **Wait for Reset**: Free tier quotas reset daily
+4. **Upgrade Plan**: Visit [Google AI Studio](https://aistudio.google.com/) for higher limits
+
+**Auto-Fallback Feature:**
+When Gemini quota is exceeded, the system automatically falls back to:
+1. Mistral AI (if key available)
+2. OpenAI (if key available) 
+3. Claude (if key available)
+
+**Monitor Usage:**
+- Quota status is displayed in the main interface
+- Real-time tracking prevents quota exceeded errors
+- User-specific quota tracking when using personal API keys
+
 #### **📦 Dependency Issues**
 ```bash
 # Clear cache and reinstall

@@ -89,7 +89,7 @@ export function useAIModels(userApiKeys: Record<string, string>) {
     };
   }, []);
 
-  // Process AI model response
+  // Process AI model response with quota fallback
   const processModelResponse = useCallback(async (
     prompt: string,
     provider: AIProvider,
@@ -107,11 +107,62 @@ export function useAIModels(userApiKeys: Record<string, string>) {
       return response;
     } catch (error) {
       console.error(`${provider} API error:`, error);
+      
+      // Handle quota exceeded errors specifically for Gemini
+      if (provider === 'gemini' && error instanceof Error && 
+          error.message?.includes('429') && error.message?.includes('quota')) {
+        
+        // Try to fallback to another available model
+        const fallbackProvider = 
+          availableModels.hasMistral ? 'mistral' :
+          availableModels.hasOpenAI ? 'openai' :
+          availableModels.hasAnthropicClaude ? 'anthropic' : null;
+          
+        if (fallbackProvider) {
+          try {
+            console.log(`Gemini quota exceeded, falling back to ${fallbackProvider}`);
+            const fallbackResponse = await getAIResponse(prompt, fallbackProvider, userApiKeys);
+            const responseTime = calculateResponseTime(startTime, modelName);
+            const metrics = { ...calculateMetrics(fallbackResponse, modelName), responseTime };
+            
+            const fallbackMessage = `🔄 **Auto-switched from Gemini to ${fallbackProvider.charAt(0).toUpperCase() + fallbackProvider.slice(1)}**
+
+*Gemini quota exceeded - using ${fallbackProvider} instead*
+
+---
+
+${fallbackResponse}`;
+            
+            setResults(prev => ({ ...prev, [modelName]: fallbackMessage }));
+            setModelPerformances(prev => ({ ...prev, [modelName]: metrics }));
+            
+            return fallbackMessage;
+          } catch (fallbackError) {
+            console.error(`Fallback to ${fallbackProvider} also failed:`, fallbackError);
+          }
+        }
+        
+        // If no fallback available or fallback failed, show quota message
+        const errorMessage = `⚠️ **Gemini Quota Exceeded**
+
+Free tier limit reached (50 requests/day).
+
+**Solutions:**
+1. Switch to another AI model using the selector above
+2. Add your own Gemini API key in Profile Settings
+3. Wait for quota reset (check error details)
+
+**Quick Fix:** Use Mistral or OpenAI instead.`;
+        
+        setResults(prev => ({ ...prev, [modelName]: errorMessage }));
+        return null;
+      }
+      
       const errorMessage = `Failed to get response from ${provider}.`;
       setResults(prev => ({ ...prev, [modelName]: errorMessage }));
       return null;
     }
-  }, [userApiKeys, calculateResponseTime, calculateMetrics]);
+  }, [userApiKeys, calculateResponseTime, calculateMetrics, availableModels]);
 
   // Query all available AI models
   const queryModels = useCallback(async (prompt: string) => {
