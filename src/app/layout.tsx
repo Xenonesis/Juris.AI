@@ -11,6 +11,7 @@ import { CookieBanner } from "@/components/cookie-consent/cookie-banner";
 import { CookiePreferencesButton } from "@/components/cookie-consent/cookie-preferences-button";
 import { ConsentAwareAnalytics } from "@/components/analytics/consent-aware-analytics";
 import { TermsAcceptanceDialog } from "@/components/auth/terms-acceptance-dialog";
+import Script from "next/script";
 export const metadata: Metadata = {
   title: "Juris.Ai",
   description: "Juris.Ai – AI-powered legal assistance. Fast, smart law answers from powerful AI with jurisdictional insight.",
@@ -21,6 +22,10 @@ export const metadata: Metadata = {
     { rel: "apple-touch-icon", sizes: "180x180", url: "/apple-touch-icon.png?v=2" },
     { rel: "manifest", url: "/site.webmanifest?v=2" },
   ],
+  other: {
+    // Prevent automatic preloading of unused resources
+    'preload': 'none',
+  },
 };
 
 export const viewport: Viewport = {
@@ -44,7 +49,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Suppress browser extension errors
+              // Suppress browser extension errors and preload warnings
               window.addEventListener('error', function(e) {
                 if (e.filename && (
                   e.filename.includes('universal-blocker.js') ||
@@ -59,6 +64,16 @@ export default function RootLayout({
                   return false;
                 }
               });
+
+              // Suppress preload warnings
+              const originalWarn = console.warn;
+              console.warn = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('preload') && message.includes('not used within a few seconds')) {
+                  return; // Skip preload warnings
+                }
+                originalWarn.apply(console, args);
+              };
               
               // Fix CSS MIME type loading issues
               if (typeof document !== 'undefined') {
@@ -77,6 +92,56 @@ export default function RootLayout({
                 });
                 observer.observe(document.head, { childList: true, subtree: true });
               }
+            `,
+          }}
+        />
+        
+        {/* Resource optimization script */}
+        <Script
+          id="resource-optimization"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Initialize resource optimization
+              (function() {
+                function disableUnusedPreloads() {
+                  // Monitor and remove unused preload links
+                  const checkUnusedPreloads = () => {
+                    const preloadLinks = document.querySelectorAll('link[rel="preload"]');
+                    preloadLinks.forEach((link) => {
+                      const href = link.getAttribute('href');
+                      if (href) {
+                        // Check if resource is actually being used
+                        const isUsed = document.querySelector(\`script[src="\${href}"], link[href="\${href}"]:not([rel="preload"])\`);
+                        if (!isUsed) {
+                          // Remove unused preload after page load
+                          setTimeout(() => {
+                            if (link.parentNode && !document.querySelector(\`script[src="\${href}"], link[href="\${href}"]:not([rel="preload"])\`)) {
+                              link.remove();
+                            }
+                          }, 5000);
+                        }
+                      }
+                    });
+                  };
+
+                  if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', checkUnusedPreloads);
+                  } else {
+                    checkUnusedPreloads();
+                  }
+
+                  // Continuous monitoring
+                  setInterval(checkUnusedPreloads, 10000);
+                }
+
+                // Initialize on page load
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', disableUnusedPreloads);
+                } else {
+                  disableUnusedPreloads();
+                }
+              })();
             `,
           }}
         />

@@ -13,6 +13,21 @@ const nextConfig = {
   // Vercel optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    // Disable automatic static optimization for better resource control
+    largePageDataBytes: 128 * 1000, // 128KB
+  },
+
+  // Disable automatic preloading
+  async rewrites() {
+    return [];
+  },
+
+  // Custom resource loading strategy
+  onDemandEntries: {
+    // period (in ms) where the server will keep pages in the buffer
+    maxInactiveAge: 25 * 1000,
+    // number of pages that should be kept simultaneously without being disposed
+    pagesBufferLength: 2,
   },
 
   // Webpack optimizations
@@ -45,7 +60,21 @@ const nextConfig = {
             enforce: true,
             maxSize: 128 * 1024,
           },
+          // Separate chunk for icons to prevent preload issues
+          icons: {
+            test: /[\\/]node_modules[\\/](lucide-react|@radix-ui\/react-icons)[\\/]/,
+            name: 'icons',
+            chunks: 'all',
+            priority: 10,
+            maxSize: 64 * 1024,
+          },
         },
+      };
+
+      // Prevent automatic preloading of unused chunks
+      config.optimization.moduleIds = 'deterministic';
+      config.optimization.runtimeChunk = {
+        name: 'runtime',
       };
     }
 

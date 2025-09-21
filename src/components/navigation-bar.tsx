@@ -13,6 +13,7 @@ import { useAuth } from "@/components/auth/supabase-auth-provider";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { createClient } from '@/lib/supabase/client';
+import { SafeIcon } from "./ui/safe-icon";
 
 type NavUser = {
   full_name?: string | null;
@@ -664,9 +665,10 @@ export function NavigationBar() {
                             onClick={() => handleSearchResultClick(item.href)}
                             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors group text-left"
                           >
-                            <span className="text-muted-foreground group-hover:text-primary transition-colors">
-                              {item.icon}
-                            </span>
+                            <SafeIcon 
+                              icon={item.icon} 
+                              className="text-muted-foreground group-hover:text-primary transition-colors"
+                            />
                             <div className="flex-1 min-w-0">
                               <div className="font-medium truncate">{item.title}</div>
                               <div className="text-xs text-muted-foreground truncate">{item.description}</div>
