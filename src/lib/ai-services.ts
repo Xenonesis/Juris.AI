@@ -33,7 +33,10 @@ export async function geminiChat(prompt: string, apiKey?: string): Promise<strin
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     
     // Create a chat instance with the correct model name
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Using Flash model (lower quota usage)
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      systemInstruction: 'You are a helpful AI assistant. Format your responses using markdown for better readability. Use ## for headings, **bold** for emphasis, and proper list formatting where appropriate. Be clear, informative, and well-structured in your responses.'
+    }); // Using Flash model (lower quota usage)
     
     // Generate content with proper error handling
     const result = await model.generateContent({
@@ -83,6 +86,10 @@ export async function mistralChat(prompt: string, apiKey?: string): Promise<stri
       body: JSON.stringify({
         model: 'mistral-medium', // Using medium model for better legal analysis
         messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful AI assistant. Format your responses using markdown for better readability. Use ## for headings, **bold** for emphasis, and proper list formatting where appropriate. Be clear, informative, and well-structured in your responses.'
+          },
           { 
             role: 'user', 
             content: prompt 
@@ -139,6 +146,10 @@ export async function openaiChat(prompt: string, apiKey?: string): Promise<strin
       body: JSON.stringify({
         model: 'gpt-4', // Using GPT-4 for best legal understanding
         messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful AI assistant. Format your responses using markdown for better readability. Use ## for headings, **bold** for emphasis, and proper list formatting where appropriate. Be clear, informative, and well-structured in your responses.'
+          },
           { 
             role: 'user', 
             content: prompt 
@@ -203,6 +214,7 @@ export async function claudeChat(prompt: string, apiKey?: string): Promise<strin
       },
       body: JSON.stringify({
         model: 'claude-3-opus-20240229', // Using Claude 3 Opus for best reasoning
+        system: 'You are a helpful AI assistant. Format your responses using markdown for better readability. Use ## for headings, **bold** for emphasis, and proper list formatting where appropriate. Be clear, informative, and well-structured in your responses.',
         messages: [
           { 
             role: 'user', 
@@ -257,6 +269,10 @@ export async function chutesChat(prompt: string, apiKey?: string): Promise<strin
       body: JSON.stringify({
         model: 'zai-org/GLM-4.5-Air',
         messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful AI assistant. Format your responses using markdown for better readability. Use ## for headings, **bold** for emphasis, and proper list formatting where appropriate. Be clear, informative, and well-structured in your responses.'
+          },
           { 
             role: 'user', 
             content: prompt 
@@ -528,7 +544,7 @@ Provide a comprehensive legal analysis that includes:
 4. Practical steps that would typically be recommended in this situation
 5. Important factors that might affect the outcome
 
-Format your response as a professional legal analysis. Focus on providing substantive, accurate legal information based on the legal references and established principles. Maintain a formal, authoritative tone throughout your response.
+Format your response using markdown with clear headings (##) for each section. Use **bold** for important terms and legal concepts. Structure your response as a professional legal analysis. Focus on providing substantive, accurate legal information based on the legal references and established principles. Maintain a formal, authoritative tone throughout your response.
 `;
 
     // 3. Get AI response using the enhanced prompt
