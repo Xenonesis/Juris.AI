@@ -361,9 +361,10 @@ export function NavigationBar() {
                       aria-current={isActive ? "page" : undefined}
                       tabIndex={0}
                     >
-                      <span className={`transition-transform group-hover:scale-110 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
-                        {item.icon}
-                      </span>
+                      <SafeIcon 
+                        icon={item.icon} 
+                        className={`transition-transform group-hover:scale-110 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                      />
                       <span className="relative z-10">{item.label}</span>
                       <span
                         className={`absolute bottom-0 left-0 h-0.5 w-full bg-primary/80 origin-left transition-transform duration-200 ease-out rounded
@@ -534,9 +535,10 @@ export function NavigationBar() {
                             onClick={() => setIsOpen(false)}
                             aria-current={isActive ? "page" : undefined}
                           >
-                            <span className={`transition-all duration-200 group-hover:scale-110 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
-                              {item.icon}
-                            </span>
+                            <SafeIcon 
+                              icon={item.icon} 
+                              className={`transition-all duration-200 group-hover:scale-110 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                            />
                             <span className={`font-medium ${isActive ? "text-primary" : ""}`}>
                               {item.label}
                             </span>

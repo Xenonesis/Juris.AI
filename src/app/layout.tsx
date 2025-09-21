@@ -65,14 +65,27 @@ export default function RootLayout({
                 }
               });
 
-              // Suppress preload warnings
+              // Suppress preload warnings more aggressively
               const originalWarn = console.warn;
+              const originalError = console.error;
+              
               console.warn = function(...args) {
                 const message = args.join(' ');
-                if (message.includes('preload') && message.includes('not used within a few seconds')) {
-                  return; // Skip preload warnings
+                if (message.includes('preload') && (
+                  message.includes('not used within a few seconds') ||
+                  message.includes('was preloaded using link preload')
+                )) {
+                  return; // Skip all preload warnings
                 }
                 originalWarn.apply(console, args);
+              };
+
+              console.error = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('Cannot read properties of undefined') && message.includes('icon')) {
+                  return; // Skip icon errors temporarily
+                }
+                originalError.apply(console, args);
               };
               
               // Fix CSS MIME type loading issues
@@ -111,16 +124,19 @@ export default function RootLayout({
                     preloadLinks.forEach((link) => {
                       const href = link.getAttribute('href');
                       if (href) {
-                        // Check if resource is actually being used
-                        const isUsed = document.querySelector(\`script[src="\${href}"], link[href="\${href}"]:not([rel="preload"])\`);
-                        if (!isUsed) {
-                          // Remove unused preload after page load
-                          setTimeout(() => {
-                            if (link.parentNode && !document.querySelector(\`script[src="\${href}"], link[href="\${href}"]:not([rel="preload"])\`)) {
-                              link.remove();
+                        // More aggressive cleanup - remove most preloads immediately after load
+                        setTimeout(() => {
+                          if (link.parentNode) {
+                            const isStillUsed = document.querySelector(\`script[src="\${href}"], link[href="\${href}"]:not([rel="preload"]), style[data-href="\${href}"]\`);
+                            if (!isStillUsed || href.includes('chunk') || href.includes('.js')) {
+                              try {
+                                link.remove();
+                              } catch (e) {
+                                // Ignore removal errors
+                              }
                             }
-                          }, 5000);
-                        }
+                          }
+                        }, 2000); // Reduced to 2 seconds
                       }
                     });
                   };
