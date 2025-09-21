@@ -9,6 +9,8 @@ import {
   Bot, Scale, FileText, Users, Globe, Sparkles, ArrowRight 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSuggestions } from '@/hooks/useSuggestions';
+import { SuggestionChips } from './suggestion-chips';
 
 interface WelcomeScreenProps {
   onExampleClick?: (question: string) => void;
@@ -53,6 +55,12 @@ export function WelcomeScreen({
   legalMode = true,
   jurisdiction = "general"
 }: WelcomeScreenProps) {
+  const { suggestions, loading, trackSuggestionUsage } = useSuggestions(jurisdiction, true);
+
+  const handleSuggestionClick = (text: string) => {
+    trackSuggestionUsage(text);
+    onExampleClick?.(text);
+  };
   return (
     <div className="h-full flex flex-col items-center justify-center p-8 max-w-4xl mx-auto">
       <motion.div
@@ -124,7 +132,7 @@ export function WelcomeScreen({
           </motion.div>
         </div>
 
-        {/* Example Questions */}
+        {/* Personalized Suggestions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -132,49 +140,70 @@ export function WelcomeScreen({
           className="w-full max-w-4xl space-y-6"
         >
           <h2 className="text-xl font-semibold text-center">
-            Get started with these example questions
+            Suggested questions for you
           </h2>
           
-          <div className="grid gap-6 md:grid-cols-3">
-            {exampleQuestions.map((category, categoryIndex) => (
-              <motion.div
-                key={category.category}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + categoryIndex * 0.1 }}
-              >
-                <Card className="p-4 h-full hover:shadow-lg transition-all duration-300 border-muted/50 hover:border-primary/30 bg-gradient-to-br from-background to-muted/20">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                      {category.icon}
-                      {category.category}
-                    </div>
-                    
-                    <div className="space-y-2">
-                      {category.questions.map((question, questionIndex) => (
-                        <Button
-                          key={questionIndex}
-                          variant="ghost"
-                          className={cn(
-                            "w-full text-left justify-start h-auto p-3 text-sm",
-                            "hover:bg-primary/5 hover:text-primary transition-all duration-200",
-                            "border border-transparent hover:border-primary/20 rounded-lg"
-                          )}
-                          onClick={() => onExampleClick?.(question)}
-                        >
-                          <div className="flex items-start gap-2 w-full">
-                            <ArrowRight className="h-3 w-3 mt-0.5 flex-shrink-0 opacity-60" />
-                            <span className="text-left leading-relaxed">{question}</span>
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          <SuggestionChips
+            suggestions={suggestions}
+            onSuggestionClick={handleSuggestionClick}
+            loading={loading}
+            className="mx-auto max-w-3xl"
+          />
         </motion.div>
+
+        {/* Example Questions (Fallback) */}
+        {(!suggestions.length && !loading) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="w-full max-w-4xl space-y-6"
+          >
+            <h2 className="text-xl font-semibold text-center">
+              Get started with these example questions
+            </h2>
+            
+            <div className="grid gap-6 md:grid-cols-3">
+              {exampleQuestions.map((category, categoryIndex) => (
+                <motion.div
+                  key={category.category}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + categoryIndex * 0.1 }}
+                >
+                  <Card className="p-4 h-full hover:shadow-lg transition-all duration-300 border-muted/50 hover:border-primary/30 bg-gradient-to-br from-background to-muted/20">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                        {category.icon}
+                        {category.category}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {category.questions.map((question, questionIndex) => (
+                          <Button
+                            key={questionIndex}
+                            variant="ghost"
+                            className={cn(
+                              "w-full text-left justify-start h-auto p-3 text-sm",
+                              "hover:bg-primary/5 hover:text-primary transition-all duration-200",
+                              "border border-transparent hover:border-primary/20 rounded-lg"
+                            )}
+                            onClick={() => onExampleClick?.(question)}
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <ArrowRight className="h-3 w-3 mt-0.5 flex-shrink-0 opacity-60" />
+                              <span className="text-left leading-relaxed">{question}</span>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Features */}
         <motion.div

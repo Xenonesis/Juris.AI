@@ -117,6 +117,8 @@ export function ModernChat() {
           : "Message Juris AI..."}
         maxLength={4000}
         showCharacterCount={true}
+        jurisdiction={jurisdiction}
+        legalMode={legalMode}
       />
     </div>
   );

@@ -11,6 +11,8 @@ import {
   Send, Loader2, Paperclip, Mic, Smile, ArrowUp 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSuggestions } from '@/hooks/useSuggestions';
+import { SuggestionChips } from './suggestion-chips';
 
 interface EnhancedChatInputProps {
   value: string;
@@ -22,6 +24,8 @@ interface EnhancedChatInputProps {
   maxLength?: number;
   showCharacterCount?: boolean;
   className?: string;
+  jurisdiction?: string;
+  legalMode?: boolean;
 }
 
 const MAX_HEIGHT = 200;
@@ -36,12 +40,35 @@ export function EnhancedChatInput({
   placeholder = "Message Juris AI...",
   maxLength = 4000,
   showCharacterCount = true,
-  className
+  className,
+  jurisdiction = "general",
+  legalMode = true
 }: EnhancedChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [height, setHeight] = useState(MIN_HEIGHT);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const { suggestions, loading: suggestionsLoading, trackSuggestionUsage } = useSuggestions(jurisdiction, true);
+
+  const handleSuggestionClick = (text: string) => {
+    onChange(text);
+    trackSuggestionUsage(text);
+    // Hide suggestions briefly after selection to avoid visual clutter
+    setShowSuggestions(false);
+    
+    // Small delay to ensure the text is set before focusing
+    setTimeout(() => {
+      textareaRef.current?.focus();
+      // Move cursor to end of text
+      if (textareaRef.current) {
+        textareaRef.current.selectionStart = text.length;
+        textareaRef.current.selectionEnd = text.length;
+      }
+      // Show suggestions again after a short delay
+      setTimeout(() => setShowSuggestions(true), 500);
+    }, 10);
+  };
 
   // Auto-resize textarea
   const adjustHeight = () => {
@@ -61,6 +88,10 @@ export function EnhancedChatInput({
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length <= maxLength) {
       onChange(e.target.value);
+      // Show suggestions again when user starts typing or clears input
+      if (!showSuggestions) {
+        setShowSuggestions(true);
+      }
     }
   };
 
@@ -107,8 +138,15 @@ export function EnhancedChatInput({
                 value={value}
                 onChange={handleTextareaChange}
                 onKeyDown={handleKeyDown}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+                onFocus={() => {
+                  setIsFocused(true);
+                  // Show suggestions when input is focused
+                  setShowSuggestions(true);
+                }}
+                onBlur={() => {
+                  // Delay hiding focus to allow suggestion clicks
+                  setTimeout(() => setIsFocused(false), 150);
+                }}
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
@@ -231,8 +269,25 @@ export function EnhancedChatInput({
           </form>
         </Card>
 
-        {/* Quick Actions */}
-        {isFocused && !value && (
+        {/* Personalized Suggestions */}
+        {isFocused && suggestions.length > 0 && showSuggestions && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ delay: 0.1 }}
+            className="mt-3"
+          >
+            <SuggestionChips
+              suggestions={suggestions.slice(0, 4)} // Show only first 4 suggestions
+              onSuggestionClick={handleSuggestionClick}
+              loading={suggestionsLoading}
+            />
+          </motion.div>
+        )}
+
+        {/* Quick Actions (Fallback) */}
+        {isFocused && !value && suggestions.length === 0 && !suggestionsLoading && showSuggestions && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -244,7 +299,7 @@ export function EnhancedChatInput({
               variant="outline"
               size="sm"
               className="text-xs h-7 rounded-full"
-              onClick={() => onChange("What are the requirements for starting a business in California?")}
+              onClick={() => handleSuggestionClick("What are the requirements for starting a business in California?")}
             >
               Business law question
             </Button>
@@ -252,7 +307,7 @@ export function EnhancedChatInput({
               variant="outline"
               size="sm"
               className="text-xs h-7 rounded-full"
-              onClick={() => onChange("Explain copyright law in the EU for digital content creators.")}
+              onClick={() => handleSuggestionClick("Explain copyright law in the EU for digital content creators.")}
             >
               Copyright question
             </Button>
@@ -260,7 +315,7 @@ export function EnhancedChatInput({
               variant="outline"
               size="sm"
               className="text-xs h-7 rounded-full"
-              onClick={() => onChange("What are my rights as a tenant in New York City?")}
+              onClick={() => handleSuggestionClick("What are my rights as a tenant in New York City?")}
             >
               Tenant rights question
             </Button>
